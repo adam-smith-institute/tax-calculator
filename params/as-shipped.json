@@ -1,0 +1,112 @@
+{
+  "meta": {
+    "id": "as-shipped",
+    "label": "As shipped (original calculator, labelled 2025/26)",
+    "version": "1.0.0",
+    "jurisdiction": "England and Northern Ireland (rUK)",
+    "description": "Every parameter compute() in legacy/original.html uses, exactly as shipped. This is a record of the old behaviour for the golden master, not a statement of the law: several values are from different tax years (see AUDIT.md, A2). Sources cite the line of the original, plus the URL the original itself cited where it gave one."
+  },
+  "incomeTax": {
+    "personalAllowance": 12570,
+    "paTaperStart": 100000,
+    "paTaperZero": 125140,
+    "paTaperDivisor": 2,
+    "blindPersonsAllowance": 3130,
+    "marriageAllowance": { "transfer": 1260, "credit": 252 },
+    "basicRateLimit": 37700,
+    "higherRateThreshold": 50270,
+    "additionalRateThreshold": 125140,
+    "rates": { "basic": 0.2, "higher": 0.4, "additional": 0.45 }
+  },
+  "savings": {
+    "startingRateBand": 5000,
+    "personalSavingsAllowance": { "basic": 1000, "higher": 500, "additional": 0 },
+    "rates": { "basic": 0.22, "higher": 0.42, "additional": 0.47 }
+  },
+  "dividends": {
+    "allowance": 500,
+    "rates": { "basic": 0.1075, "higher": 0.3575, "additional": 0.3935 }
+  },
+  "selfEmployment": {
+    "tradingAllowance": 1000
+  },
+  "cgt": {
+    "annualExemptAmount": 3000,
+    "rates": { "basic": 0.18, "higher": 0.24 },
+    "carriedInterestRate": 0.32
+  },
+  "nic": {
+    "class1Employee": { "primaryThreshold": 12570, "upperEarningsLimit": 50270, "mainRate": 0.08, "additionalRate": 0.02 },
+    "class1Employer": { "secondaryThreshold": 5000, "upperSecondaryThreshold": 50270, "rate": 0.15, "under21Age": 21 },
+    "class4": { "lowerProfitsLimit": 12570, "upperProfitsLimit": 50270, "mainRate": 0.06, "additionalRate": 0.02 },
+    "statePensionAge": 66,
+    "salarySacrificeCap": 2000
+  },
+  "childBenefit": {
+    "weeklyEldest": 26.05,
+    "weeklyAdditional": 17.25,
+    "weeksPerYear": 52
+  },
+  "hicbc": {
+    "thresholdStart": 60000,
+    "thresholdEnd": 80000,
+    "stepPounds": 200,
+    "percentPerStep": 0.01
+  },
+  "assumptions": {
+    "employerNicIncidence": 0.75
+  },
+  "sources": {
+    "incomeTax.personalAllowance": "legacy/original.html:1726 (cited there: https://www.gov.uk/income-tax-rates)",
+    "incomeTax.paTaperStart": "legacy/original.html:1727 (cited there: https://www.gov.uk/guidance/adjusted-net-income)",
+    "incomeTax.paTaperZero": "legacy/original.html:1728 (cited there: https://www.gov.uk/guidance/adjusted-net-income)",
+    "incomeTax.paTaperDivisor": "legacy/original.html:1822 (£1 of allowance lost per £2 of income)",
+    "incomeTax.blindPersonsAllowance": "legacy/original.html:1729 (cited there: https://www.gov.uk/blind-persons-allowance/what-youll-get)",
+    "incomeTax.marriageAllowance.transfer": "legacy/original.html:1730 (cited there: https://www.gov.uk/marriage-allowance)",
+    "incomeTax.marriageAllowance.credit": "legacy/original.html:1731 (cited there: https://commonslibrary.parliament.uk/research-briefings/sn00870/)",
+    "incomeTax.basicRateLimit": "legacy/original.html:1733 (cited there: https://www.gov.uk/income-tax-rates)",
+    "incomeTax.higherRateThreshold": "legacy/original.html:1734 (cited there: https://www.gov.uk/income-tax-rates)",
+    "incomeTax.additionalRateThreshold": "legacy/original.html:1735 (cited there: https://www.gov.uk/income-tax-rates)",
+    "incomeTax.rates.basic": "legacy/original.html:1737 (cited there: https://www.gov.uk/income-tax-rates)",
+    "incomeTax.rates.higher": "legacy/original.html:1738 (cited there: https://www.gov.uk/income-tax-rates)",
+    "incomeTax.rates.additional": "legacy/original.html:1739 (cited there: https://www.gov.uk/income-tax-rates)",
+    "savings.startingRateBand": "legacy/original.html:1744 (cited there: https://www.litrg.org.uk/savings-property/tax-savings-and-investments/tax-savings-income/starting-rate-savings)",
+    "savings.personalSavingsAllowance.basic": "legacy/original.html:1746 (cited there: https://www.gov.uk/apply-tax-free-interest-on-savings)",
+    "savings.personalSavingsAllowance.higher": "legacy/original.html:1747 (cited there: https://www.gov.uk/apply-tax-free-interest-on-savings)",
+    "savings.personalSavingsAllowance.additional": "legacy/original.html:1748 (cited there: https://www.gov.uk/apply-tax-free-interest-on-savings)",
+    "savings.rates.basic": "legacy/original.html:1751 (no source cited)",
+    "savings.rates.higher": "legacy/original.html:1752 (no source cited)",
+    "savings.rates.additional": "legacy/original.html:1753 (no source cited)",
+    "dividends.allowance": "legacy/original.html:1757 (cited there: https://www.1stformations.co.uk/blog/dividend-tax-allowance/)",
+    "dividends.rates.basic": "legacy/original.html:1759 (cited there: https://www.gov.uk/tax-on-dividends)",
+    "dividends.rates.higher": "legacy/original.html:1760 (cited there: https://www.gov.uk/tax-on-dividends)",
+    "dividends.rates.additional": "legacy/original.html:1761 (cited there: https://www.gov.uk/tax-on-dividends)",
+    "selfEmployment.tradingAllowance": "legacy/original.html:1891 (hardcoded)",
+    "cgt.annualExemptAmount": "legacy/original.html:1765 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
+    "cgt.rates.basic": "legacy/original.html:1767 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
+    "cgt.rates.higher": "legacy/original.html:1768 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
+    "cgt.carriedInterestRate": "legacy/original.html:1770 (no source cited)",
+    "nic.class1Employee.primaryThreshold": "legacy/original.html:1776 (cited there: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026)",
+    "nic.class1Employee.upperEarningsLimit": "legacy/original.html:1777 (cited there: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026)",
+    "nic.class1Employee.mainRate": "legacy/original.html:1778 (cited there: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026)",
+    "nic.class1Employee.additionalRate": "legacy/original.html:1779 (cited there: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026)",
+    "nic.class1Employer.secondaryThreshold": "legacy/original.html:1782 (cited there: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026)",
+    "nic.class1Employer.upperSecondaryThreshold": "legacy/original.html:1783 (cited there: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026)",
+    "nic.class1Employer.rate": "legacy/original.html:1784 (cited there: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026)",
+    "nic.class1Employer.under21Age": "legacy/original.html:2153 (hardcoded)",
+    "nic.class4.lowerProfitsLimit": "legacy/original.html:684 (global NI_SE_LPL in another script block; RATES.ni.self_employed.class4 at line 1793 is unused)",
+    "nic.class4.upperProfitsLimit": "legacy/original.html:684 (global NI_SE_UEL)",
+    "nic.class4.mainRate": "legacy/original.html:684 (global NI_SE_MAIN)",
+    "nic.class4.additionalRate": "legacy/original.html:684 (global NI_SE_ADDL)",
+    "nic.statePensionAge": "legacy/original.html:2124 (hardcoded SPA_AGE)",
+    "nic.salarySacrificeCap": "legacy/original.html:2112 and 2149 (hardcoded NI_sac_cap and ER_NI_sac_cap)",
+    "childBenefit.weeklyEldest": "legacy/original.html:1805 (cited there: https://www.gov.uk/government/publications/rates-and-allowances-tax-credits-child-benefit-and-guardians-allowance/tax-credits-child-benefit-and-guardians-allowance)",
+    "childBenefit.weeklyAdditional": "legacy/original.html:1806 (cited there: as above)",
+    "childBenefit.weeksPerYear": "legacy/original.html:1829 (hardcoded)",
+    "hicbc.thresholdStart": "legacy/original.html:1801 (cited there: https://www.gov.uk/child-benefit-tax-charge)",
+    "hicbc.thresholdEnd": "legacy/original.html:1802 (cited there: https://www.gov.uk/child-benefit-tax-charge)",
+    "hicbc.stepPounds": "legacy/original.html:1841 (continuous: (over / 200) * 0.01)",
+    "hicbc.percentPerStep": "legacy/original.html:1841",
+    "assumptions.employerNicIncidence": "legacy/original.html:691 (global ECON_INCIDENCE; tooltip at line 635 attributes the 75% to the Office for Budget Responsibility)"
+  }
+}
