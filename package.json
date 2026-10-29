@@ -1,0 +1,14 @@
+{
+  "name": "asi-tax-calculator",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.js\"",
+    "golden": "node tests/golden/generate.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1",
+    "@axe-core/playwright": "4.14.0"
+  }
+}
