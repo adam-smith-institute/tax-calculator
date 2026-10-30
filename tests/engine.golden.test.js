@@ -5,29 +5,17 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { computeTax } from '../src/engine/computeTax.js';
+import { differences } from './golden/compare.mjs';
 
 const golden = JSON.parse(readFileSync(new URL('./golden/as-shipped.json', import.meta.url)));
 const params = JSON.parse(readFileSync(new URL('../params/as-shipped.json', import.meta.url)));
-
-// Compare two result trees; numbers must agree to within half a penny.
-function diff(expected, actual, path = '', out = []) {
-  if (typeof expected === 'number') {
-    if (typeof actual !== 'number' || !(Math.abs(expected - actual) < 0.005)) out.push(`${path}: expected ${expected}, got ${actual}`);
-  } else if (expected && typeof expected === 'object') {
-    const keys = new Set([...Object.keys(expected), ...Object.keys(actual || {})]);
-    for (const k of keys) diff(expected[k], actual?.[k], path ? `${path}.${k}` : k, out);
-  } else if (expected !== actual) {
-    out.push(`${path}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
-  }
-  return out;
-}
 
 test(`golden master: ${golden.cases.length} cases match the original to the penny`, () => {
   const failures = [];
   let exact = 0;
   for (const c of golden.cases) {
     const actual = computeTax(structuredClone(c.inputs), params);
-    const d = diff(c.result, actual);
+    const d = differences(c.result, actual);
     if (d.length) failures.push(`case ${c.id} (${c.group}): ${d.slice(0, 3).join('; ')}`);
     else if (JSON.stringify(actual) === JSON.stringify(c.result)) exact++;
   }

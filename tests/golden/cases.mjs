@@ -27,7 +27,7 @@ const BASE_UI = {
 };
 
 // Mirrors window.computeTaxes() in the original (readNumber: +value || 0).
-export function uiToInputs(ui, engineOnly = {}) {
+export function uiToInputs(ui) {
   const grossEmployment = +ui.empInc || 0;
   const pensSacPct = (+ui.pensSacPct || 0) / 100;
   const pensEmpPct = (+ui.pensEmpPct || 0) / 100;
@@ -40,10 +40,8 @@ export function uiToInputs(ui, engineOnly = {}) {
     dividends: +ui.divInc || 0,
     gainsOther: +ui.cgtGain || 0,
     gainsResidential: +ui.cgtProp || 0,
-    carriedInterest: engineOnly.carriedInterest || 0,
     salarySacrifice,
     pensionNetPay,
-    pensionRASNet: engineOnly.pensionRASNet || 0,
     blind: !!ui.blind,
     marriageAllowanceRecipient: !!ui.marriage,
     children: +(ui.cbKids || 0),
@@ -54,15 +52,9 @@ export function uiToInputs(ui, engineOnly = {}) {
 
 export function generateCases(seed = 20261029, randomCount = 6000) {
   const cases = [];
-  const add = (group, uiPatch, engineOnly) => {
+  const add = (group, uiPatch) => {
     const ui = { ...BASE_UI, ...uiPatch };
-    cases.push({
-      id: cases.length,
-      group,
-      ui,
-      ...(engineOnly ? { engineOnly } : {}),
-      inputs: uiToInputs(ui, engineOnly),
-    });
+    cases.push({ id: cases.length, group, ui, inputs: uiToInputs(ui) });
   };
 
   // 1. Every threshold, -£1 / exact / +£1, through each income type and the
@@ -141,18 +133,6 @@ export function generateCases(seed = 20261029, randomCount = 6000) {
       incErNI: chance(0.5),
     };
     add('random', ui);
-  }
-
-  // 4. Engine paths the page has no input for (carried interest, relief-at-source
-  //    pension). Run through compute() only, so the port covers every branch.
-  for (let i = 0; i < 150; i++) {
-    const ui = {
-      empInc: money(300000), divInc: chance(0.4) ? money(100000) : 0,
-      savInc: chance(0.4) ? money(50000) : 0, cgtGain: chance(0.4) ? money(100000) : 0,
-      cgtProp: chance(0.3) ? money(100000) : 0, age: pick(AGES),
-    };
-    add('engine-only:carried-interest', ui, { carriedInterest: money(500000) });
-    add('engine-only:ras-pension', ui, { pensionRASNet: money(40000) });
   }
 
   return cases;

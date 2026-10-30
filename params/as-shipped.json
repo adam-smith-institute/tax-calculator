@@ -32,8 +32,7 @@
   },
   "cgt": {
     "annualExemptAmount": 3000,
-    "rates": { "basic": 0.18, "higher": 0.24 },
-    "carriedInterestRate": 0.32
+    "rates": { "basic": 0.18, "higher": 0.24 }
   },
   "nic": {
     "class1Employee": { "primaryThreshold": 12570, "upperEarningsLimit": 50270, "mainRate": 0.08, "additionalRate": 0.02 },
@@ -85,7 +84,6 @@
     "cgt.annualExemptAmount": "legacy/original.html:1765 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
     "cgt.rates.basic": "legacy/original.html:1767 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
     "cgt.rates.higher": "legacy/original.html:1768 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
-    "cgt.carriedInterestRate": "legacy/original.html:1770 (no source cited)",
     "nic.class1Employee.primaryThreshold": "legacy/original.html:1776 (cited there: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026)",
     "nic.class1Employee.upperEarningsLimit": "legacy/original.html:1777 (cited there: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026)",
     "nic.class1Employee.mainRate": "legacy/original.html:1778 (cited there: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026)",

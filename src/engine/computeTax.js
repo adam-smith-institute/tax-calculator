@@ -73,8 +73,8 @@ function taxThroughBands(amount, already, rates, basicTop, higherTop) {
 /**
  * @param {object} inputs
  *   employmentIncome, selfEmployedProfit, savingsInterest, dividends, gainsOther,
- *   gainsResidential, carriedInterest: £ a year
- *   salarySacrifice, pensionNetPay, pensionRASNet: £ a year
+ *   gainsResidential: £ a year
+ *   salarySacrifice, pensionNetPay: £ a year
  *   blind, marriageAllowanceRecipient, includeEmployerNIC: boolean
  *   children: number of children for Child Benefit; age: years (0 = not given)
  * @param {object} params  one of the files in /params
@@ -88,9 +88,6 @@ export function computeTax(inputs, params) {
   const bpa = inputs.blind ? it.blindPersonsAllowance : 0;
   const salarySacrifice = inputs.salarySacrifice || 0;
   const pensionNetPay = inputs.pensionNetPay || 0;
-  const pensionRASNet = inputs.pensionRASNet || 0;
-  // Relief at source: the provider adds basic-rate relief, so gross = net / (1 - basic rate)
-  const pensionRASGross = pensionRASNet > 0 ? pensionRASNet / (1 - it.rates.basic) : 0;
 
   // Employment income after salary sacrifice and net-pay pension contributions
   const employmentIncome = Math.max(0, (inputs.employmentIncome || 0) - (salarySacrifice + pensionNetPay));
@@ -106,7 +103,7 @@ export function computeTax(inputs, params) {
 
   // Adjusted net income
   const totalIncomeBeforePA = nonSavingsIncome + savingsInterest + dividendIncome;
-  const ANI = Math.max(0, totalIncomeBeforePA - pensionRASGross);
+  const ANI = Math.max(0, totalIncomeBeforePA);
 
   // Personal Allowance (tapered) plus Blind Person's Allowance, set against
   // non-savings income first, then savings, then dividends
@@ -137,8 +134,8 @@ export function computeTax(inputs, params) {
   const divAllowApplied = Math.min(div.allowance, dvTaxablePreZeroRates);
   const dividendsAfterAllowance = dvTaxablePreZeroRates - divAllowApplied;
 
-  // Band limits in taxable-income space; relief-at-source pensions extend the basic band
-  const basicLimitExt = it.basicRateLimit + pensionRASGross;
+  // Band limits in taxable-income space
+  const basicLimitExt = it.basicRateLimit;
   const higherTop = Math.max(basicLimitExt, it.additionalRateThreshold);
 
   // Non-savings, then savings, then dividends, each at its own rates
@@ -213,16 +210,14 @@ export function computeTax(inputs, params) {
     }
   }
 
-  // Capital gains: annual exempt amount to residential property first, then other gains,
-  // then carried interest. Gains use up whatever basic rate band income has left.
+  // Capital gains: annual exempt amount to residential property first, then other gains.
+  // Gains use up whatever basic rate band income has left.
   const cgt = params.cgt;
   let remainingAEA = cgt.annualExemptAmount;
   const gainsOther = Math.max(0, inputs.gainsOther || 0);
   const gainsRes = Math.max(0, inputs.gainsResidential || 0);
-  const carriedGain = Math.max(0, inputs.carriedInterest || 0);
   const propAEA = Math.min(remainingAEA, gainsRes); remainingAEA -= propAEA;
   const otherAEA = Math.min(remainingAEA, gainsOther); remainingAEA -= otherAEA;
-  const carriedAEA = Math.min(remainingAEA, carriedGain); remainingAEA -= carriedAEA;
 
   let basicRoomForCGT = Math.max(0, basicLimitExt - taxableAfterPA);
 
@@ -235,12 +230,10 @@ export function computeTax(inputs, params) {
   const otherInBasic = Math.min(otherTaxable, basicRoomForCGT);
   let cgtOtherTax = otherInBasic * cgt.rates.basic + (otherTaxable - otherInBasic) * cgt.rates.higher;
 
-  let carriedTax = Math.max(0, carriedGain - carriedAEA) * cgt.carriedInterestRate;
 
   cgtPropTax = round2(cgtPropTax);
   cgtOtherTax = round2(cgtOtherTax);
-  carriedTax = round2(carriedTax);
-  const cgtTotal = round2(cgtPropTax + cgtOtherTax + carriedTax);
+  const cgtTotal = round2(cgtPropTax + cgtOtherTax);
 
   const hicbc = round2(hicbcCharge(ANI, inputs.children || 0, params));
 
@@ -268,14 +261,12 @@ export function computeTax(inputs, params) {
       cgt: cgtTotal,
       cgtProperty: cgtPropTax,
       cgtOther: cgtOtherTax,
-      carriedInterest: carriedTax,
       hicbc,
       reducers: {
         marriageAllowanceApplied: maApplied,
         marriageAllowanceValue: maApplied ? it.marriageAllowance.credit : 0,
       },
       zeroRateSavings: { srsApplied, psaApplied, divAllowanceApplied: divAllowApplied },
-      banding: { basicLimitExtended: basicLimitExt },
     },
     totals: { totalTax, totalIncome, effectiveRatePct: effectiveRate },
     internals: { ANI, PA, taxableAfterPA },

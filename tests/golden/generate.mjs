@@ -2,6 +2,9 @@
 //
 //   node tests/golden/generate.mjs
 //
+// This reproduces the baseline as shipped. Approved fixes are then applied on top with
+// tests/golden/update.mjs (see meta.fixesApplied), so regenerating discards them.
+//
 // Loads legacy/original.html in headless Chromium and calls window.compute(inputs), the
 // live engine, for each case. Also records the legacy engine's currentEffBase (the figure
 // the original's spending split used) purely to document finding A1 in AUDIT.md.
@@ -30,23 +33,19 @@ if (!ok) throw new Error('compute() or computeTaxes_legacy() not found on the or
 
 const BATCH = 250;
 for (let i = 0; i < cases.length; i += BATCH) {
-  const batch = cases.slice(i, i + BATCH).map(({ ui, inputs, engineOnly }) => ({ ui, inputs, engineOnly: !!engineOnly }));
+  const batch = cases.slice(i, i + BATCH).map(({ ui, inputs }) => ({ ui, inputs }));
   const out = await page.evaluate((batch) => {
     const setNum = (id, v) => { document.getElementById(id).value = String(v); };
     const setBool = (id, v) => { document.getElementById(id).checked = !!v; };
-    return batch.map(({ ui, inputs, engineOnly }) => {
+    return batch.map(({ ui, inputs }) => {
       const result = window.compute(structuredClone(inputs));
-      let legacy = null;
-      if (!engineOnly) {
-        setNum('age', ui.age); setNum('empInc', ui.empInc); setNum('seInc', ui.seInc);
-        setNum('pensSac', ui.pensSacPct); setNum('pensEmp', ui.pensEmpPct);
-        setNum('divInc', ui.divInc); setNum('savInc', ui.savInc);
-        setNum('cgtGain', ui.cgtGain); setNum('cgtProp', ui.cgtProp); setNum('cbKids', ui.cbKids);
-        setBool('marriage', ui.marriage); setBool('blind', ui.blind); setBool('incErNI', ui.incErNI);
-        computeTaxes_legacy();
-        legacy = currentEffBase; // eslint-disable-line no-undef
-      }
-      return { result, legacy };
+      setNum('age', ui.age); setNum('empInc', ui.empInc); setNum('seInc', ui.seInc);
+      setNum('pensSac', ui.pensSacPct); setNum('pensEmp', ui.pensEmpPct);
+      setNum('divInc', ui.divInc); setNum('savInc', ui.savInc);
+      setNum('cgtGain', ui.cgtGain); setNum('cgtProp', ui.cgtProp); setNum('cbKids', ui.cbKids);
+      setBool('marriage', ui.marriage); setBool('blind', ui.blind); setBool('incErNI', ui.incErNI);
+      computeTaxes_legacy();
+      return { result, legacy: currentEffBase }; // eslint-disable-line no-undef
     });
   }, batch);
   out.forEach((o, j) => {
