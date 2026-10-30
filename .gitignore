@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+test-results/
+playwright-report/
+# Working copy of the original as supplied; the tracked reference is legacy/original.html
+index_erni_ReevesBudget_UPDATED_SPENDING_true.html
