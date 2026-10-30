@@ -104,30 +104,56 @@ billion of accounting adjustments, mostly depreciation and VAT that public bodie
 refunded. Those take total managed expenditure to £1,360.1 billion. HMRC uses the same basis
 for the "how your tax was spent" section of Annual Tax Summaries.
 
+**Spending not paid for by these taxes.** The calculator then leaves out £35.4 billion of
+that total which the taxes it covers do not pay for, and shares your tax across the remaining
+£1,192.2 billion:
+
+- £19.4 billion of interest on funded public sector pension schemes, chiefly the Local
+  Government Pension Scheme. This is an accounting entry for the growth of what the schemes
+  owe, not a payment from taxes; employers' real contributions are already counted in the
+  services they support.
+- £8.5 billion of council housing investment through Housing Revenue Accounts, funded by rents
+  and borrowing.
+- £4.9 billion for the BBC's licence-fee-funded services.
+- £2.1 billion of investment by transport public corporations, mainly Transport for London,
+  funded by fares and borrowing.
+- £0.5 billion of public corporations' own debt interest.
+
+Devolved governments' spending stays in. It is mostly paid for by the block grant from UK-wide
+taxes, and it pays for Northern Ireland's services. Student loans are already outside the
+Treasury's total.
+
 **Categories.** Spending is grouped by purpose, using the UN's Classification of the
-Functions of Government (COFOG), whichever department or council spends it. There are 14
-categories in plain English. Each is mutually exclusive, and together they add up to TES.
+Functions of Government (COFOG), whichever department or council spends it. The 14 categories
+and their parts use the official COFOG names, each with a plain description. They are
+mutually exclusive, and together they add up to the total above.
 [TAXONOMY.md](TAXONOMY.md) lists exactly which lines of the table make up each one. Points to
 note:
 
-- **Debt interest** includes £19.4 billion of interest building up in funded public sector
-  pension schemes, chiefly the Local Government Pension Scheme. This is an accounting cost,
-  not cash paid to lenders, and it is shown as its own line.
-- **Welfare and pensions** covers all social security benefits. The largest part is the
-  State Pension, with Pension Credit and other help for pensioners; the rest is benefits for
-  people of working age, disabled people and families. The two are shown separately when
-  you open the category.
+- **Social protection: welfare and pensions** covers all social security benefits. The largest
+  part is the State Pension, with Pension Credit and other help for pensioners; the rest is
+  benefits for people of working age, disabled people and families.
 - **Education:** the Department for Education records all academy spending as secondary, so
   secondary schools are overstated and primary understated.
-- **Aid to other countries** is the UN measure of economic aid. It is not the official
+- **International development** is the UN measure of economic aid. It is not the official
   development assistance total, which is measured differently. Military aid counts under
   Defence.
+
+**Named programmes.** Inside some parts, the calculator names well-known programmes, such as
+HS2, Network Rail, Sizewell C, UK Research and Innovation, Universal Credit and the State
+Pension. PESA does not name projects, so these figures come from HM Treasury's OSCAR II
+database for the same year (provisional). They count what each programme spent on staff,
+goods and services, investment, grants and benefits, and leave out depreciation, provisions
+and loans. They are part of the line they sit under, not extra to it. Hinkley Point C does not
+appear because it is privately financed and paid for through electricity bills.
 
 **How your tax is shared.** Taxes are not earmarked for particular services: the government
 pools what it raises and decides spending separately. In most years it also borrows to cover
 part of its spending, so taxes pay for less than all of it. The calculator shares your tax
-across categories in proportion to their share of total spending. It shows each category as
-"£X of your tax" and as pence in every £1.
+across categories in proportion to their share of the spending these taxes help pay for. It
+shows each category as "£X of your tax" and as pence in every £1. Some council spending is
+paid for by council tax, which the calculator does not model; PESA does not split council
+spending by how it is funded, so this cannot be taken out.
 
 ## Limitations
 

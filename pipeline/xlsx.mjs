@@ -5,7 +5,7 @@
 
 import { inflateRawSync } from 'node:zlib';
 
-function unzip(buf) {
+export function unzip(buf) {
   // End of central directory record: signature 0x06054b50, within the last 64 KB
   let eocd = -1;
   for (let i = buf.length - 22; i >= Math.max(0, buf.length - 65557); i--) {
@@ -26,7 +26,11 @@ function unzip(buf) {
     const name = buf.toString('utf8', p + 46, p + 46 + nameLen);
     const dataStart = local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28);
     const raw = buf.subarray(dataStart, dataStart + compressed);
-    files.set(name, () => (method === 0 ? raw : inflateRawSync(raw)).toString('utf8'));
+    // Call with `true` for the bytes, otherwise the UTF-8 text
+    files.set(name, (asBytes = false) => {
+      const bytes = method === 0 ? raw : inflateRawSync(raw);
+      return asBytes ? bytes : bytes.toString('utf8');
+    });
     p += 46 + nameLen + extraLen + commentLen;
   }
   return files;
