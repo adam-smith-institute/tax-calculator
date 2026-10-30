@@ -91,6 +91,9 @@ function toInputs(ui) {
   };
 }
 
+// A word joiner after the hyphen keeps "2027-28" on one line
+const nb = (text) => text.replace(/(\d{4})-(\d{2})/g, '$1-\u2060$2');
+
 function compareLine(year, results) {
   const [a, b] = YEARS.map((y) => results[y].totals.totalTax);
   const diff = b - a; // 2027-28 minus 2026-27
@@ -120,7 +123,7 @@ function render() {
   for (const n of document.querySelectorAll('[data-year-label]')) n.textContent = state.year;
   $('total').textContent = gbp(r.totals.totalTax);
   $('rate').textContent = percent(r.totals.effectiveRatePct / 100);
-  $('compare').textContent = compareLine(state.year, results);
+  $('compare').textContent = nb(compareLine(state.year, results));
   renderSummary($('summary-body'), r);
   renderDetail($('detail-body'), r);
   state.chart?.update(r.totals.totalTax);

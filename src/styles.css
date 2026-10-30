@@ -17,10 +17,10 @@
   --asi-lavender: #8b8dbe;
   /* Policy paper web tokens */
   --ink: #161616;
-  --grey: #52585e;      /* 7.3:1 on white: hints, captions, sources */
+  --grey: #52585e;      /* 7.2:1 on white: hints, captions, sources */
   --hairline: #c9cdd2;  /* rules between content; never an input border */
   /* Extension tokens (DESIGN-EXTENSION.md) */
-  --control-border: #52585e; /* 7.3:1, above the 3:1 WCAG needs for control boundaries */
+  --control-border: #52585e; /* 7.2:1, above the 3:1 WCAG needs for control boundaries */
   --focus: #134079;
   --sans: "Josefin Sans", system-ui, sans-serif;
   --serif: "PT Serif", Georgia, "Times New Roman", serif;
@@ -41,6 +41,7 @@ h1, h2, h3, legend, label, summary, button, input, table, .total, .rate, .compar
 a { color: var(--asi-blue); text-underline-offset: 3px; }
 a:hover { color: var(--asi-navy); }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.nw, [data-year-label], [data-spend-year], .year-switch button { white-space: nowrap; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
 
