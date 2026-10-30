@@ -34,19 +34,16 @@ function hicbcCharge(ani, nChildren, params) {
   return round2(cb * pct);
 }
 
-// Taxpayer status for the Personal Savings Allowance and Marriage Allowance tests.
-function taxpayerBand(totalTaxableAfterPA, it) {
-  if (totalTaxableAfterPA <= it.higherRateThreshold - it.personalAllowance) return 'basic';
-  if (totalTaxableAfterPA <= it.additionalRateThreshold - it.personalAllowance) return 'higher';
-  return 'additional';
-}
+const NIL = { basic: 0, higher: 0, additional: 0 };
 
 // Tax `amount` through the basic, higher and additional bands at `rates`, given that
-// `already` of taxable income (after allowances) has been taxed below it. Band limits
-// are in taxable-income space: basic up to basicTop, higher up to higherTop.
+// `already` of taxable income (after allowances) sits below it. Band limits are in
+// taxable-income space: basic up to basicTop, higher up to higherTop. Returns the tax, the
+// new position, and one piece per band touched (for the breakdown table).
 function taxThroughBands(amount, already, rates, basicTop, higherTop) {
   let tax = 0;
   let remaining = amount;
+  const pieces = [];
   const higherBandWidth = Math.max(0, higherTop - basicTop);
   const basicRoom = Math.max(0, basicTop - Math.min(already, basicTop));
   const higherRoom = Math.max(0, higherBandWidth - Math.max(0, already - basicTop));
@@ -54,20 +51,75 @@ function taxThroughBands(amount, already, rates, basicTop, higherTop) {
   if (basicRoom > 0 && remaining > 0) {
     const slice = Math.min(remaining, basicRoom);
     tax += slice * rates.basic;
+    pieces.push({ band: 'basic', amount: slice, rate: rates.basic });
     remaining -= slice;
     already += slice;
   }
   if (higherRoom > 0 && remaining > 0) {
     const slice = Math.min(remaining, higherRoom);
     tax += slice * rates.higher;
+    pieces.push({ band: 'higher', amount: slice, rate: rates.higher });
     remaining -= slice;
     already += slice;
   }
   if (remaining > 0) {
     tax += remaining * rates.additional;
+    pieces.push({ band: 'additional', amount: remaining, rate: rates.additional });
     already += remaining;
   }
-  return { tax, already };
+  return { tax, already, pieces };
+}
+
+// Income tax on taxable income (after allowances) split into non-savings, savings and
+// dividend components. Income is stacked non-savings, then savings, then dividends. The
+// nil rates (starting rate for savings, Personal Savings Allowance, dividend allowance) are
+// rates, not deductions: income charged at them still occupies its place in the bands
+// (ITA 2007 ss12A, 13A; s12B(8)).
+function incomeTaxOn(nsTaxable, svTaxable, dvTaxable, params) {
+  const it = params.incomeTax;
+  const sav = params.savings;
+  const div = params.dividends;
+  const basicTop = it.basicRateLimit;
+  const higherTop = Math.max(basicTop, it.additionalRateThreshold);
+  const totalTaxable = nsTaxable + svTaxable + dvTaxable;
+
+  // Personal Savings Allowance by status: does any income, nil-rated or not, fall in the
+  // higher or additional rate band? (ITA 2007 s12B)
+  const status = totalTaxable > higherTop ? 'additional' : totalTaxable > basicTop ? 'higher' : 'basic';
+
+  // Starting rate for savings: reduced £ for £ by taxable non-savings income
+  const srsApplied = Math.min(Math.max(0, sav.startingRateBand - nsTaxable), svTaxable);
+  const psaApplied = Math.min(sav.personalSavingsAllowance[status] || 0, svTaxable - srsApplied);
+  const divAllowApplied = Math.min(div.allowance, dvTaxable);
+
+  const slices = [
+    { key: 'nonSavings', amount: nsTaxable, rates: it.rates },
+    { key: 'savingsStartingRate', amount: srsApplied, rates: NIL },
+    { key: 'savingsAllowance', amount: psaApplied, rates: NIL },
+    { key: 'savings', amount: svTaxable - srsApplied - psaApplied, rates: sav.rates },
+    { key: 'dividendAllowance', amount: divAllowApplied, rates: NIL },
+    { key: 'dividends', amount: dvTaxable - divAllowApplied, rates: div.rates },
+  ];
+  let position = 0;
+  const tax = {};
+  const rows = [];
+  for (const s of slices) {
+    tax[s.key] = 0;
+    if (!(s.amount > 0)) continue;
+    const r = taxThroughBands(s.amount, position, s.rates, basicTop, higherTop);
+    tax[s.key] += r.tax;
+    position = r.already;
+    for (const piece of r.pieces) rows.push({ component: s.key, ...piece });
+  }
+
+  // Marriage Allowance recipients must not be liable above the basic rate, counting
+  // dividends in the dividend allowance as if taxed (ITA 2007 s55B(2)(b), (ba))
+  const maEligible = !rows.some((r) => r.band !== 'basic' && (r.rate > 0 || r.component === 'dividendAllowance'));
+
+  return {
+    nonSavingsTax: tax.nonSavings, savingsTax: tax.savings, dividendTax: tax.dividends,
+    srsApplied, psaApplied, divAllowApplied, totalTaxable, status, maEligible, rows,
+  };
 }
 
 /**
@@ -81,8 +133,6 @@ function taxThroughBands(amount, already, rates, basicTop, higherTop) {
  */
 export function computeTax(inputs, params) {
   const it = params.incomeTax;
-  const sav = params.savings;
-  const div = params.dividends;
   const nic = params.nic;
 
   const bpa = inputs.blind ? it.blindPersonsAllowance : 0;
@@ -118,52 +168,15 @@ export function computeTax(inputs, params) {
   const svTaxablePreZeroRates = applyAllowance(savingsInterest);
   const dvTaxablePreZeroRates = applyAllowance(dividendIncome);
 
-  // Starting rate for savings: reduced £ for £ by taxable non-savings income
-  const srsAvail = Math.max(0, sav.startingRateBand - nsTaxable);
-  const srsApplied = Math.min(srsAvail, svTaxablePreZeroRates);
-  const savingsAfterSRS = svTaxablePreZeroRates - srsApplied;
-
-  // Personal Savings Allowance, by taxpayer status
-  const taxableAfterPA = nsTaxable + savingsAfterSRS + dvTaxablePreZeroRates;
-  const band = taxpayerBand(taxableAfterPA, it);
-  const PSA = sav.personalSavingsAllowance[band] || 0;
-  const psaApplied = Math.min(PSA, savingsAfterSRS);
-  const savingsAfterPSA = savingsAfterSRS - psaApplied;
-
-  // Dividend allowance
-  const divAllowApplied = Math.min(div.allowance, dvTaxablePreZeroRates);
-  const dividendsAfterAllowance = dvTaxablePreZeroRates - divAllowApplied;
-
-  // Band limits in taxable-income space
-  const basicLimitExt = it.basicRateLimit;
-  const higherTop = Math.max(basicLimitExt, it.additionalRateThreshold);
-
-  // Non-savings, then savings, then dividends, each at its own rates
-  let alreadyTaxed = 0;
-  let nonSavingsTax = 0;
-  if (nsTaxable > 0) {
-    const r = taxThroughBands(nsTaxable, alreadyTaxed, it.rates, basicLimitExt, higherTop);
-    nonSavingsTax += r.tax;
-    alreadyTaxed = r.already;
-  }
-  let savingsTax = 0;
-  if (savingsAfterPSA > 0) {
-    const r = taxThroughBands(savingsAfterPSA, alreadyTaxed, sav.rates, basicLimitExt, higherTop);
-    savingsTax += r.tax;
-    alreadyTaxed = r.already;
-  }
-  let dividendTax = 0;
-  if (dividendsAfterAllowance > 0) {
-    const r = taxThroughBands(dividendsAfterAllowance, alreadyTaxed, div.rates, basicLimitExt, higherTop);
-    dividendTax += r.tax;
-    alreadyTaxed = r.already;
-  }
+  const itx = incomeTaxOn(nsTaxable, svTaxablePreZeroRates, dvTaxablePreZeroRates, params);
+  const { nonSavingsTax, savingsTax, dividendTax, srsApplied, psaApplied, divAllowApplied } = itx;
+  const taxableAfterPA = itx.totalTaxable;
 
   let incomeTax = round2(nonSavingsTax + savingsTax + dividendTax);
   const componentTaxes = { nonSavings: round2(nonSavingsTax), savings: round2(savingsTax), dividends: round2(dividendTax) };
 
-  // Marriage Allowance (recipient): a tax reduction, if a basic-rate taxpayer
-  const maApplied = !!inputs.marriageAllowanceRecipient && taxpayerBand(taxableAfterPA, it) === 'basic';
+  // Marriage Allowance (recipient): a tax reduction of 20% of the transferred allowance
+  const maApplied = !!inputs.marriageAllowanceRecipient && itx.maEligible;
   if (maApplied) incomeTax = Math.max(0, round2(incomeTax - it.marriageAllowance.credit));
 
   // Employee Class 1 NICs. Salary sacrifice comes off the NIC base in full, or only up to
@@ -221,7 +234,8 @@ export function computeTax(inputs, params) {
   const propAEA = Math.min(remainingAEA, gainsRes); remainingAEA -= propAEA;
   const otherAEA = Math.min(remainingAEA, gainsOther); remainingAEA -= otherAEA;
 
-  let basicRoomForCGT = Math.max(0, basicLimitExt - taxableAfterPA);
+  // All taxable income, including income charged at nil rates, uses up the basic rate band
+  let basicRoomForCGT = Math.max(0, it.basicRateLimit - taxableAfterPA);
 
   const propTaxable = Math.max(0, gainsRes - propAEA);
   const propInBasic = Math.min(propTaxable, basicRoomForCGT);
@@ -231,7 +245,6 @@ export function computeTax(inputs, params) {
   const otherTaxable = Math.max(0, gainsOther - otherAEA);
   const otherInBasic = Math.min(otherTaxable, basicRoomForCGT);
   let cgtOtherTax = otherInBasic * cgt.rates.basic + (otherTaxable - otherInBasic) * cgt.rates.higher;
-
 
   cgtPropTax = round2(cgtPropTax);
   cgtOtherTax = round2(cgtOtherTax);
@@ -272,5 +285,7 @@ export function computeTax(inputs, params) {
     },
     totals: { totalTax, totalIncome, effectiveRatePct: effectiveRate },
     internals: { ANI, PA, taxableAfterPA },
+    // Band-by-band income tax, for the breakdown table (not part of the golden master)
+    detail: { incomeTaxBands: itx.rows, savingsStatus: itx.status },
   };
 }
