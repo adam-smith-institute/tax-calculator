@@ -124,7 +124,12 @@ Used for **Your tax** and **Where it goes**. A primary button at the end of the 
   focus moves to the name. Parts are listed with their descriptions running full width
   beneath. A net negative part (EU transactions) is listed but left out of the donut, with a
   note saying so. "All spending" returns focus to the category's button.
-- A "Show as a table" disclosure gives every figure as a data table.
+- **Named programmes** sit under the part they belong to, after its description, headed
+  "Including" in small grey Josefin 600. Each is a row of name, total spending (grey, for example
+  "£7.1 billion") and the user's share in the "Your tax" column, separated by dotted hairlines,
+  so they read as part of the line above them, not extra to it.
+- A "Show as a table" disclosure gives every figure as a data table, with named programmes as
+  italic "including …" rows.
 
 ### Motion
 

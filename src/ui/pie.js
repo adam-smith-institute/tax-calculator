@@ -9,8 +9,8 @@
 // seamless); going back runs the same in reverse. Users who ask for reduced motion get the end
 // state at once.
 
-import { allocate } from './spending-data.js?v=b74c5c7d9a';
-import { gbp, penceInPound, billions } from './format.js?v=b74c5c7d9a';
+import { allocate } from './spending-data.js?v=34a5278b97';
+import { gbp, penceInPound, billions } from './format.js?v=34a5278b97';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const SIZE = 320;
@@ -234,7 +234,8 @@ export function buildPie({ root, tableBody, data }) {
         el('span', { class: 'legend-pence', text: penceInPound(k.share) }),
         k.description || k.amount < 0
           ? el('span', { class: 'legend-desc', text: [k.description, k.amount < 0 ? 'A net receipt, so not shown in the chart.' : ''].filter(Boolean).join(' ') })
-          : null);
+          : null,
+        k.notable?.length ? notableList(k) : null);
       row.addEventListener('mouseenter', () => highlight(k.i));
       row.addEventListener('mouseleave', () => highlight(null));
       return el('li', {}, row);
@@ -245,12 +246,30 @@ export function buildPie({ root, tableBody, data }) {
     return title;
   }
 
+  // Named programmes within a part (HS2 within Railway, and so on), from OSCAR II. They are
+  // part of the line above them, not additional to it.
+  function notableList(k) {
+    const items = k.notable.map((n) => {
+      const yoursEl = el('span', { class: 'notable-yours' });
+      figures.push({ amount: yoursEl, key: `${k.key}/${n.id}` });
+      return el('li', { class: 'notable-item' },
+        el('span', { class: 'notable-name', text: n.name }),
+        el('span', { class: 'notable-total', text: billions(n.amount) }),
+        yoursEl,
+        n.note ? el('span', { class: 'notable-note', text: n.note }) : null);
+    });
+    return el('div', { class: 'notable' }, el('span', { class: 'notable-head', text: 'Including' }), el('ul', {}, ...items));
+  }
+
   // Update the £ figures in place as the inputs change (no re-render, no animation)
   function refreshFigures() {
     const yours = new Map();
     for (const c of allocate(total, data)) {
       yours.set(c.id, c);
-      for (const k of c.children) yours.set(`${c.id}/${k.id}`, k);
+      for (const k of c.children) {
+        yours.set(`${c.id}/${k.id}`, k);
+        for (const n of k.notable) yours.set(`${c.id}/${k.id}/${n.id}`, n);
+      }
     }
     for (const f of figures) {
       const x = yours.get(f.key);
@@ -302,6 +321,10 @@ export function buildPie({ root, tableBody, data }) {
       for (const k of c.children) {
         rows.push(el('tr', { class: 'sub-row' }, el('th', { scope: 'row', text: k.name }), el('td', { class: 'num', text: gbp(k.yours) }),
           el('td', { class: 'num', text: penceInPound(k.share) }), el('td', { class: 'num', text: billions(k.amount) })));
+        for (const n of k.notable) {
+          rows.push(el('tr', { class: 'notable-row' }, el('th', { scope: 'row', text: `including ${n.name}` }), el('td', { class: 'num', text: gbp(n.yours) }),
+            el('td', { class: 'num', text: penceInPound(n.share) }), el('td', { class: 'num', text: billions(n.amount) })));
+        }
       }
     }
     tableBody.replaceChildren(...rows);

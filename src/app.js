@@ -1,13 +1,13 @@
 // ASI tax calculator: reads the form, runs the engine for the chosen tax year (and the other
 // year, for the comparison line), and renders the results and the spending split.
 
-import { computeTax } from './engine/computeTax.js?v=b74c5c7d9a';
-import { loadSpending, allocate } from './ui/spending-data.js?v=b74c5c7d9a';
-import { buildPie } from './ui/pie.js?v=b74c5c7d9a';
-import { renderSummary, renderDetail } from './ui/breakdown.js?v=b74c5c7d9a';
-import { shareContent, downloadShareCard } from './ui/share.js?v=b74c5c7d9a';
-import { startAutoResize } from './ui/embed.js?v=b74c5c7d9a';
-import { gbp, percent, parseMoney, billions } from './ui/format.js?v=b74c5c7d9a';
+import { computeTax } from './engine/computeTax.js?v=34a5278b97';
+import { loadSpending, allocate } from './ui/spending-data.js?v=34a5278b97';
+import { buildPie } from './ui/pie.js?v=34a5278b97';
+import { renderSummary, renderDetail } from './ui/breakdown.js?v=34a5278b97';
+import { shareContent, downloadShareCard } from './ui/share.js?v=34a5278b97';
+import { startAutoResize } from './ui/embed.js?v=34a5278b97';
+import { gbp, percent, parseMoney, billions } from './ui/format.js?v=34a5278b97';
 
 const YEARS = ['2026-27', '2027-28'];
 const DEFAULT_YEAR = '2026-27';
@@ -210,6 +210,17 @@ function showSpendingSource(data, live) {
   $('tes').textContent = billions(m.tes);
   $('adjustments').textContent = billions(m.accountingAdjustments);
   $('tme').textContent = billions(m.tme);
+  $('excluded').textContent = billions(m.excluded ?? 0);
+  $('base').textContent = billions(m.base ?? m.tes);
+  $('exclusions').replaceChildren(...(m.exclusions || []).map((e) => {
+    const li = document.createElement('li');
+    const name = document.createElement('strong');
+    name.textContent = `${e.name}, ${billions(e.amount)}: `;
+    li.append(name, e.reason);
+    return li;
+  }));
+  if (m.programmes) $('programmes-link').href = m.programmes.url;
+  else { $('programmes-about').hidden = true; $('programmes-source').hidden = true; }
   if (!live) $('source-note').hidden = false;
 }
 

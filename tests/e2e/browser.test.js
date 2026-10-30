@@ -88,7 +88,7 @@ for (const [name, form, inputs] of CASES) {
   });
 }
 
-test('pie chart shares the headline total over TES, with every category in the legend', async () => {
+test('pie chart shares the headline total over TES less exclusions, with every category in the legend', async () => {
   const { page } = await open();
   await page.click('#tab-spend');
   const total = money(await page.textContent('#total'));
@@ -96,7 +96,7 @@ test('pie chart shares the headline total over TES, with every category in the l
   assert.equal(amounts.length, spending.categories.length);
   assert.equal(await page.$$eval('#pie .slice', (els) => els.length), spending.categories.length);
   const first = spending.categories[0];
-  assert.equal(amounts[0], `£${Math.round(total * first.amount / spending.meta.tes).toLocaleString('en-GB')}`);
+  assert.equal(amounts[0], `£${Math.round(total * first.amount / spending.meta.base).toLocaleString('en-GB')}`);
   assert.equal(await page.textContent('#pie .legend-item >> nth=0 >> .legend-name'), first.name);
   const sum = amounts.reduce((s, f) => s + money(f), 0);
   assert.ok(Math.abs(sum - total) <= spending.categories.length, `categories add to £${sum}, total £${total}`);
@@ -336,7 +336,7 @@ test('share image: white card, top three shares as bars in the pie chart colours
   assert.deepEqual(r.names, spending.categories.slice(0, 3).map((c) => c.name));
   for (const b of r.bars) assert.equal(b.got, b.want);
   assert.ok(r.bars[0].w > r.bars[1].w && r.bars[1].w > r.bars[2].w, 'bars ranked by size');
-  assert.deepEqual(r.percents, spending.categories.slice(0, 3).map((c) => `${(c.amount / spending.meta.tes * 100).toFixed(1)}% of spending`));
+  assert.deepEqual(r.percents, spending.categories.slice(0, 3).map((c) => `${(c.amount / spending.meta.base * 100).toFixed(1)}% of spending`));
   assert.ok(r.contentBottom < r.footerTop - 40, `content ends at ${r.contentBottom}, footer at ${r.footerTop}`);
   // The mark sits bottom right, beside the footer, at least 8% of the width, clear of the content
   assert.ok(r.mark.x > 1080 / 2 && r.mark.y > r.footerTop - r.mark.size, 'mark in the bottom-right footer');
@@ -361,5 +361,25 @@ test('parts are shades of their category colour, largest in the full colour, lig
     .reduce((s, c, k) => s + c * [0.2126, 0.7152, 0.0722][k], 0);
   for (let j = 1; j < fills.length; j++) assert.ok(lum(fills[j]) > lum(fills[j - 1]), `part ${j} lighter than part ${j - 1}`);
   assert.equal(swatches.length, fills.length);
+  await page.close();
+});
+
+test('named programmes (HS2, Sizewell C) appear inside their lines with total and your share', async () => {
+  const { page } = await open();
+  await page.fill('#empInc', '45,000');
+  await page.click('#tab-spend');
+  const transport = spending.categories.findIndex((c) => c.id === 'transport');
+  await page.click(`#pie .legend-item >> nth=${transport}`);
+  const items = await page.$$eval('.notable-item', (els) => els.map((e) => [e.querySelector('.notable-name').textContent, e.querySelector('.notable-total').textContent, e.querySelector('.notable-yours').textContent]));
+  const hs2 = spending.categories[transport].children.find((c) => c.id === 'railways').notable.find((n) => n.id === 'hs2');
+  const row = items.find(([name]) => name === 'HS2');
+  assert.ok(row, 'HS2 listed');
+  assert.equal(row[1], `£${(hs2.amount / 1000).toFixed(1)} billion`);
+  assert.equal(row[2], `£${Math.round(9080 * hs2.amount / spending.meta.base)}`);
+  // The exclusions are listed with their reasons under "About these figures"
+  await page.click('#panel-spend details.detail:nth-of-type(2) > summary');
+  const excl = await page.$$eval('#exclusions li', (els) => els.map((e) => e.textContent));
+  assert.equal(excl.length, spending.meta.exclusions.length);
+  assert.match(excl.join(' '), /BBC domestic services/);
   await page.close();
 });

@@ -1,7 +1,7 @@
 // Loads data/spending.json (same origin, refreshed by the weekly pipeline). If that fails,
 // falls back to the snapshot bundled with the code at the last build.
 
-import fallback from '../spending/fallback.js?v=b74c5c7d9a';
+import fallback from '../spending/fallback.js?v=34a5278b97';
 
 export async function loadSpending(url = 'data/spending.json') {
   try {
@@ -16,15 +16,17 @@ export async function loadSpending(url = 'data/spending.json') {
   }
 }
 
-// The user's tax shared across categories in proportion to spending (over TES)
+// The user's tax shared across categories in proportion to spending. The base is the
+// Treasury's total expenditure on services less the spending the taxonomy excludes as not
+// paid for by the taxes the calculator models (older data files have no base: use TES).
 export function allocate(totalTax, data) {
-  const tes = data.meta.tes;
+  const base = data.meta.base ?? data.meta.tes;
+  const share = (amount) => ({ share: amount / base, yours: totalTax * (amount / base) });
   return data.categories.map((c) => ({
     ...c,
-    share: c.amount / tes,
-    yours: totalTax * (c.amount / tes),
+    ...share(c.amount),
     children: c.children
       .filter((ch) => ch.amount !== 0)
-      .map((ch) => ({ ...ch, share: ch.amount / tes, yours: totalTax * (ch.amount / tes) })),
+      .map((ch) => ({ ...ch, ...share(ch.amount), notable: (ch.notable || []).map((n) => ({ ...n, ...share(n.amount) })) })),
   }));
 }
