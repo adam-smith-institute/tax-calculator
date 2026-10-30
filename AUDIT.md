@@ -36,6 +36,8 @@ the test set, not in the population.
 | N2 | Personal Allowance always set against savings before dividends; until 2027-28 the law gives the order that minimises tax | [ITA 2007 s25(2)](https://www.legislation.gov.uk/ukpga/2007/3/section/25) | Mainly people living on savings and dividends | £6k interest + £20k dividends: −£645 | 2026-27: choose the allocation with the lowest tax. 2027-28: statutory order (s25(3A)) | Medium | Done |
 | N3 | Child Benefit for 52 weeks; 2026-27 has 53 benefit weeks | [SSCBA 1992 s147](https://www.legislation.gov.uk/ukpga/1992/4/section/147), [ITEPA s681B](https://www.legislation.gov.uk/ukpga/2003/1/section/681B) | Parents paying the full HICBC in 2026-27 | £85k salary, 2 children: +£43.30 | Weeks per year as a parameter: 53 in 2026-27, 52 in 2027-28 | Low | Approved (Phase 3) |
 | N4 | Tile amounts formatted in the browser's locale, without £ | `legacy/original.html:2277` | Users with non-UK browser settings | "1.234,00" on a German browser | Format en-GB with £ (redesign) | Low | Approved (Phase 5) |
+| N5 | Until 2027-28, allowances always set against other income first; s25(2) lets them go wherever tax is lowest | [ITA 2007 s25(2)](https://www.legislation.gov.uk/ukpga/2007/3/section/25); s25(3A) applies only from 2027-28 | Higher-rate taxpayers with savings or dividends | 2026-27, £50k salary + £3k dividends: −£42.52 | Search every split of the allowance, other income included, in years without s25(3A) | Medium | Done (30 October 2026) |
+| N6 | Finance cost relief capped by income after only the allowances set against rent and other income | [ITTOIA 2005 s274AA(6)](https://www.legislation.gov.uk/ukpga/2005/5/section/274AA) | Landlords with savings or dividends in 2027-28 | 2027-28, £16,060 rent, £9,570 interest, £7,150 savings: +£1,096.80 (£16.80 charged; the law gives £1,113.60) | Adjusted total income less every allowance deducted, wherever it was set | Low | Done (30 October 2026) |
 
 ## Detail
 
@@ -277,6 +279,53 @@ claiming all year gets, and repays, one extra week. £85,000 salary, 2 children:
 shipped rates (+£44.95 at 2026-27 rates). **Fix:** `childBenefit.weeksPerYear` per year,
 cited to the calendar.
 
+### N5 and N6. Found by random testing (30 October 2026)
+
+`tests/reference.test.js` checks the engine against an independent reference written from
+the legislation, with its own brute-force search for the allowance split. On 3,000 random
+cases it found two faults, both in income tax on mixed income.
+
+**N5. Other income doesn't have to take the allowances first until 2027-28.** The engine set
+the Personal Allowance against salary, profit and rent before savings and dividends, on the
+view that s25(2) would choose that anyway. It doesn't always. The nil-rate amounts (PSA,
+dividend allowance) use up band space where they sit. Setting a little allowance against
+savings or dividends instead of salary can move them out of the basic rate band, where they
+waste 20% band space, into the higher rate band.
+
+- 2026-27, £50,000 salary and £3,000 dividends. Salary first: taxable salary £37,430
+  (£7,486), the £500 dividend allowance £270 inside the basic band, £2,500 at 35.75%
+  (£893.75), so **£8,379.75**. With £270 of allowance against dividends: salary £37,700
+  (£7,540), dividends £2,730 with the allowance wholly in the higher band, £2,230 at 35.75%
+  (£797.23), so **£8,337.23** (−£42.52).
+- 2026-27, £44,110 profit, £9,380 interest, £28,110 dividends: £18,598.57 to £18,498.57
+  (−£100, the PSA moved out of the basic band).
+
+From 2027-28, s25(3A) (Finance Act 2026 s6(6)) requires other income first, so the fault
+affected 2026-27 only. **Fix:** a parameter, `incomeTax.otherIncomeFirst` (false before
+2027-28, true from it). In years without it, the allowance split covers other income too. The
+search was also made exact: tax is piecewise linear in the split, every kink lies on a line
+of one of three forms, and the engine tries every crossing of two such lines.
+
+**N6. Finance cost relief.** Relief is the property basic rate on the lowest of finance
+costs, property profit and adjusted total income. s274AA(6) defines adjusted total income as
+net income less savings and dividend income, "reduced by the amount of any allowances
+deducted ... at Step 3", which means all of them, wherever they were set. The engine deducted
+only the allowances set against rent and other income. In 2027-28, where allowances can go
+against savings or dividends after other income, it moved them there to raise the cap.
+
+- 2027-28, £16,060 rent, £9,570 mortgage interest, £7,150 interest: adjusted total income is
+  £16,060 − £12,570 = £3,490, so relief is **£837.60**, not £2,296.80. Income tax is £1,113.60, not
+  £16.80.
+
+Before 2027-28 the two definitions gave the same answer, because the allowances went against
+other income first; N5 would have made them differ. **Fix:** adjusted total income computed
+once, from all allowances deducted, so the cap no longer depends on the split.
+
+**Golden master:** 502 cases changed, all of them falling or level (as shipped, savings
+are taxed at 42% and salary at 40%, so allowance against savings often saves tax). 43 keep the
+same total with a different split: on a tie the engine now keeps the statutory order. The
+largest change is −£414.
+
 ### Checked and correct
 
 - Personal Allowance taper (£1 per £2 above £100,000, to nil at £125,140); Blind Person's
@@ -315,6 +364,7 @@ Should the title say "England, Wales and Northern Ireland"? That is a question f
 | N2 | Allowances go where they reduce tax most | 65, all reductions | £645.00 |
 | A7 | State Pension age as a range while it rises to 67 | none (as-shipped keeps 66; the 2026-27 and 2027-28 files set 66 to ask and 67 certain) | none |
 | A8 | Average rate over all income and gains, plus employer NI borne | 3,011 (`effectiveRatePct` only) | none |
+| N5 + N6 | Allowances may go against any income before 2027-28; finance cost relief capped after all allowances | 502, none higher | £414.00 |
 
 The A6 count is higher than the 1,497 in the summary table because it was measured after A5.
 Writing the N2 test showed that my first hand-worked figure for the second example was wrong:

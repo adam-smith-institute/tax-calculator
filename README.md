@@ -40,7 +40,7 @@ You need Node 22. Then:
 ```sh
 npm ci
 npx playwright install chromium   # once, for the browser tests
-npm test                          # engine, golden master, worked examples, parameters, pipeline
+npm test                          # engine, golden master, worked examples, reference, parameters, pipeline
 npm run test:e2e                  # browser: numbers end to end, accessibility, layout, embed
 npm run serve                     # then open http://127.0.0.1:8000
 ```
@@ -66,6 +66,7 @@ Other scripts:
 | `tests/engine.golden.test.js` | 7,311 cases match the original calculator's `compute()` to the penny, apart from the approved fixes in [AUDIT.md](AUDIT.md) |
 | `tests/fixes.test.js` | Each audit fix, worked by hand |
 | `tests/worked-examples.test.js` | 16 hand-worked cases per year ([tests/worked-examples.md](tests/worked-examples.md)), plus a brute-force check of the allowance allocation |
+| `tests/reference.test.js` | 1,000 random cases per year match an independent reference written from the legislation, to the penny |
 | `tests/params.test.js` | Every parameter has a source; year files cite GOV.UK, legislation.gov.uk or the OBR |
 | `tests/pipeline.test.js` | The spending pipeline, on a saved PESA 2026 workbook, reproduces the published figures and rejects bad data |
 | `tests/check-fiscal-events.test.js` | The fiscal event check |
