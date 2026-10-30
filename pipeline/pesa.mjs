@@ -141,7 +141,7 @@ export function mapToTaxonomy(table, taxonomy) {
       ? (c.amount.add || []).reduce((s, r) => s + get(r), 0) - (c.amount.subtract || []).reduce((s, r) => s + get(r), 0)
       : childSum;
     if (Math.abs(amount - childSum) > 2) errors.push(`${c.name}: published total ${amount} but its lines sum to ${childSum}`);
-    return { id: c.id, name: c.name, description: c.description, amount, children };
+    return { id: c.id, name: c.name, ...(c.colour ? { colour: c.colour } : {}), description: c.description, amount, children };
   });
   const sum = categories.reduce((s, c) => s + c.amount, 0);
   if (Math.abs(sum - tes) > 1) errors.push(`Categories sum to £${sum}m but TES is £${tes}m`);
@@ -185,6 +185,7 @@ export function validateSpending(doc) {
   for (const c of doc?.categories || []) {
     for (const k of ['id', 'name', 'description']) need(typeof c[k] === 'string' && c[k], `category.${k} must be a non-empty string`);
     need(Number.isFinite(c.amount), `${c.id}: amount must be a number`);
+    need(c.colour === undefined || /^#[0-9A-Fa-f]{6}$/.test(c.colour), `${c.id}: colour must be a hex colour like #E4572E`);
     need(Array.isArray(c.children) && c.children.length > 0, `${c.id}: children must be a non-empty array`);
     for (const ch of c.children || []) {
       need(typeof ch.id === 'string' && typeof ch.name === 'string', `${c.id}: child id and name must be strings`);

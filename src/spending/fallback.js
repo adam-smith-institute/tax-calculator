@@ -15,40 +15,23 @@ export default {
     "tes": 1227648,
     "accountingAdjustments": 132474,
     "tme": 1360122,
-    "generated": "2026-10-30T00:30:25.819Z",
-    "taxonomyVersion": "1.0.0"
+    "generated": "2026-10-30T01:55:43.810Z",
+    "taxonomyVersion": "1.1.0"
   },
   "categories": [
     {
-      "id": "health",
-      "name": "Health",
-      "description": "The NHS: hospitals, GPs, medicines, public health and medical research.",
-      "amount": 257542,
+      "id": "welfare-pensions",
+      "name": "Welfare and pensions",
+      "colour": "#E4572E",
+      "description": "The State Pension and other help for pensioners, and benefits for people of working age, disabled people and families, including Universal Credit and Child Benefit.",
+      "amount": 351135,
       "children": [
         {
-          "id": "medical-services",
-          "name": "Hospitals, GPs and other medical services",
-          "amount": 247359
+          "id": "state-pension",
+          "name": "State Pension and pensioner benefits",
+          "description": "Mostly the State Pension, plus Pension Credit and other pensioner benefits. Public service pensions are counted net of the contributions paid in.",
+          "amount": 154858
         },
-        {
-          "id": "health-admin",
-          "name": "Health administration and public health",
-          "amount": 7311
-        },
-        {
-          "id": "medical-research",
-          "name": "Medical research",
-          "amount": 2871
-        }
-      ],
-      "share": 0.20978488947972057
-    },
-    {
-      "id": "welfare",
-      "name": "Welfare",
-      "description": "Benefits for people of working age, disabled people and families, including Universal Credit and Child Benefit.",
-      "amount": 194894,
-      "children": [
         {
           "id": "universal-credit",
           "name": "Universal Credit, tax credits and income support",
@@ -81,36 +64,47 @@ export default {
           "amount": 1396
         },
         {
+          "id": "survivors",
+          "name": "Benefits for widows and other survivors",
+          "amount": 1383
+        },
+        {
           "id": "welfare-research",
           "name": "Research on social protection",
           "amount": 0
         }
       ],
-      "share": 0.1587539750808049
+      "share": 0.28602254066312166
     },
     {
-      "id": "pensions",
-      "name": "Pensions",
-      "description": "The State Pension, Pension Credit and other help for pensioners.",
-      "amount": 156241,
+      "id": "health",
+      "name": "Health",
+      "colour": "#1B9AAA",
+      "description": "The NHS: hospitals, GPs, medicines, public health and medical research.",
+      "amount": 257542,
       "children": [
         {
-          "id": "state-pension",
-          "name": "State Pension and pensioner benefits",
-          "description": "Mostly the State Pension, plus Pension Credit and other pensioner benefits. Public service pensions are counted net of the contributions paid in.",
-          "amount": 154858
+          "id": "medical-services",
+          "name": "Hospitals, GPs and other medical services",
+          "amount": 247359
         },
         {
-          "id": "survivors",
-          "name": "Benefits for widows and other survivors",
-          "amount": 1383
+          "id": "health-admin",
+          "name": "Health administration and public health",
+          "amount": 7311
+        },
+        {
+          "id": "medical-research",
+          "name": "Medical research",
+          "amount": 2871
         }
       ],
-      "share": 0.12726856558231675
+      "share": 0.20978488947972057
     },
     {
       "id": "debt-interest",
       "name": "Debt interest",
+      "colour": "#F4B400",
       "description": "Interest on government borrowing, the Bank of England's bond-buying losses, and interest building up in public sector pension schemes.",
       "amount": 130305,
       "children": [
@@ -147,6 +141,7 @@ export default {
     {
       "id": "education",
       "name": "Education",
+      "colour": "#3F51B5",
       "description": "Nurseries, schools, colleges and universities.",
       "amount": 125721,
       "children": [
@@ -198,6 +193,7 @@ export default {
     {
       "id": "defence",
       "name": "Defence",
+      "colour": "#43A047",
       "description": "The armed forces, military aid and defence research.",
       "amount": 65418,
       "children": [
@@ -232,6 +228,7 @@ export default {
     {
       "id": "social-care",
       "name": "Social care",
+      "colour": "#D81B60",
       "description": "Care for older people, disabled adults and children, run by councils.",
       "amount": 56135,
       "children": [
@@ -261,6 +258,7 @@ export default {
     {
       "id": "public-order",
       "name": "Police, courts and prisons",
+      "colour": "#00ACC1",
       "description": "Police, border control, fire and rescue, courts and prisons.",
       "amount": 55720,
       "children": [
@@ -300,6 +298,7 @@ export default {
     {
       "id": "transport",
       "name": "Transport",
+      "colour": "#FB8C00",
       "description": "Railways, roads, buses and other transport.",
       "amount": 48923,
       "children": [
@@ -334,6 +333,7 @@ export default {
     {
       "id": "economy",
       "name": "Business, energy, farming and science",
+      "colour": "#8E24AA",
       "description": "Support for business and jobs, energy, farming, broadband and research.",
       "amount": 45036,
       "children": [
@@ -393,6 +393,7 @@ export default {
     {
       "id": "government",
       "name": "Running the government",
+      "colour": "#7CB342",
       "description": "Parliament, ministries, tax collection, diplomacy and payments to and from EU institutions.",
       "amount": 27845,
       "children": [
@@ -428,6 +429,7 @@ export default {
     {
       "id": "housing",
       "name": "Housing and communities",
+      "colour": "#6D4C41",
       "description": "Council and social housing, local regeneration, street lighting and water.",
       "amount": 22470,
       "children": [
@@ -467,6 +469,7 @@ export default {
     {
       "id": "environment",
       "name": "Environment",
+      "colour": "#26A69A",
       "description": "Rubbish collection and disposal, pollution control and nature.",
       "amount": 19157,
       "children": [
@@ -501,6 +504,7 @@ export default {
     {
       "id": "culture",
       "name": "Culture, sport and broadcasting",
+      "colour": "#EC407A",
       "description": "Museums, libraries, the arts, sport and the BBC.",
       "amount": 15053,
       "children": [
@@ -535,6 +539,7 @@ export default {
     {
       "id": "aid",
       "name": "Aid to other countries",
+      "colour": "#5C6BC0",
       "description": "Economic help to other countries: one part of the overseas aid budget. It is not the official aid (ODA) total, which is measured differently.",
       "amount": 7189,
       "children": [

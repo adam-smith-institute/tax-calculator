@@ -81,13 +81,13 @@ Adjusted net income is £10,000 over £60,000: 50 complete £200 steps, so 50%.
 
 £6,000 is sacrificed, leaving pay of £54,000 for both tax and NI (no NI cap before 2029-30).
 Income tax: £41,430 taxable, so £7,540 + £3,730 × 40% = £9,032. Employee NI: £3,016 +
-£3,730 × 2% = £3,090.60. Employer NI: (£54,000 − £5,000) × 15% = £7,350, of which 75%,
-£5,512.50, counts as the employee's.
+£3,730 × 2% = £3,090.60. Employer NI: (£54,000 − £5,000) × 15% = £7,350, of which 76%,
+£5,586, counts as the employee's.
 
 | | 2026-27 | 2027-28 |
 |---|---|---|
-| **Total** | **£17,635.10** | **£17,635.10** |
-| Average rate: £17,635.10 ÷ (£60,000 + £5,512.50) | 26.92% | 26.92% |
+| **Total** | **£17,708.60** | **£17,708.60** |
+| Average rate: £17,708.60 ÷ (£60,000 + £5,586) | 27.00% | 27.00% |
 
 ## 8. Self-employed: £40,000 profit
 

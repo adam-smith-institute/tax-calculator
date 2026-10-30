@@ -13,10 +13,11 @@ const taxonomy = JSON.parse(readFileSync(new URL('../src/spending/taxonomy.json'
 const workbook = readWorkbook(buffer);
 const table = parseTable52(workbook);
 
-// Appendix C of the brief (2025-26 outturn, £ million). "Running the government" includes
-// EU transactions (-166), as approved in TAXONOMY.md.
+// Appendix C of the brief (2025-26 outturn, £ million), with the approved changes: EU
+// transactions (-166) in "Running the government", and Welfare (194,894) and Pensions
+// (156,241) merged (TAXONOMY.md).
 const APPENDIX_C = {
-  health: 257542, welfare: 194894, pensions: 156241, 'debt-interest': 130305, education: 125721,
+  'welfare-pensions': 194894 + 156241, health: 257542, 'debt-interest': 130305, education: 125721,
   defence: 65418, 'social-care': 56135, 'public-order': 55720, transport: 48923, economy: 45036,
   government: 28011 - 166, housing: 22470, environment: 19157, culture: 15053, aid: 7189,
 };
@@ -48,7 +49,9 @@ test('reproduces the 2025-26 figures in Appendix C', () => {
   assert.equal(totals.tes, 1227648);
   assert.ok(Math.abs(totals.categoriesSum - totals.tes) <= 1);
   // Ranked largest first
-  assert.deepEqual(categories.slice(0, 3).map((c) => c.name), ['Health', 'Welfare', 'Pensions']);
+  assert.deepEqual(categories.slice(0, 3).map((c) => c.name), ['Welfare and pensions', 'Health', 'Debt interest']);
+  // Every category carries its chart colour
+  assert.ok(categories.every((c) => /^#[0-9A-F]{6}$/i.test(c.colour)));
   // Drill-down splits debt interest into its parts
   const debt = categories.find((c) => c.id === 'debt-interest');
   assert.deepEqual(debt.children.map((c) => c.amount), [96946, 19381, 12344, 1132, 502]);
@@ -109,7 +112,7 @@ test('pull request table shows old, new, change and share of the pound', () => {
   const prev = structuredClone(doc);
   prev.categories[0].amount -= 2500;
   const md = changeTable(prev, doc);
-  assert.match(md, /\| Health \| £255\.0bn \| £257\.5bn \| \+£2\.5bn \| 21\.0p \|/);
+  assert.match(md, /\| Welfare and pensions \| £348\.6bn \| £351\.1bn \| \+£2\.5bn \| 28\.6p \|/);
 });
 
 test('label normalisation', () => {

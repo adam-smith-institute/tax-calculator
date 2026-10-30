@@ -5,8 +5,8 @@ are built from HM Treasury's Public Expenditure Statistical Analyses (PESA), Tab
 "Public sector expenditure on services by sub-function". The mapping lives in
 `src/spending/taxonomy.json`, which ASI owns; this document explains it.
 
-**Status:** approved 29 October 2026 (you asked for every recommended change to go ahead).
-Version 1.0.0.
+**Status:** approved 29 October 2026. Version 1.1.0 (30 October 2026) merges Welfare and Pensions
+into one category and gives each category a chart colour.
 
 ## What the data is, in plain English
 
@@ -36,21 +36,20 @@ rounds each line separately.
 
 | # | Category | Plain-English description | Built from | £m | Share | Pence in £1 |
 |---|---|---|---|---|---|---|
-| 1 | Health | The NHS: hospitals, GPs, medicines, public health and medical research | 7. Health | 257,542 | 21.0% | 21p |
-| 2 | Welfare | Benefits for people of working age, disabled people and families, including Universal Credit and Child Benefit | 10. Social protection, less pensions, survivors and personal social services: the benefit lines of 10.1, 10.4 and 10.7, plus 10.5, 10.6 and 10.9 | 194,894 | 15.9% | 16p |
-| 3 | Pensions | The State Pension, Pension Credit and other help for pensioners | 10.2 "of which: pensions" + 10.3 Survivors | 156,241 | 12.7% | 13p |
-| 4 | Debt interest | Interest on government borrowing, the Bank of England's bond-buying losses, and interest building up in public sector pension schemes | 1.7 Public debt transactions | 130,305 | 10.6% | 11p |
-| 5 | Education | Nurseries, schools, colleges and universities | 9. Education | 125,721 | 10.2% | 10p |
-| 6 | Defence | The armed forces, military aid and defence research | 2. Defence | 65,418 | 5.3% | 5p |
-| 7 | Social care | Care for older people, disabled adults and children, run by councils | Every "of which: personal social services" line in 10. | 56,135 | 4.6% | 5p |
-| 8 | Police, courts and prisons | Police, border control, fire and rescue, courts and prisons | 3. Public order and safety | 55,720 | 4.5% | 5p |
-| 9 | Transport | Railways, roads, buses and other transport | 4.5 Transport | 48,923 | 4.0% | 4p |
-| 10 | Business, energy, farming and science | Support for business and jobs, energy, farming, broadband and research | 4. Economic affairs, less 4.5 | 45,036 | 3.7% | 4p |
-| 11 | Running the government | Parliament, ministries, tax collection, diplomacy and payments to and from EU institutions | 1.1, 1.3, 1.4, 1.5, 1.6 and EU transactions | 27,845 | 2.3% | 2p |
-| 12 | Housing and communities | Council and social housing, local regeneration, street lighting and water | 6. Housing and community amenities | 22,470 | 1.8% | 2p |
-| 13 | Environment | Rubbish collection and disposal, pollution control and nature | 5. Environment protection | 19,157 | 1.6% | 2p |
-| 14 | Culture, sport and broadcasting | Museums, libraries, the arts, sport and the BBC | 8. Recreation, culture and religion | 15,053 | 1.2% | 1p |
-| 15 | Aid to other countries | Economic help to other countries (one part of the overseas aid budget) | 1.2 Foreign economic aid | 7,189 | 0.6% | 1p |
+| 1 | Welfare and pensions | The State Pension and other help for pensioners, and benefits for people of working age, disabled people and families, including Universal Credit and Child Benefit | 10. Social protection, less personal social services: 10.2 "of which: pensions", 10.3 Survivors, the benefit lines of 10.1, 10.4 and 10.7, plus 10.5, 10.6, 10.8 and 10.9 | 351,135 | 28.6% | 29p |
+| 2 | Health | The NHS: hospitals, GPs, medicines, public health and medical research | 7. Health | 257,542 | 21.0% | 21p |
+| 3 | Debt interest | Interest on government borrowing, the Bank of England's bond-buying losses, and interest building up in public sector pension schemes | 1.7 Public debt transactions | 130,305 | 10.6% | 11p |
+| 4 | Education | Nurseries, schools, colleges and universities | 9. Education | 125,721 | 10.2% | 10p |
+| 5 | Defence | The armed forces, military aid and defence research | 2. Defence | 65,418 | 5.3% | 5p |
+| 6 | Social care | Care for older people, disabled adults and children, run by councils | Every "of which: personal social services" line in 10. | 56,135 | 4.6% | 5p |
+| 7 | Police, courts and prisons | Police, border control, fire and rescue, courts and prisons | 3. Public order and safety | 55,720 | 4.5% | 5p |
+| 8 | Transport | Railways, roads, buses and other transport | 4.5 Transport | 48,923 | 4.0% | 4p |
+| 9 | Business, energy, farming and science | Support for business and jobs, energy, farming, broadband and research | 4. Economic affairs, less 4.5 | 45,036 | 3.7% | 4p |
+| 10 | Running the government | Parliament, ministries, tax collection, diplomacy and payments to and from EU institutions | 1.1, 1.3, 1.4, 1.5, 1.6 and EU transactions | 27,845 | 2.3% | 2p |
+| 11 | Housing and communities | Council and social housing, local regeneration, street lighting and water | 6. Housing and community amenities | 22,470 | 1.8% | 2p |
+| 12 | Environment | Rubbish collection and disposal, pollution control and nature | 5. Environment protection | 19,157 | 1.6% | 2p |
+| 13 | Culture, sport and broadcasting | Museums, libraries, the arts, sport and the BBC | 8. Recreation, culture and religion | 15,053 | 1.2% | 1p |
+| 14 | Aid to other countries | Economic help to other countries (one part of the overseas aid budget) | 1.2 Foreign economic aid | 7,189 | 0.6% | 1p |
 | | **Total** | | | **1,227,649** | | |
 | | TES as published | | | 1,227,648 | | |
 
@@ -64,44 +63,43 @@ category is under 1p.
 
 Each category opens to these lines (Table 5.2 line in brackets):
 
-1. **Health:** Hospitals, GPs and other medical services (Medical services); Health
+1. **Welfare and pensions:** State Pension and pensioner benefits (10.2 pensions); Universal
+   Credit, tax credits and income support (10.7 benefits); Disability and incapacity benefits
+   (10.1 benefits); Family benefits, such as Child Benefit (10.4 benefits); Help with housing
+   costs, such as Housing Benefit (10.6); Other support, including compensation schemes such
+   as for infected blood and the Post Office Horizon scandal (10.9); Unemployment benefits
+   (10.5 benefits); Benefits for widows and other survivors (10.3).
+2. **Health:** Hospitals, GPs and other medical services (Medical services); Health
    administration and public health (Central and other health services); Medical research.
-2. **Welfare:** Universal Credit, tax credits and income support (10.7 benefits); Disability
-   and incapacity benefits (10.1 benefits); Family benefits, such as Child Benefit (10.4
-   benefits); Help with housing costs, such as Housing Benefit (10.6); Unemployment benefits
-   (10.5 benefits); Other support, including compensation schemes such as for infected blood
-   and the Post Office Horizon scandal (10.9).
-3. **Pensions:** State Pension and pensioner benefits (10.2 pensions); Benefits for widows and
-   other survivors (10.3).
-4. **Debt interest:** Interest on central government debt; Bank of England bond-buying
+3. **Debt interest:** Interest on central government debt; Bank of England bond-buying
    (Asset Purchase Facility) costs; Interest building up in public sector pension schemes;
    Council and public corporation debt interest. See the note below.
-5. **Education:** Under-fives; Primary schools; Secondary schools (includes all academies:
+4. **Education:** Under-fives; Primary schools; Secondary schools (includes all academies:
    see the note below); Universities and other higher education; Further education below
    degree level; School meals, transport and other support services; Education research;
    Other education.
-6. **Defence:** Armed forces; Military aid to other countries; Defence research; Civil
+5. **Defence:** Armed forces; Military aid to other countries; Defence research; Civil
    defence; Other defence.
-7. **Social care:** Care for disabled adults; Care for older people; Children's social care;
+6. **Social care:** Care for disabled adults; Care for older people; Children's social care;
    Other social care.
-8. **Police, courts and prisons:** Police; Immigration and border control; Fire and rescue;
+7. **Police, courts and prisons:** Police; Immigration and border control; Fire and rescue;
    Courts; Prisons; Other.
-9. **Transport:** Railways; Local roads; National roads; Buses and local public transport;
+8. **Transport:** Railways; Local roads; National roads; Buses and local public transport;
    Other transport.
-10. **Business, energy, farming and science:** Business, trade and employment support;
+9. **Business, energy, farming and science:** Business, trade and employment support;
     Research and development; Energy; Farm payments; Farming, food and fisheries; Forestry;
     Broadband and communications; Mining, manufacturing and construction; Other industries;
     Other.
-11. **Running the government:** Parliament, ministries, tax collection and diplomacy; General
+10. **Running the government:** Parliament, ministries, tax collection and diplomacy; General
     government services; Other government services; Government research; Net payments to EU
     institutions (−£166 million in 2025-26: receipts exceeded payments).
-12. **Housing and communities:** Council housing; Other social housing; Community
+11. **Housing and communities:** Council housing; Other social housing; Community
     development; Street lighting; Water supply; Other.
-13. **Environment:** Rubbish collection and disposal; Pollution control; Wildlife and
+12. **Environment:** Rubbish collection and disposal; Pollution control; Wildlife and
     countryside; Environmental research; Other.
-14. **Culture, sport and broadcasting:** Museums, libraries and the arts; Broadcasting and
+13. **Culture, sport and broadcasting:** Museums, libraries and the arts; Broadcasting and
     publishing; Sport and recreation; Religious and community services; Other.
-15. **Aid to other countries:** one line.
+14. **Aid to other countries:** one line.
 
 Lines that are zero in a year (for example 1.4 Basic research, 5.2 Waste water management)
 are still mapped, so a non-zero figure in a later year has a home, but the calculator hides
@@ -122,9 +120,19 @@ with that explanation, so the headline category isn't mistaken for cash interest
 
 **"Old age: pensions".** In PESA this is almost all central government: the State Pension
 (by far the largest part), Pension Credit and other pensioner benefits, plus public service
-pensions counted net of the contributions paid in (a small negative in 2025-26). The category
-is called **Pensions** and described as "the State Pension, Pension Credit and other help for
-pensioners". It does not claim to be only the State Pension.
+pensions counted net of the contributions paid in (a small negative in 2025-26). Its
+drill-down line is called "State Pension and pensioner benefits", and does not claim to be
+only the State Pension.
+
+**Welfare and pensions together (version 1.1.0).** ASI asked for one category covering
+benefits for pensioners and for people of working age, so the chart shows the whole social
+security bill as a single slice (28.6% of spending in 2025-26). The drill-down keeps the
+pensions and working-age lines separate.
+
+**Colours.** Each category has a colour in `taxonomy.json` (`colour`), so it keeps the same
+colour when the data is refreshed. The colours are vivid and varied, alternating warm and
+cool down the ranking so neighbouring slices contrast. They depart from the ASI Design
+System's palette by ASI's choice, and are used only in the spending chart.
 
 **EU transactions (−£166 million).** Folded into **Running the government** as a drill-down
 line. A negative category of its own would show as a bar going the wrong way and add a 16th

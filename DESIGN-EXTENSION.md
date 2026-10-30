@@ -1,143 +1,149 @@
 # ASI Design System: interactive patterns
 
 The ASI Design System covers artwork and print and defines no interactive UI. This calculator
-needed some, so this document records each new pattern for adding to the system. Each one
-extends the policy paper's `web` treatment: a white page, ASI blue `#134079` as the only
-interior accent, Josefin Sans for headings, labels, numbers and charts, and PT Serif for
-explanatory text. None of them introduces a rounded corner, shadow, gradient, tint, opacity
-variant of the blue or floating panel.
+needed some, so this document records each pattern for adding to the system. They build on
+the policy paper's `web` treatment: a white page, ASI blue `#134079`, Josefin Sans for
+headings, labels, numbers and charts, and PT Serif for explanatory text.
 
-The code is in `src/styles.css`, with each pattern's name in a comment.
+**Departures from the Design System, made at ASI's request (30 October 2026):**
+
+1. **The spending chart uses a vivid, varied palette**, one colour per category, set in
+   `src/spending/taxonomy.json`. Fourteen categories cannot be told apart in the system's
+   four chart colours.
+2. **A pie (donut) chart** shows the spending split, in place of the system's ranked bar.
+3. **A light panel** (`#F3F5F8`) groups the inputs, and explanations sit on a white or
+   panel ground with a blue left rule. The system otherwise has no panels or tints.
+
+Everything else keeps to the system: no rounded corners, no shadows, sentence case, flush
+left, no hyphenation, line-height never below 1.2.
+
+The code is in `src/styles.css` and `src/ui/pie.js`.
 
 ## Tokens
 
-The design system's palette and the policy paper's web tokens, plus two additions.
-
-| Token | Value | Use | Contrast on white |
+| Token | Value | Use | Contrast |
 |---|---|---|---|
-| `--asi-blue` | `#134079` | Headings, key figures, links, selected states, focus ring, primary chart series | 10.3:1 |
+| `--asi-blue` | `#134079` | Headings, key figures, links, selected states, focus ring | 10.3:1 on white, 9.4:1 on the panel |
 | `--ink` | `#161616` | Text | 18.1:1 |
-| `--grey` | `#52585e` | Hints, captions, sources, notes | 7.2:1 |
-| `--hairline` | `#c9cdd2` | Rules between content only, never a control boundary | (decorative) |
-| `--asi-amber` | `#C67A2E` | Second chart series (sub-categories) | 3.37:1, enough for a graphic (3:1) |
-| **`--control-border`** (new) | `#52585e` | Borders of inputs and checkboxes | 7.2:1 (WCAG asks 3:1) |
-| **`--focus`** (new) | `#134079` | Focus ring | 10.3:1 |
+| `--grey` | `#52585e` | Hints, captions, sources, unselected tabs | 7.2:1 on white, 6.6:1 on the panel |
+| `--hairline` | `#c9cdd2` | Rules between content; never a control boundary | (decorative) |
+| `--panel` (new) | `#f3f5f8` | Background of the inputs panel and of explanations in the results | |
+| `--hover` (new) | `#eef1f6` | Hover and highlight background of legend rows and the segmented control | ink 16.0:1 |
+| `--control-border` (new) | `#52585e` | Borders of inputs | 7.2:1 (WCAG asks 3:1) |
+| `--focus` (new) | `#134079` | Focus ring | 10.3:1 |
+| Category colours (new) | in `taxonomy.json` | Pie slices and legend swatches only | (the legend carries every figure as text) |
 
-Lavender `#8B8DBE` and navy `#1B2A4A` stay out of the interface. Lavender appears only as the
-payload in the share image; navy only in the logo and as the link hover colour, as in the
-policy paper.
+Lavender `#8B8DBE` appears only as the payload on the share image. Navy `#1B2A4A` appears
+only in the logo and as the link hover colour.
 
 ## Type for screens
 
-Josefin Sans reads small, so it is set larger than instinct suggests. No line-height goes
-below 1.2, everything is flush left in sentence case, and nothing is hyphenated.
+Josefin Sans reads small, so it is set larger than instinct suggests.
 
 | Role | Face | Size / line-height |
 |---|---|---|
-| Page title | Josefin 400, blue | 30 to 46px (fluid) / 1.2 |
-| Section heading | Josefin 600, blue | 24px / 1.25 |
-| Headline figure | Josefin 600, blue, tabular | 52 to 80px (fluid) / 1.0 (a numeral, as on the Stat Card) |
-| Field label | Josefin 600, ink | 18px / 1.3 |
-| Input text | Josefin 400, ink, tabular | 20px / 1.3 |
-| Hint | PT Serif 400, grey | 15.5px / 1.45 |
-| Body and explanations | PT Serif 400, ink | 16 to 17px / 1.5 |
-| Table numbers and chart labels | Josefin 400 or 600, tabular | 15 to 18px |
+| Page title | Josefin 400, blue | 28 to 40px (fluid) / 1.2 |
+| Panel heading | Josefin 600, blue | 22px / 1.25 |
+| Headline figure | Josefin 600, blue, tabular | 52 to 76px (fluid) / 1.0 |
+| Tabs | Josefin 600 | 19px |
+| Field label | Josefin 600, ink | 17.5px / 1.3 |
+| Input text | Josefin 400, ink, tabular | 20px |
+| Hint | PT Serif 400, grey | 15px / 1.4 |
+| Explanations and body | PT Serif 400, ink | 15.5 to 17px / 1.5 |
+| Legend and tables | Josefin 400 or 600, tabular | 14.5 to 18px |
+
+## Layout
+
+Two columns from 960px wide: **Your details** (the inputs panel, about 390px) on the left,
+results on the right. Below that width there is one column, inputs first. Only what most
+people need is open: tax year, age, salary (with the employer NI option) and
+self-employment profit. Everything else sits in four closed groups, so the page shows little
+at once.
 
 ## Patterns
 
 ### Focus
 
-Every focusable element shows a **2px solid ASI blue outline, offset 2px**, only for keyboard
-focus (`:focus-visible`). It is never removed and never replaced by colour alone. Bar rows
-use a 4px offset so the ring clears the bar.
+A **2px solid ASI blue outline, offset 2px**, for keyboard focus only (`:focus-visible`).
+It is never removed. Inside the segmented control and legend rows the ring is inset, so it
+stays visible against the blue fill or the row background.
 
 ### Text input
 
-A white field with a **1px `--control-border` border**, square corners, 12px horizontal
-padding and a minimum height of 48px (a comfortable touch target). Money fields carry a "£"
-box joined to the left, percentages a "%" box on the right, in the same border. The label
-sits above in Josefin 600, with any hint between label and field in PT Serif grey. The hint
-is tied to the field with `aria-describedby`.
-
-**Error:** the border thickens to **2px ink**, and a message in Josefin 600 ink appears
-under the field, starting "Error:". The field gets `aria-invalid="true"`. The system has no
-red, and colour alone would not do, so weight and words carry the error.
-
-### Checkbox and radio choice
-
-Native controls at 22px, with `accent-color: #134079`, so they keep the platform's
-accessibility. Labels are Josefin 600, 18px, to the right; hints sit under the label. Radio
-choices sit side by side in a `fieldset` whose `legend` asks the question.
+A white field with a **1px `--control-border` border**, square, 46px minimum height. Money
+fields have a "£" box on the left and percentages a "%" box on the right. The label sits
+above, with any hint between label and field, linked by `aria-describedby`. On error the
+border thickens to **2px ink** and a message beginning "Error:" appears beneath, and the
+field gets `aria-invalid="true"`.
 
 ### Segmented control (tax year)
 
-A row of text buttons with `aria-pressed`. The selected one is **Josefin 600 in blue with a
-3px blue underline bar**; the others are ink, with a hairline underline on hover. A short
-note follows in Josefin 300 ("current", "after Budget 2026"). The pattern is taken from the
-Global Energy Security Index tracker's view switch.
+Two equal buttons in a 1px blue frame, each with `aria-pressed`. The selected one is
+**filled ASI blue with white text**; the other is white with blue text and takes the hover
+colour on hover. A short note sits under each year ("this year", "after Budget 2026").
 
-### Disclosure (expandable section)
+### Help button ("?") and explanation
 
-Native `<details>` and `<summary>`, with the browser's marker hidden. The summary is Josefin
-600, 19px, blue, preceded by a **plus sign drawn as two 2px blue bars**, which becomes a minus
-when open. The section is bounded by hairline rules above and below. There are no panels and
-no fills. Used for "More income and allowances", "Detailed breakdown" and "Show as a table".
+A 26px square button with a 1.5px blue border and a blue "?" in Josefin 600. It has a
+descriptive `aria-label` (for example "How age affects your tax") and `aria-expanded`. It
+reveals an explanation **inline**, under the label: PT Serif on a white or panel ground
+with a 3px blue left rule. The button fills blue while the explanation is open. Help never
+appears on hover alone.
 
-### Explainer ("What does this mean?")
+### Input group (closed by default)
 
-Replaces hover tooltips. A text button, Josefin 400, 15.5px, blue and underlined, with
-`aria-expanded` and `aria-controls`. It reveals a block of PT Serif text **inline**, beneath
-a hairline rule. It never floats over content, so it works by keyboard, touch and screen
-reader, and inside an iframe. The underline thickens from 1px to 2px while open.
+Native `<details>`. The summary line has a blue plus sign (two flat 2px bars, the vertical
+one hidden when open), the group name in Josefin 600 blue, and on the right a **status in
+grey that says what has been entered** ("£7,000 entered", "2 children"). That way a closed
+group still shows whether it affects the result. Groups are separated by hairline rules.
 
-### Expandable bar row (chart)
+### Tabs
 
-A ranked horizontal bar chart in which each row is a full-width `<button>` with
-`aria-expanded`:
+The WAI-ARIA tabs pattern: `role="tablist"`, `tab` and `tabpanel`. The left and right
+arrows, Home and End move between tabs. The selected tab is blue with a **3px blue
+underline** sitting on the tablist's hairline; the others are grey and turn blue on hover.
+Used for **Your tax** and **Where it goes**. A primary button at the end of the first panel,
+"See where it goes →", leads to the second.
 
-- The top line has the category name (Josefin 600, 18px) on the left and the figures
-  (Josefin 400, "£X · Yp in every £1") on the right. They wrap onto two lines on narrow
-  screens.
-- The bar (16px high, flat ASI blue) runs underneath, scaled to the largest category. There
-  is no track, no rounding and no value label inside the bar.
-- On the right sits the same plus or minus sign as the disclosure.
-- Opening a row shows its description and its sub-categories inline, each with a 10px
-  **amber** bar (the second series colour) scaled to the largest sub-category.
-- Rows are separated by hairline rules. Hover underlines the name.
-- A "Show as a table" disclosure gives the same figures as a data table for screen readers
-  and copying.
+### Donut chart with an interactive legend
+
+- An SVG donut (outer radius 156, inner 98, on a 320 grid), slices clockwise from 12
+  o'clock, largest first, with 2px white separators. The total sits in the centre in
+  Josefin 600 blue, with a grey label beneath.
+- **The legend is the interface.** It is a list of buttons, one per category: a colour
+  swatch, the name in Josefin 600, "Your tax" and "In £1" in right-aligned tabular columns,
+  under small grey column headings. It works by keyboard and screen reader, and the SVG has
+  an `aria-label` that points to it.
+- Hovering or focusing a legend row, or hovering a slice, highlights that pair and fades the
+  other slices to 35% opacity.
+- **Selecting a category** (legend button or slice click) redraws the donut with its parts.
+  A "← All spending" link and the category's name and description head the legend, and
+  focus moves to the name. Parts are listed with their descriptions running full width
+  beneath. A net negative part (EU transactions) is listed but left out of the donut, with a
+  note saying so. "All spending" returns focus to the category's button.
+- A "Show as a table" disclosure gives every figure as a data table.
 
 ### Data table
 
-Policy paper §6.9, adapted for screen: a header row in Josefin 600 blue over a **2px blue
-rule**, body rows on hairline rules, no vertical rules and no fills. Numbers are right-aligned
-and tabular. Section rows are Josefin 600 blue over a 1px blue rule. The total row is Josefin
-600 blue over a 2px blue rule. Wide tables scroll inside their own box, so the page itself
-never scrolls sideways.
+A header row in Josefin 600 blue over a **2px blue rule**, body rows on hairline rules, and
+no vertical rules or fills. Numbers are right-aligned and tabular. The total row is Josefin
+600 blue over a 2px blue rule. Wide tables scroll inside their own box, so the page never
+scrolls sideways.
 
-### Button
+### Buttons
 
-Josefin 600, 18px, white on flat ASI blue, square, 12 × 22px padding, minimum height 48px.
-Hover underlines the label. The fill never changes, because there are no tints or opacity
-variants of the blue. While busy the button is disabled and shows a progress cursor. One
-primary button per view.
-
-### Rules and spacing
-
-Sections are separated by space and **1px hairline rules**. A blue rule (1px, or 2px under
-table headers and totals) marks structure within tables. Cards, panels, boxes and left-border
-callouts are not used.
+**Primary:** Josefin 600, 17px, white on ASI blue, square, 46px minimum height. **Secondary:**
+blue text on white with a 2px blue border. Hover underlines the label. Disabled while busy,
+with a progress cursor.
 
 ### Embedding
 
 The page posts `{ type: 'asi-tax-calculator:height', height }` to its parent whenever its
-height changes, so a host page can size the iframe and avoid an inner scrollbar (see
-`EMBED.md`).
+height changes (see `EMBED.md`).
 
 ## Share image
 
-The Stat Card at 1080 × 1350 (4:5): flat blue ground, the white roundel top-right at 12.5%
-of width with a 2% margin, and the total in lavender as the numeral. Beneath it, in white
-Josefin, are the headline "is what I pay in tax in 2026-27.", the three largest categories
-ranked from the data, and a source line. The footer has the 480 × 6 rule (at 2048 scale) and
-adamsmith.org. The card waits for `document.fonts.ready` before drawing.
+Unchanged, and fully within the Design System: the Stat Card at 1080 × 1350, a flat blue
+ground, the white roundel top-right at 12.5% of width with a 2% margin, the total in
+lavender, white Josefin, the three largest categories ranked from the data, a source line,
+and the footer rule with adamsmith.org.

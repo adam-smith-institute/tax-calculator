@@ -291,7 +291,9 @@ cited to the calendar.
 - CGT at 18% / 24%, sharing the basic rate band left after income. The order the annual exempt
   amount is set against residential and other gains makes no difference while their rates
   match.
-- The 75% employer NI incidence is applied as described and is kept, as instructed.
+- The 75% employer NI incidence is applied as described. (Changed to 76%, the OBR's figure,
+  on 30 October 2026 at ASI's request. The as-shipped parameters keep 75% as the record of the
+  original.)
 
 ### Limitations to state in METHODOLOGY.md
 

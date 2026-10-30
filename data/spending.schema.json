@@ -36,6 +36,7 @@
         "properties": {
           "id": { "type": "string" },
           "name": { "type": "string" },
+          "colour": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "description": "Chart colour, set in the taxonomy" },
           "description": { "type": "string" },
           "amount": { "type": "number" },
           "share": { "type": "number" },
