@@ -144,3 +144,15 @@ test('N2: a year with the statutory order sets allowances against savings before
   p.incomeTax.allowanceAllocation = 'statutoryOrder';
   assert.equal(run({ savingsInterest: 6000, dividends: 20000 }, p).breakdown.incomeTax, 1389.98);
 });
+
+test('A7: State Pension age while it rises from 66 to 67', () => {
+  const p = structuredClone(params);
+  p.nic.statePensionAge = { askFrom: 66, certainFrom: 67 };
+  const nic = (age, reachedStatePensionAge) => run({ employmentIncome: 30000, age, reachedStatePensionAge }, p).breakdown.eeNIC;
+  assert.equal(nic(65), 1394.40); // (30,000 - 12,570) x 8%
+  assert.equal(nic(66), 1394.40); // not answered: treated as not yet reached
+  assert.equal(nic(66, false), 1394.40);
+  assert.equal(nic(66, true), 0);
+  assert.equal(nic(67), 0);
+  assert.equal(nic(67, false), 0); // 67 and over: always past SPA
+});

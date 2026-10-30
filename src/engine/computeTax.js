@@ -179,6 +179,7 @@ function allocateAllowances(allowances, ns, sv, dv, params, maRecipient) {
  *   salarySacrifice, pensionNetPay: £ a year
  *   blind, marriageAllowanceRecipient, includeEmployerNIC: boolean
  *   children: number of children for Child Benefit; age: years (0 = not given)
+ *   reachedStatePensionAge: boolean, used only between the year's spa.askFrom and certainFrom
  * @param {object} params  one of the files in /params
  */
 export function computeTax(inputs, params) {
@@ -250,8 +251,12 @@ export function computeTax(inputs, params) {
   }
   seNIC = round2(seNIC);
 
-  // Over State Pension age: no employee Class 1 or Class 4 NICs
-  if (age && age >= nic.statePensionAge) {
+  // Over State Pension age: no employee Class 1 or Class 4 NICs. While SPA is rising, the
+  // year's parameters give the age from which everyone is over it (certainFrom) and the age
+  // from which it depends on date of birth (askFrom); in between, the user says.
+  const spa = nic.statePensionAge;
+  const overSPA = !!age && (age >= spa.certainFrom || (age >= spa.askFrom && !!inputs.reachedStatePensionAge));
+  if (overSPA) {
     eeNIC = 0;
     seNIC = 0;
   }
