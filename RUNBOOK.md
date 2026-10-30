@@ -26,8 +26,8 @@ newer than the parameters. It never changes rates. When it fires (or after any B
      `askFrom: 67, certainFrom: 67` until the rise to 68 begins.
    - `property.rates`, savings rates and `property.financeCostReliefRate` (the property
      basic rate).
-   - `incomeTax.allowanceAllocation` stays `greatestReduction`. The engine always sets
-     allowances against other income first, as s25(3A) requires.
+   - `incomeTax.allowanceAllocation` stays `greatestReduction`, and
+     `incomeTax.otherIncomeFirst` stays `true` (s25(3A), from 2027-28).
 7. **A rule change, not just a rate.** Change the engine only behind a parameter, so
    earlier years keep their behaviour. Add hand-worked cases to `tests/worked-examples.md`
    and `tests/worked-examples.test.js`.
