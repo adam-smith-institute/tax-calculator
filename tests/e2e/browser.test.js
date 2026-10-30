@@ -311,7 +311,7 @@ test('help buttons are round with a centred question mark', async () => {
   await page.close();
 });
 
-test('share image: white card, top three shares as bars in the pie chart colours, clear of the footer', async () => {
+test('share image: white card, top three shares as bars in the pie chart colours with their share of spending, mark in the footer', async () => {
   const { page } = await open();
   await page.fill('#empInc', '72,000');
   const r = await page.evaluate(async () => {
@@ -328,14 +328,21 @@ test('share image: white card, top three shares as bars in the pie chart colours
       background: [hex(5, 5), hex(540, 1340), hex(5, 700)],
       bars: out.bars.map((b) => ({ want: b.colour.toUpperCase(), got: hex(b.x + b.w / 2, b.y + b.h / 2), w: b.w })),
       names: content.bars.map((b) => b.name),
-      contentBottom: out.contentBottom, footerTop: out.footerTop,
+      percents: content.bars.map((b) => b.percent),
+      contentBottom: out.contentBottom, footerTop: out.footerTop, mark: out.mark,
     };
   });
   assert.deepEqual(r.background, ['#FFFFFF', '#FFFFFF', '#FFFFFF']);
   assert.deepEqual(r.names, spending.categories.slice(0, 3).map((c) => c.name));
   for (const b of r.bars) assert.equal(b.got, b.want);
   assert.ok(r.bars[0].w > r.bars[1].w && r.bars[1].w > r.bars[2].w, 'bars ranked by size');
+  assert.deepEqual(r.percents, spending.categories.slice(0, 3).map((c) => `${(c.amount / spending.meta.tes * 100).toFixed(1)}% of spending`));
   assert.ok(r.contentBottom < r.footerTop - 40, `content ends at ${r.contentBottom}, footer at ${r.footerTop}`);
+  // The mark sits bottom right, beside the footer, at least 8% of the width, clear of the content
+  assert.ok(r.mark.x > 1080 / 2 && r.mark.y > r.footerTop - r.mark.size, 'mark in the bottom-right footer');
+  assert.ok(r.mark.size >= 0.08 * 1080);
+  assert.ok(r.mark.x + r.mark.size <= 1080 - 79 + 1 && r.mark.y + r.mark.size <= 1350);
+  assert.ok(r.contentBottom < r.mark.y, 'content ends above the mark');
   await page.close();
 });
 
