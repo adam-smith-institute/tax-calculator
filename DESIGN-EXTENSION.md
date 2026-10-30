@@ -160,7 +160,14 @@ height changes (see `EMBED.md`).
 
 ## Share image
 
-Unchanged, and fully within the Design System: the Stat Card at 1080 × 1350, a flat blue
-ground, the white roundel top-right at 12.5% of width with a 2% margin, the total in
-lavender, white Josefin, the three largest categories ranked from the data, a source line,
-and the footer rule with adamsmith.org.
+A 1080 × 1350 (4:5) card, laid out on the Design System's Stat Card grid: the mark top-right
+at 12.5% of width with a 2% margin, 150px margins, and the footer rule (480 × 6 at 2048 scale)
+with adamsmith.org anchored 202px from the bottom.
+
+**Departure, at ASI's request:** the card is **white**, not ASI blue. So the total is set in
+ASI blue (Josefin 600), the headline in ink, the mark is the navy roundel (the system's
+version for light grounds), and the footer rule and URL are blue. The three largest shares
+are a **horizontal bar chart in the pie chart's category colours**: the name above each bar,
+the bar scaled to the largest, and the amount just past its end. The categories, colours
+and order come from the data. A grey source line sits below. The card waits for
+`document.fonts.ready` before drawing, and a test checks it never runs into the footer.

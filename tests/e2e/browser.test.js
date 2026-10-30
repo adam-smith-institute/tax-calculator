@@ -310,3 +310,31 @@ test('help buttons are round with a centred question mark', async () => {
   assert.ok(box.label.length > 5);
   await page.close();
 });
+
+test('share image: white card, top three shares as bars in the pie chart colours, clear of the footer', async () => {
+  const { page } = await open();
+  await page.fill('#empInc', '72,000');
+  const r = await page.evaluate(async () => {
+    const v = document.querySelector('meta[name="asi-version"]').content;
+    const { drawShareCard, shareContent } = await import(`./src/ui/share.js?v=${v}`);
+    const { loadSpending, allocate } = await import(`./src/ui/spending-data.js?v=${v}`);
+    const { data } = await loadSpending();
+    const total = Number(document.getElementById('total').textContent.replace(/[£,]/g, ''));
+    const content = shareContent(total, '2026-27', allocate(total, data), data.meta);
+    const out = await drawShareCard(document.createElement('canvas'), content, 'assets/logo/asi_logo_navy.svg');
+    const ctx = out.canvas.getContext('2d');
+    const hex = (x, y) => '#' + [...ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data.slice(0, 3)].map((n) => n.toString(16).padStart(2, '0')).join('').toUpperCase();
+    return {
+      background: [hex(5, 5), hex(540, 1340), hex(5, 700)],
+      bars: out.bars.map((b) => ({ want: b.colour.toUpperCase(), got: hex(b.x + b.w / 2, b.y + b.h / 2), w: b.w })),
+      names: content.bars.map((b) => b.name),
+      contentBottom: out.contentBottom, footerTop: out.footerTop,
+    };
+  });
+  assert.deepEqual(r.background, ['#FFFFFF', '#FFFFFF', '#FFFFFF']);
+  assert.deepEqual(r.names, spending.categories.slice(0, 3).map((c) => c.name));
+  for (const b of r.bars) assert.equal(b.got, b.want);
+  assert.ok(r.bars[0].w > r.bars[1].w && r.bars[1].w > r.bars[2].w, 'bars ranked by size');
+  assert.ok(r.contentBottom < r.footerTop - 40, `content ends at ${r.contentBottom}, footer at ${r.footerTop}`);
+  await page.close();
+});
