@@ -1,13 +1,13 @@
 // ASI tax calculator: reads the form, runs the engine for the chosen tax year (and the other
 // year, for the comparison line), and renders the results and the spending split.
 
-import { computeTax } from './engine/computeTax.js?v=e3c7463546';
-import { loadSpending, allocate } from './ui/spending-data.js?v=e3c7463546';
-import { buildPie } from './ui/pie.js?v=e3c7463546';
-import { renderSummary, renderDetail } from './ui/breakdown.js?v=e3c7463546';
-import { shareContent, downloadShareCard } from './ui/share.js?v=e3c7463546';
-import { startAutoResize } from './ui/embed.js?v=e3c7463546';
-import { gbp, percent, parseMoney, billions } from './ui/format.js?v=e3c7463546';
+import { computeTax } from './engine/computeTax.js?v=0556e22a68';
+import { loadSpending, allocate } from './ui/spending-data.js?v=0556e22a68';
+import { buildPie } from './ui/pie.js?v=0556e22a68';
+import { renderSummary, renderDetail } from './ui/breakdown.js?v=0556e22a68';
+import { shareContent, downloadShareCard } from './ui/share.js?v=0556e22a68';
+import { startAutoResize } from './ui/embed.js?v=0556e22a68';
+import { gbp, percent, parseMoney, billions } from './ui/format.js?v=0556e22a68';
 
 const YEARS = ['2026-27', '2027-28'];
 const DEFAULT_YEAR = '2026-27';
@@ -252,7 +252,7 @@ async function main() {
     button.disabled = true;
     try {
       const content = shareContent(r.totals.totalTax, year, allocate(r.totals.totalTax, state.spending), state.spending.meta);
-      await downloadShareCard(content, 'assets/logo/asi_logo_white.svg', `ASI_TaxCalculator_${year}.png`);
+      await downloadShareCard(content, 'assets/logo/asi_logo_navy.svg', `ASI_TaxCalculator_${year}.png`);
     } finally {
       button.disabled = false;
     }
