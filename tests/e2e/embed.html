@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en-GB">
+<head><meta charset="utf-8"><title>Embed test</title></head>
+<body>
+<!-- The same snippet as EMBED.md, pointed at the local copy -->
+<iframe id="asi-tax-calculator" src="../../index.html" title="Adam Smith Institute tax calculator" style="width:100%;border:0;height:1200px" loading="lazy"></iframe>
+<script>
+  window.__heights = [];
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.type !== 'asi-tax-calculator:height') return;
+    var frame = document.getElementById('asi-tax-calculator');
+    if (e.source !== frame.contentWindow) return;
+    frame.style.height = e.data.height + 'px';
+    window.__heights.push(e.data.height);
+  });
+</script>
+</body>
+</html>

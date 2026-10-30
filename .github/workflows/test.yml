@@ -18,4 +18,9 @@ jobs:
           node-version: 22.23.4
           cache: npm
       - run: npm ci
-      - run: npm test
+      - name: Engine, golden master, worked examples, parameters, pipeline
+        run: npm test
+      - name: Browser tests (numbers end to end, accessibility, layout, embed)
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
