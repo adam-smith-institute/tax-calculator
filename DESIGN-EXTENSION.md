@@ -84,11 +84,13 @@ colour on hover. A short note sits under each year ("this year", "after Budget 2
 
 ### Help button ("?") and explanation
 
-A 26px square button with a 1.5px blue border and a blue "?" in Josefin 600. It has a
+A **26px circle** with a 1.5px blue border and a blue "?" in Josefin 600. Josefin's "?" sits
+high in its em box, so the glyph is nudged down 0.09em to look centred. The button has a
 descriptive `aria-label` (for example "How age affects your tax") and `aria-expanded`. It
-reveals an explanation **inline**, under the label: PT Serif on a white or panel ground
-with a 3px blue left rule. The button fills blue while the explanation is open. Help never
-appears on hover alone.
+takes the hover colour on hover and fills blue while its explanation is open.
+
+The explanation opens **inline**, under the label: plain PT Serif text in ink, with no bar,
+box or background, fading in over 180ms. Help never appears on hover alone.
 
 ### Input group (closed by default)
 
@@ -122,6 +124,21 @@ Used for **Your tax** and **Where it goes**. A primary button at the end of the 
   beneath. A net negative part (EU transactions) is listed but left out of the donut, with a
   note saying so. "All spending" returns focus to the category's button.
 - A "Show as a table" disclosure gives every figure as a data table.
+
+### Motion
+
+Motion is used only to show where things go. All of it is skipped for users who ask for
+reduced motion (`prefers-reduced-motion`).
+
+- **The chart sweeps in** (750ms, ease-in-out) each time "Where it goes" is opened: every
+  slice grows from 12 o'clock to its place.
+- **Opening a category:** its slice grows to fill the ring while the others shrink away
+  (380ms), then the ring splits into the category's parts (520ms). The largest part takes
+  the category's own colour, so the split reads as one shape dividing.
+- **"All spending"** runs the same in reverse.
+- The centre figure cross-fades (160ms), and legend rows fade up 5px one after another (22ms
+  apart).
+- Explanations fade in over 180ms, and "?" buttons change colour over 150ms.
 
 ### Data table
 

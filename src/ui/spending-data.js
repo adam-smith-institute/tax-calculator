@@ -1,7 +1,7 @@
 // Loads data/spending.json (same origin, refreshed by the weekly pipeline). If that fails,
 // falls back to the snapshot bundled with the code at the last build.
 
-import fallback from '../spending/fallback.js?v=c0cbe7020e';
+import fallback from '../spending/fallback.js?v=e3c7463546';
 
 export async function loadSpending(url = 'data/spending.json') {
   try {

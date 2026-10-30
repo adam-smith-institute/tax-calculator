@@ -1,13 +1,13 @@
 // ASI tax calculator: reads the form, runs the engine for the chosen tax year (and the other
 // year, for the comparison line), and renders the results and the spending split.
 
-import { computeTax } from './engine/computeTax.js?v=c0cbe7020e';
-import { loadSpending, allocate } from './ui/spending-data.js?v=c0cbe7020e';
-import { buildPie } from './ui/pie.js?v=c0cbe7020e';
-import { renderSummary, renderDetail } from './ui/breakdown.js?v=c0cbe7020e';
-import { shareContent, downloadShareCard } from './ui/share.js?v=c0cbe7020e';
-import { startAutoResize } from './ui/embed.js?v=c0cbe7020e';
-import { gbp, percent, parseMoney, billions } from './ui/format.js?v=c0cbe7020e';
+import { computeTax } from './engine/computeTax.js?v=e3c7463546';
+import { loadSpending, allocate } from './ui/spending-data.js?v=e3c7463546';
+import { buildPie } from './ui/pie.js?v=e3c7463546';
+import { renderSummary, renderDetail } from './ui/breakdown.js?v=e3c7463546';
+import { shareContent, downloadShareCard } from './ui/share.js?v=e3c7463546';
+import { startAutoResize } from './ui/embed.js?v=e3c7463546';
+import { gbp, percent, parseMoney, billions } from './ui/format.js?v=e3c7463546';
 
 const YEARS = ['2026-27', '2027-28'];
 const DEFAULT_YEAR = '2026-27';
@@ -163,6 +163,7 @@ function groupStatus(ui) {
 // Tabs (WAI-ARIA tabs pattern: arrow keys, Home and End move between tabs)
 function selectTab(tab, focus = false) {
   const tabs = [...document.querySelectorAll('[role="tab"]')];
+  const changed = tab.getAttribute('aria-selected') !== 'true';
   for (const t of tabs) {
     const on = t === tab;
     t.setAttribute('aria-selected', String(on));
@@ -170,6 +171,7 @@ function selectTab(tab, focus = false) {
     $(t.getAttribute('aria-controls')).hidden = !on;
   }
   if (focus) tab.focus();
+  if (tab.id === 'tab-spend' && changed) state.chart?.reveal();
 }
 
 function wireTabs() {

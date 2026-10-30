@@ -25,8 +25,10 @@ after(async () => {
   server?.close();
 });
 
-async function open(width = 1280) {
-  const context = await browser.newContext({ viewport: { width, height: 900 } });
+// Animations are switched off (as for users who ask for reduced motion) so the tests can click
+// straight through; the animation itself has its own test below.
+async function open(width = 1280, reducedMotion = 'reduce') {
+  const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion });
   const page = await context.newPage();
   page.on('close', () => context.close().catch(() => {}));
   const errors = [];
@@ -270,4 +272,41 @@ test('if the code fails to load, the page says so instead of showing £0', async
   await page.goto(url);
   await page.waitForSelector('#load-error:not([hidden])', { timeout: 15000 });
   await context.close();
+});
+
+test('pie chart animates: sweeps in, grows a slice into its parts, and back', async () => {
+  const { page } = await open(1280, 'no-preference');
+  const slices = () => page.$$eval('#pie .slice', (els) => els.map((e) => e.getAttribute('d')));
+  const lit = (ds) => ds.filter(Boolean).length;
+  await page.click('#tab-spend');
+  await page.waitForTimeout(150);
+  const early = await slices();
+  await page.waitForTimeout(900);
+  const settled = await slices();
+  assert.notDeepEqual(early, settled, 'slices still moving shortly after the tab opens');
+  assert.equal(lit(settled), spending.categories.length);
+
+  await page.click('#pie .legend-item >> nth=0');
+  await page.waitForTimeout(300); // first phase: the chosen slice grows, the rest shrink away
+  assert.equal((await slices()).length, spending.categories.length, 'still the top-level slices mid-transition');
+  await page.waitForTimeout(900); // second phase: split into the parts
+  const parts = spending.categories[0].children.filter((c) => c.amount > 0).length;
+  assert.equal(lit(await slices()), parts);
+
+  await page.click('.back-button');
+  await page.waitForTimeout(1300);
+  assert.equal(lit(await slices()), spending.categories.length);
+  await page.close();
+});
+
+test('help buttons are round with a centred question mark', async () => {
+  const { page } = await open();
+  const box = await page.$eval('.help', (b) => {
+    const s = getComputedStyle(b);
+    return { radius: s.borderRadius, w: b.offsetWidth, h: b.offsetHeight, label: b.getAttribute('aria-label') };
+  });
+  assert.equal(box.radius, '50%');
+  assert.equal(box.w, box.h);
+  assert.ok(box.label.length > 5);
+  await page.close();
 });
