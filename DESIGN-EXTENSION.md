@@ -161,14 +161,24 @@ height changes (see `EMBED.md`).
 
 ## Share image
 
-A 1080 × 1350 (4:5) card, laid out on the Design System's Stat Card grid: the mark top-right
-at 12.5% of width with a 2% margin, 150px margins, and the footer rule (480 × 6 at 2048 scale)
-with adamsmith.org anchored 202px from the bottom.
+A 1080 × 1350 (4:5) card, based on the Design System's Stat Card: 150px margins (at 2048
+scale), the total as the numeral, and the footer rule (480 × 6) with adamsmith.org anchored
+202px from the bottom.
 
-**Departure, at ASI's request:** the card is **white**, not ASI blue. So the total is set in
-ASI blue (Josefin 600), the headline in ink, the mark is the navy roundel (the system's
-version for light grounds), and the footer rule and URL are blue. The three largest shares
-are a **horizontal bar chart in the pie chart's category colours**: the name above each bar,
-the bar scaled to the largest, and the amount just past its end. The categories, colours
-and order come from the data. A grey source line sits below. The card waits for
-`document.fonts.ready` before drawing, and a test checks it never runs into the footer.
+**Departures, at ASI's request:**
+
+- The card is **white**, not ASI blue. The total is in ASI blue (Josefin 600), the headline
+  in ink, and the footer rule and URL are blue.
+- **The mark sits in the footer, bottom right**, centred on the footer line and aligned to
+  the right margin, at 10% of width (above the system's 8% minimum). It is the navy roundel,
+  the system's version for light grounds. Moving it out of the top-right corner lets the
+  total start at the top margin and everything else be larger.
+- The three largest shares are a **horizontal bar chart in the pie chart's category
+  colours**: the name above each bar, its **share of all spending** right-aligned beside the
+  name in grey, the bar scaled to the largest, and the amount just past its end.
+
+Everything scales with the headline size, which starts large and steps down until the
+content fits above the footer with 40px to spare. The categories, colours, shares and order
+come from the data. The card waits for `document.fonts.ready` before drawing. A test reads
+its pixels to check the white ground, the bar colours and the clearance around the footer
+and mark.

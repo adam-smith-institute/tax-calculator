@@ -1,14 +1,15 @@
 // Share image, 1080 × 1350 (4:5), on a white ground.
 //
-// Layout follows the ASI Design System's Stat Card, as fractions of canvas width (2048
-// reference): mark top-right at 12.5% of width with a 2% margin, 150px margins, the total as
-// the numeral, and the footer rule (480 × 6) with adamsmith.org anchored 202px from the
-// bottom. At ASI's request the card is white rather than blue, so the numeral and footer are
-// ASI blue, the mark is the navy roundel (the system's version for light grounds), and the
-// three largest shares are a bar chart in the same colours as the pie chart. The categories
-// and colours come from the data; none is hardcoded.
+// Based on the ASI Design System's Stat Card, as fractions of canvas width (2048 reference):
+// 150px margins, the total as the numeral, and the footer rule (480 × 6) with adamsmith.org
+// anchored 202px from the bottom. At ASI's request the card is white rather than blue (so the
+// numeral and footer are ASI blue and the mark is the navy roundel, the system's version for
+// light grounds), the mark sits in the footer at the bottom right (10% of width, above the
+// system's 8% minimum) to give the content more room, and the three largest shares are a bar
+// chart in the pie chart's colours with each one's share of all spending. The categories,
+// colours and shares come from the data; none is hardcoded.
 
-import { gbp } from './format.js?v=b0d6b5eba7';
+import { gbp } from './format.js?v=b74c5c7d9a';
 
 const W = 1080;
 const H = 1350;
@@ -35,7 +36,7 @@ export function shareContent(totalTax, taxYear, allocated, spendingMeta) {
     stat: gbp(totalTax),
     headline: `is what I pay in tax in ${taxYear}.`,
     chartTitle: 'The three biggest shares',
-    bars: top.map((c) => ({ name: c.name, amount: gbp(c.yours), value: c.yours, colour: c.colour || BLUE })),
+    bars: top.map((c) => ({ name: c.name, amount: gbp(c.yours), percent: `${(c.share * 100).toFixed(1)}% of spending`, value: c.yours, colour: c.colour || BLUE })),
     source: `Spending shares from HM Treasury, ${spendingMeta.title} (${spendingMeta.fiscalYear} outturn).`,
   };
 }
@@ -69,45 +70,43 @@ export async function drawShareCard(canvas, content, logoSrc) {
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
 
-  // Mark, top right. The SVG carries ~3% padding, so the box is diameter / 0.94.
-  const visible = 0.125 * W;
-  const box = visible / 0.94;
-  const inset = 0.02 * W - (box - visible) / 2;
-  ctx.drawImage(logo, W - inset - box, inset, box, box);
-
-  // Content box: 150 left/right, from 365 down to 241 above the bottom (@2048)
+  // Content box: 150 left/right, from the top margin down to 40px above the footer zone
+  // (241 above the bottom @2048), which keeps clear of the rule and the mark beside it.
   const left = 150 * u;
   const width = W - 2 * left;
-  const boxTop = 365 * u;
-  const boxBottom = H - 241 * u;
+  const boxTop = 150 * u;
+  const boxBottom = H - 241 * u - 40;
 
-  // Sizes
-  const root = 58; // headline
-  ctx.font = `600 100px ${FONT}`;
-  const statSize = Math.min(3.6 * root, (width / ctx.measureText(content.stat).width) * 100);
-  const headLines = wrap(ctx, content.headline, `600 ${root}px ${FONT}`, width);
-  const titleSize = 32;
-  const nameSize = 32;
-  const amountSize = 38;
-  const barH = 42;
-  const srcSize = 24;
-  const srcLines = wrap(ctx, content.source, `300 ${srcSize}px ${FONT}`, width * 0.9);
-
-  // Each bar row: name, then the bar with its amount at the end
-  const rowH = nameSize * 1.3 + 8 + barH;
-  const rowGap = 24;
-  const heights = {
-    stat: statSize * 0.95,
-    gap1: 22,
-    head: headLines.length * root * 1.22,
-    gap2: 52,
-    title: titleSize * 1.3,
-    gap3: 22,
-    bars: content.bars.length * rowH + (content.bars.length - 1) * rowGap,
-    gap4: 44,
-    src: srcLines.length * srcSize * 1.4,
-  };
-  const total = Object.values(heights).reduce((a, b) => a + b, 0);
+  // Sizes, all in step with the headline. Start large and step down until everything fits.
+  let k = 1;
+  let z;
+  for (;; k -= 0.03) {
+    const root = 66 * k;
+    ctx.font = `600 100px ${FONT}`;
+    const statSize = Math.min(3.8 * root, (width / ctx.measureText(content.stat).width) * 100);
+    z = {
+      root, statSize,
+      headLines: wrap(ctx, content.headline, `600 ${root}px ${FONT}`, width),
+      titleSize: 36 * k, nameSize: 38 * k, percentSize: 32 * k, amountSize: 46 * k, barH: 58 * k, srcSize: 25 * Math.max(k, 0.85),
+    };
+    z.srcLines = wrap(ctx, content.source, `300 ${z.srcSize}px ${FONT}`, width * 0.9);
+    z.rowH = z.nameSize * 1.3 + 10 * k + z.barH;
+    z.rowGap = 32 * k;
+    z.heights = {
+      stat: statSize * 0.95,
+      gap1: 26 * k,
+      head: z.headLines.length * root * 1.22,
+      gap2: 60 * k,
+      title: z.titleSize * 1.3,
+      gap3: 26 * k,
+      bars: content.bars.length * z.rowH + (content.bars.length - 1) * z.rowGap,
+      gap4: 44 * k,
+      src: z.srcLines.length * z.srcSize * 1.4,
+    };
+    z.total = Object.values(z.heights).reduce((a, b) => a + b, 0);
+    if (z.total <= boxBottom - boxTop || k < 0.6) break;
+  }
+  const { root, statSize, headLines, titleSize, nameSize, percentSize, amountSize, barH, srcSize, srcLines, rowH, rowGap, heights, total } = z;
   let y = boxTop + Math.max(0, (boxBottom - boxTop - total) / 2);
 
   // Numeral
@@ -141,7 +140,12 @@ export async function drawShareCard(canvas, content, logoSrc) {
     ctx.fillStyle = INK;
     ctx.font = `400 ${nameSize}px ${FONT}`;
     ctx.fillText(b.name, left, y + nameSize);
-    const barY = y + nameSize * 1.3 + 8;
+    ctx.fillStyle = GREY;
+    ctx.font = `400 ${percentSize}px ${FONT}`;
+    ctx.textAlign = 'right';
+    ctx.fillText(b.percent, left + width, y + nameSize);
+    ctx.textAlign = 'left';
+    const barY = y + nameSize * 1.3 + 10;
     const barW = Math.max(6, (b.value / maxValue) * maxBar);
     ctx.fillStyle = b.colour;
     ctx.fillRect(left, barY, barW, barH);
@@ -165,7 +169,17 @@ export async function drawShareCard(canvas, content, logoSrc) {
   const footSize = 58 * u;
   ctx.font = `400 ${footSize}px ${FONT}`;
   ctx.fillText('adamsmith.org', left, ruleTop + 6 * u + 22 * u + footSize * 0.95);
-  return { canvas, bars: placed, contentBottom: y, footerTop: ruleTop };
+
+  // Mark, bottom right, centred on the footer. The SVG carries ~3% padding, so the box is
+  // drawn at diameter / 0.94 and the visible mark lines up with the right margin.
+  const visible = 0.1 * W;
+  const box = visible / 0.94;
+  const footerMid = ruleTop + (6 * u + 22 * u + footSize * 1.3) / 2;
+  const logoX = W - left - visible - (box - visible) / 2;
+  const logoY = footerMid - box / 2;
+  ctx.drawImage(logo, logoX, logoY, box, box);
+  const mark = { x: logoX + (box - visible) / 2, y: logoY + (box - visible) / 2, size: visible };
+  return { canvas, bars: placed, contentBottom: y, footerTop: ruleTop, mark };
 }
 
 export async function downloadShareCard(content, logoSrc, filename) {

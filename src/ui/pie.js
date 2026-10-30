@@ -9,8 +9,8 @@
 // seamless); going back runs the same in reverse. Users who ask for reduced motion get the end
 // state at once.
 
-import { allocate } from './spending-data.js?v=b0d6b5eba7';
-import { gbp, penceInPound, billions } from './format.js?v=b0d6b5eba7';
+import { allocate } from './spending-data.js?v=b74c5c7d9a';
+import { gbp, penceInPound, billions } from './format.js?v=b74c5c7d9a';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const SIZE = 320;

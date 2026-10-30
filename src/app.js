@@ -1,13 +1,13 @@
 // ASI tax calculator: reads the form, runs the engine for the chosen tax year (and the other
 // year, for the comparison line), and renders the results and the spending split.
 
-import { computeTax } from './engine/computeTax.js?v=b0d6b5eba7';
-import { loadSpending, allocate } from './ui/spending-data.js?v=b0d6b5eba7';
-import { buildPie } from './ui/pie.js?v=b0d6b5eba7';
-import { renderSummary, renderDetail } from './ui/breakdown.js?v=b0d6b5eba7';
-import { shareContent, downloadShareCard } from './ui/share.js?v=b0d6b5eba7';
-import { startAutoResize } from './ui/embed.js?v=b0d6b5eba7';
-import { gbp, percent, parseMoney, billions } from './ui/format.js?v=b0d6b5eba7';
+import { computeTax } from './engine/computeTax.js?v=b74c5c7d9a';
+import { loadSpending, allocate } from './ui/spending-data.js?v=b74c5c7d9a';
+import { buildPie } from './ui/pie.js?v=b74c5c7d9a';
+import { renderSummary, renderDetail } from './ui/breakdown.js?v=b74c5c7d9a';
+import { shareContent, downloadShareCard } from './ui/share.js?v=b74c5c7d9a';
+import { startAutoResize } from './ui/embed.js?v=b74c5c7d9a';
+import { gbp, percent, parseMoney, billions } from './ui/format.js?v=b74c5c7d9a';
 
 const YEARS = ['2026-27', '2027-28'];
 const DEFAULT_YEAR = '2026-27';
