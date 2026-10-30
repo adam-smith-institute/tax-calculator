@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="asi-version" content="c0cbe7020e">
 <title>Tax calculator | Adam Smith Institute</title>
 <meta name="description" content="Work out your income tax, National Insurance and other direct taxes for 2026-27 and 2027-28, and see what they pay for.">
 <link rel="preload" href="assets/fonts/JosefinSans.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/PTSerif-Regular.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="src/styles.css">
-<script type="module" src="src/app.js"></script>
+<link rel="stylesheet" href="src/styles.css?v=c0cbe7020e">
+<script type="module" src="src/app.js?v=c0cbe7020e" onerror="document.getElementById('load-error').hidden = false"></script>
 </head>
 <body>
 <div class="page">
@@ -21,7 +22,7 @@
   <img class="roundel" src="assets/logo/asi_logo_navy.svg" alt="Adam Smith Institute" width="64" height="64">
 </header>
 
-<p class="load-error" id="load-error" hidden>The calculator could not load. Please refresh the page.</p>
+<p class="load-error" id="load-error" role="alert" hidden>The calculator did not load properly. Please <a href="" onclick="location.reload(); return false;">refresh the page</a>.</p>
 
 <main class="layout">
 
@@ -252,5 +253,11 @@
 </footer>
 
 </div>
+<script>
+  // If the calculator has not started after 10 seconds (a file failed to load), say so
+  setTimeout(function () {
+    if (!document.body.classList.contains('ready')) document.getElementById('load-error').hidden = false;
+  }, 10000);
+</script>
 </body>
 </html>
