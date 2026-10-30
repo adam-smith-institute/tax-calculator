@@ -9,7 +9,6 @@
 // expression without re-running the golden master.
 
 export const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
-const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
 function paAfterTaper(ani, it) {
   if (ani <= it.paTaperStart) return it.personalAllowance;
@@ -23,15 +22,17 @@ function childBenefitAnnual(nChildren, cb) {
   return cb.weeksPerYear * (cb.weeklyEldest + (nChildren - 1) * cb.weeklyAdditional);
 }
 
+// High Income Child Benefit Charge (ITEPA 2003 s681C): 1% of the Child Benefit for every
+// complete £200 of adjusted net income over the threshold, up to 100%. The benefit total,
+// the percentage and the charge are each rounded down to a whole number (s681C(3)).
 function hicbcCharge(ani, nChildren, params) {
   const { thresholdStart: start, thresholdEnd: end, stepPounds, percentPerStep } = params.hicbc;
-  const cb = childBenefitAnnual(nChildren, params.childBenefit);
+  const cb = Math.floor(childBenefitAnnual(nChildren, params.childBenefit));
   if (cb <= 0) return 0;
   if (ani <= start) return 0;
-  if (ani >= end) return round2(cb);
-  const over = ani - start;
-  const pct = clamp((over / stepPounds) * percentPerStep, 0, 1);
-  return round2(cb * pct);
+  if (ani >= end) return cb;
+  const percent = Math.min(100, Math.floor((ani - start) / stepPounds) * Math.round(percentPerStep * 100));
+  return Math.floor(cb * percent / 100);
 }
 
 const NIL = { basic: 0, higher: 0, additional: 0 };

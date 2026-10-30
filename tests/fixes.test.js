@@ -87,3 +87,15 @@ test('A6: no trading allowance comes off a profit figure', () => {
   assert.equal(r.breakdown.incomeTax, 3486);
   assert.equal(r.breakdown.seNIC, 1045.80);
 });
+
+test('A10b: HICBC is 1% per complete £200, rounded down to whole pounds', () => {
+  // 1 child, as-shipped rate: 52 x £26.05 = £1,354.60, rounded down to £1,354.
+  // ANI £61,350: £1,350 over = 6 complete steps = 6%. £1,354 x 6% = £81.24, so £81.
+  assert.equal(run({ employmentIncome: 61350, children: 1 }).breakdown.hicbc, 81);
+  // £199 over: no complete step, no charge
+  assert.equal(run({ employmentIncome: 60199, children: 1 }).breakdown.hicbc, 0);
+  // £80,000 and above: the whole (rounded-down) benefit
+  assert.equal(run({ employmentIncome: 80000, children: 1 }).breakdown.hicbc, 1354);
+  // 3 children: 52 x (26.05 + 2 x 17.25) = £3,148.60 -> £3,148. ANI £70,100: 50 steps = 50%.
+  assert.equal(run({ employmentIncome: 70100, children: 3 }).breakdown.hicbc, 1574);
+});

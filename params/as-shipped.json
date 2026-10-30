@@ -103,8 +103,8 @@
     "childBenefit.weeksPerYear": "legacy/original.html:1829 (hardcoded)",
     "hicbc.thresholdStart": "legacy/original.html:1801 (cited there: https://www.gov.uk/child-benefit-tax-charge)",
     "hicbc.thresholdEnd": "legacy/original.html:1802 (cited there: https://www.gov.uk/child-benefit-tax-charge)",
-    "hicbc.stepPounds": "legacy/original.html:1841 (continuous: (over / 200) * 0.01)",
-    "hicbc.percentPerStep": "legacy/original.html:1841",
+    "hicbc.stepPounds": "ITEPA 2003 s681C(2): X is £200; whole steps only, s681C(3) (fix A10b; the original was continuous, line 1841). https://www.legislation.gov.uk/ukpga/2003/1/section/681C",
+    "hicbc.percentPerStep": "ITEPA 2003 s681C(2): 1% per £200. https://www.legislation.gov.uk/ukpga/2003/1/section/681C",
     "assumptions.employerNicIncidence": "legacy/original.html:691 (global ECON_INCIDENCE; tooltip at line 635 attributes the 75% to the Office for Budget Responsibility)"
   }
 }
