@@ -142,10 +142,9 @@ export function computeTax(inputs, params) {
   // Employment income after salary sacrifice and net-pay pension contributions
   const employmentIncome = Math.max(0, (inputs.employmentIncome || 0) - (salarySacrifice + pensionNetPay));
 
-  // Self-employment profit less the trading allowance
-  const rawSelfEmployedProfit = Math.max(0, inputs.selfEmployedProfit || 0);
-  const tradingAllowance = Math.min(params.selfEmployment.tradingAllowance, rawSelfEmployedProfit);
-  const selfEmployedProfit = Math.max(0, rawSelfEmployedProfit - tradingAllowance);
+  // Self-employment profit: after expenses, or after the trading allowance for those who
+  // claim it instead. The allowance replaces expenses, so nothing more comes off here.
+  const selfEmployedProfit = Math.max(0, inputs.selfEmployedProfit || 0);
 
   const nonSavingsIncome = employmentIncome + selfEmployedProfit;
   const savingsInterest = Math.max(0, inputs.savingsInterest || 0);

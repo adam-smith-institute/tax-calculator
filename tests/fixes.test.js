@@ -79,3 +79,11 @@ test('A5: Marriage Allowance is lost if dividends in the allowance cross the bas
   // Interest within the PSA above the limit does not disqualify (savings nil rate is permitted)
   assert.equal(run({ employmentIncome: 50000, savingsInterest: 400, marriageAllowanceRecipient: true }).breakdown.reducers.marriageAllowanceApplied, true);
 });
+
+test('A6: no trading allowance comes off a profit figure', () => {
+  // £30,000 profit after expenses: income tax £17,430 x 20% = £3,486;
+  // Class 4 £17,430 x 6% = £1,045.80
+  const r = run({ selfEmployedProfit: 30000 });
+  assert.equal(r.breakdown.incomeTax, 3486);
+  assert.equal(r.breakdown.seNIC, 1045.80);
+});

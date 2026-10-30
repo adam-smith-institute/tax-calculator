@@ -80,7 +80,7 @@
     "dividends.rates.basic": "legacy/original.html:1759 (cited there: https://www.gov.uk/tax-on-dividends)",
     "dividends.rates.higher": "legacy/original.html:1760 (cited there: https://www.gov.uk/tax-on-dividends)",
     "dividends.rates.additional": "legacy/original.html:1761 (cited there: https://www.gov.uk/tax-on-dividends)",
-    "selfEmployment.tradingAllowance": "legacy/original.html:1891 (hardcoded)",
+    "selfEmployment.tradingAllowance": "legacy/original.html:1891. Since fix A6 the engine no longer deducts it from a profit figure; it appears in the input label only. https://www.gov.uk/guidance/tax-free-allowances-on-property-and-trading-income",
     "cgt.annualExemptAmount": "legacy/original.html:1765 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
     "cgt.rates.basic": "legacy/original.html:1767 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
     "cgt.rates.higher": "legacy/original.html:1768 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
