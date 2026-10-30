@@ -64,7 +64,7 @@
     "percentPerStep": 0.01
   },
   "assumptions": {
-    "employerNicIncidence": 0.75
+    "employerNicIncidence": 0.76
   },
   "sources": {
     "incomeTax.personalAllowance": "Budget 2026 OOTLAR Annex A, Income Tax: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
@@ -123,6 +123,6 @@
     "hicbc.thresholdEnd": "HICBC equals the whole benefit at £80,000: https://www.gov.uk/child-benefit-tax-charge",
     "hicbc.stepPounds": "ITEPA 2003 s681C(2): 1% for every £200, whole percentages rounded down (s681C(3)): https://www.legislation.gov.uk/ukpga/2003/1/section/681C",
     "hicbc.percentPerStep": "ITEPA 2003 s681C(2): 1% per £200: https://www.legislation.gov.uk/ukpga/2003/1/section/681C",
-    "assumptions.employerNicIncidence": "ASI assumption: 75% of employer NI is borne by employees through lower pay, rounded from the OBR's long-run assumption that 76% of the 2025 rise passes to workers (Economic and fiscal outlook, October 2024): https://obr.uk/efo/economic-and-fiscal-outlook-october-2024/"
+    "assumptions.employerNicIncidence": "76% of employer NI is borne by employees through lower pay: the OBR's long-run assumption that 76% of the cost of the 2025 rise passes to workers (Economic and fiscal outlook, October 2024): https://obr.uk/efo/economic-and-fiscal-outlook-october-2024/"
   }
 }

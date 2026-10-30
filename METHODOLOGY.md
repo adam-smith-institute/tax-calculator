@@ -78,10 +78,10 @@ The calculator follows HMRC's rules:
 
 Employers pay National Insurance of 15% on pay above £5,000. The law puts the bill on the
 employer, but economists generally find that most of it is passed on to workers through lower
-wages. If you choose to include it, the calculator counts **75%** of your employer's National
-Insurance as tax you bear. This is close to the Office for Budget Responsibility's assumption
-that, in the long run, 76% of the cost of the 2025 increase passes to workers (Economic and
-fiscal outlook, October 2024).
+wages. If you choose to include it, the calculator counts **76%** of your employer's National
+Insurance as tax you bear. This is the Office for Budget Responsibility's assumption that, in
+the long run, 76% of the cost of the 2025 increase passes to workers (Economic and fiscal
+outlook, October 2024).
 
 ## Average tax rate
 
