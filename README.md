@@ -50,6 +50,8 @@ Opening `index.html` straight from disk won't work, because browsers block ES mo
 
 Other scripts:
 
+- `npm run stamp`: update the version stamps on the page's CSS and JavaScript after any
+  change to `index.html` or `src/` (see RUNBOOK.md). `npm test` checks they are current.
 - `npm run spending`: rebuild `data/spending.json` from GOV.UK (add `-- --check` to validate
   without writing).
 - `npm run check-fiscal-events`: see whether a newer fiscal event has been published.

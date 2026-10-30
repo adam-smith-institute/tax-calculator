@@ -1,13 +1,13 @@
 // ASI tax calculator: reads the form, runs the engine for the chosen tax year (and the other
 // year, for the comparison line), and renders the results and the spending split.
 
-import { computeTax } from './engine/computeTax.js';
-import { loadSpending, allocate } from './ui/spending-data.js';
-import { buildPie } from './ui/pie.js';
-import { renderSummary, renderDetail } from './ui/breakdown.js';
-import { shareContent, downloadShareCard } from './ui/share.js';
-import { startAutoResize } from './ui/embed.js';
-import { gbp, percent, parseMoney, billions } from './ui/format.js';
+import { computeTax } from './engine/computeTax.js?v=c0cbe7020e';
+import { loadSpending, allocate } from './ui/spending-data.js?v=c0cbe7020e';
+import { buildPie } from './ui/pie.js?v=c0cbe7020e';
+import { renderSummary, renderDetail } from './ui/breakdown.js?v=c0cbe7020e';
+import { shareContent, downloadShareCard } from './ui/share.js?v=c0cbe7020e';
+import { startAutoResize } from './ui/embed.js?v=c0cbe7020e';
+import { gbp, percent, parseMoney, billions } from './ui/format.js?v=c0cbe7020e';
 
 const YEARS = ['2026-27', '2027-28'];
 const DEFAULT_YEAR = '2026-27';
@@ -211,10 +211,24 @@ function showSpendingSource(data, live) {
   if (!live) $('source-note').hidden = false;
 }
 
+// The page and this script carry the same version stamp (scripts/stamp.mjs). If a browser
+// has paired a cached old page with new code, reload once to fetch the page afresh.
+function versionsMatch() {
+  const code = new URL(import.meta.url).searchParams.get('v') || 'unstamped';
+  const page = document.querySelector('meta[name="asi-version"]')?.content;
+  if (code === page) return true;
+  const url = new URL(location.href);
+  if (url.searchParams.get('fresh') === code) return true; // already tried once; carry on
+  url.searchParams.set('fresh', code);
+  location.replace(url);
+  return false;
+}
+
 async function main() {
+  if (!versionsMatch()) return;
   const [spending, ...params] = await Promise.all([
     loadSpending(),
-    ...YEARS.map((y) => fetch(`params/${y}.json`).then((res) => {
+    ...YEARS.map((y) => fetch(`params/${y}.json`, { cache: 'no-cache' }).then((res) => {
       if (!res.ok) throw new Error(`Could not load tax parameters for ${y}`);
       return res.json();
     })),

@@ -2,8 +2,8 @@
 // doubles as the accessible interface. Selecting a category (legend button or slice) shows its
 // sub-categories in the same chart; "All spending" goes back. Colours come from the taxonomy.
 
-import { allocate } from './spending-data.js';
-import { gbp, penceInPound, billions } from './format.js';
+import { allocate } from './spending-data.js?v=c0cbe7020e';
+import { gbp, penceInPound, billions } from './format.js?v=c0cbe7020e';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const SIZE = 320;

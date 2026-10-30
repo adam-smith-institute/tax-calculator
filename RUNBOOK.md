@@ -40,6 +40,21 @@ newer than the parameters. It never changes rates. When it fires (or after any B
     the figures against Annex A, then merge. GitHub Pages publishes within a few minutes.
 11. Close the issue.
 
+## Changing the page or its code
+
+GitHub Pages lets browsers keep each file for 10 minutes. So that nobody gets a new page with
+old code (or the reverse) after a release, every reference to our own CSS and JavaScript
+carries a version stamp worked out from the code. After changing anything in `index.html` or
+`src/`, run:
+
+```sh
+npm run stamp
+```
+
+`npm test` fails if you forget. If a browser still pairs an old page with new code, the code
+notices and reloads the page once. If the code fails to load at all, the page asks the user to
+refresh instead of showing £0.
+
 ## Reviewing a spending pull request
 
 The weekly **Update spending data** workflow opens a pull request titled "Spending data: …"

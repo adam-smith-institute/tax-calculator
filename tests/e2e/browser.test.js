@@ -247,3 +247,27 @@ test('embedded: reports its height to the parent page', async () => {
   assert.ok(frameHeight > 1000, `iframe resized to ${frameHeight}px`);
   await page.close();
 });
+
+test('a browser holding an old cached page reloads once to the current version', async () => {
+  // The previous release's page: no version tag, unstamped addresses
+  const old = readFileSync(new URL('../../index.html', import.meta.url), 'utf8')
+    .replace(/<meta name="asi-version"[^>]*>\n?/, '').replace(/\?v=[0-9a-f]{10}/g, '');
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.route(/\/(index\.html)?(\?.*)?$/, (r) => (new URL(r.request().url()).searchParams.has('fresh')
+    ? r.continue() : r.fulfill({ body: old, contentType: 'text/html' })));
+  await page.goto(url);
+  await page.waitForURL(/fresh=unstamped/);
+  await page.waitForSelector('body.ready');
+  assert.equal(await page.textContent('#total'), '£9,080');
+  await context.close();
+});
+
+test('if the code fails to load, the page says so instead of showing £0', async () => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.route('**/src/ui/pie.js*', (r) => r.fulfill({ status: 404, body: '' }));
+  await page.goto(url);
+  await page.waitForSelector('#load-error:not([hidden])', { timeout: 15000 });
+  await context.close();
+});
