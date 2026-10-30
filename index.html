@@ -3,20 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="asi-version" content="c0cbe7020e">
-<title>Tax calculator | Adam Smith Institute</title>
+<meta name="asi-version" content="e3c7463546">
+<title>The 2026 Tax Calculator | Adam Smith Institute</title>
 <meta name="description" content="Work out your income tax, National Insurance and other direct taxes for 2026-27 and 2027-28, and see what they pay for.">
 <link rel="preload" href="assets/fonts/JosefinSans.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/PTSerif-Regular.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="src/styles.css?v=c0cbe7020e">
-<script type="module" src="src/app.js?v=c0cbe7020e" onerror="document.getElementById('load-error').hidden = false"></script>
+<link rel="stylesheet" href="src/styles.css?v=e3c7463546">
+<script type="module" src="src/app.js?v=e3c7463546" onerror="document.getElementById('load-error').hidden = false"></script>
 </head>
 <body>
 <div class="page">
 
 <header class="masthead">
   <div>
-    <h1>What you pay in tax, and where it goes</h1>
+    <h1>The 2026 Tax Calculator</h1>
+    <p class="subtitle">What you pay in tax, and where it goes</p>
     <p class="lede">Enter your income to see your tax for the year and what it pays for.</p>
   </div>
   <img class="roundel" src="assets/logo/asi_logo_navy.svg" alt="Adam Smith Institute" width="64" height="64">
@@ -41,7 +42,7 @@
   <div class="field">
     <div class="label-row">
       <label for="age">Age</label>
-      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-age" aria-label="How age affects your tax">?</button>
+      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-age" aria-label="How age affects your tax"></button>
     </div>
     <div class="explain" id="explain-age" hidden><p>Over State Pension age you pay no employee or self-employed National Insurance. Under 21, your employer pays none on your earnings up to £50,270.</p></div>
     <input id="age" class="input-short" type="text" inputmode="numeric" autocomplete="off" value="40" aria-describedby="age-error">
@@ -65,7 +66,7 @@
     <div class="check check-small">
       <input type="checkbox" id="erNI">
       <label for="erNI">Include the National Insurance my employer pays</label>
-      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-erni" aria-label="About employer National Insurance">?</button>
+      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-erni" aria-label="About employer National Insurance"></button>
     </div>
     <div class="explain" id="explain-erni" hidden><p>Employers pay National Insurance of 15% on your pay above £5,000. Your employer hands it over, but most of the cost falls on you through lower pay. The Office for Budget Responsibility estimates that <span data-incidence>76%</span> passes to workers, so the calculator counts <span data-incidence>76%</span> of it as your tax.</p></div>
   </div>
@@ -73,7 +74,7 @@
   <div class="field">
     <div class="label-row">
       <label for="seInc">Self-employment profit</label>
-      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-se" aria-label="About self-employment profit">?</button>
+      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-se" aria-label="About self-employment profit"></button>
     </div>
     <div class="explain" id="explain-se" hidden><p>Your profit for the year after expenses. If you claim the trading allowance instead of expenses (£1,000, or £3,000 from <span class="nw">2027-28</span>), enter your takings less the allowance.</p></div>
     <div class="money"><span aria-hidden="true">£</span><input id="seInc" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="seInc-error"></div>
@@ -117,7 +118,7 @@
         <div class="field">
           <div class="label-row">
             <label for="rentProfit">Rental profit</label>
-            <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-rent" aria-label="About rental profit">?</button>
+            <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-rent" aria-label="About rental profit"></button>
           </div>
           <div class="explain" id="explain-rent" hidden><p>Your rent for the year after expenses, but before mortgage interest, which is entered separately because it gets tax relief at the basic rate. If you claim the £1,000 property allowance instead of expenses, enter your rent less the allowance.</p></div>
           <div class="money"><span aria-hidden="true">£</span><input id="rentProfit" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="rentProfit-error"></div>
@@ -165,7 +166,7 @@
         <div class="field">
           <div class="label-row">
             <label for="kids">Children I get Child Benefit for</label>
-            <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-hicbc" aria-label="About the High Income Child Benefit Charge">?</button>
+            <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-hicbc" aria-label="About the High Income Child Benefit Charge"></button>
           </div>
           <div class="explain" id="explain-hicbc" hidden><p>Above £60,000 of adjusted net income (taxable income less pension contributions), you repay 1% of your Child Benefit for every £200, so all of it at £80,000. This is the High Income Child Benefit Charge. The calculator assumes you are the higher earner in your household, who pays it.</p></div>
           <input id="kids" class="input-short" type="text" inputmode="numeric" autocomplete="off" value="0" aria-describedby="kids-error">
@@ -188,7 +189,7 @@
     <p class="total"><span class="total-figure" id="total">£0</span> <span class="total-unit">a year</span></p>
     <div class="rate-row">
       <p class="rate">Average tax rate <strong id="rate">0%</strong></p>
-      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-rate" aria-label="What the average tax rate means">?</button>
+      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-rate" aria-label="What the average tax rate means"></button>
     </div>
     <div class="explain" id="explain-rate" hidden><p>All the tax shown here as a share of all the income and gains you entered (plus the employer National Insurance counted as yours, if included). It is not the rate on your next pound, which is usually higher. VAT, council tax and other taxes are not included.</p></div>
     <p class="compare" id="compare"></p>

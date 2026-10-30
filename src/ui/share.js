@@ -5,7 +5,7 @@
 // numeral in lavender (the payload), white Josefin beneath; footer rule 480 × 6 and
 // adamsmith.org, anchored 202px from the bottom. The top three categories come from the data.
 
-import { gbp } from './format.js?v=c0cbe7020e';
+import { gbp } from './format.js?v=e3c7463546';
 
 const W = 1080;
 const H = 1350;

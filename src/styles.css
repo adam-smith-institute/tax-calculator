@@ -41,8 +41,9 @@ a:hover { color: var(--asi-navy); }
 
 /* Masthead */
 .masthead { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding-bottom: 18px; margin-bottom: 24px; border-bottom: 1px solid var(--hairline); }
-h1 { margin: 0 0 6px; color: var(--asi-blue); font-weight: 400; font-size: clamp(28px, 3.6vw, 40px); line-height: 1.2; }
-.lede { margin: 0; font-size: 18px; }
+h1 { margin: 0 0 4px; color: var(--asi-blue); font-weight: 600; font-size: clamp(30px, 4vw, 44px); line-height: 1.15; }
+.subtitle { margin: 0 0 6px; color: var(--asi-blue); font: 300 clamp(20px, 2.4vw, 25px)/1.25 var(--sans); }
+.lede { margin: 0; font-size: 17px; color: var(--grey); }
 .roundel { flex: none; width: 64px; height: 64px; }
 @media (max-width: 560px) { .roundel { width: 48px; height: 48px; } }
 .load-error { font: 600 18px/1.4 var(--sans); }
@@ -88,15 +89,22 @@ input[aria-invalid="true"] { border: 2px solid var(--ink); padding: 8px 11px; }
 .segmented button:focus-visible { outline-offset: -5px; outline-color: currentColor; }
 
 /* "?" help button and its inline explanation */
+/* Josefin's "?" sits high in its em box, so the glyph is nudged down to look centred */
 .help {
-  flex: none; width: 26px; height: 26px; padding: 0; display: inline-grid; place-items: center;
+  flex: none; width: 26px; height: 26px; padding: 0; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
   font: 600 15px/1 var(--sans); color: var(--asi-blue); background: var(--asi-white);
   border: 1.5px solid var(--asi-blue); cursor: pointer;
+  transition: background-color 150ms, color 150ms;
 }
+.help::before { content: "?"; display: block; transform: translateY(0.09em); }
+.help:hover { background: var(--hover); }
 .help[aria-expanded="true"] { background: var(--asi-blue); color: var(--asi-white); }
-.explain { margin: 4px 0 10px; padding: 10px 12px; background: var(--asi-white); border-left: 3px solid var(--asi-blue); font-size: 15.5px; line-height: 1.5; }
-.results .explain { background: var(--panel); }
+.help:focus-visible { outline-offset: 3px; }
+.explain { margin: 2px 0 12px; font-size: 15.5px; line-height: 1.5; color: var(--ink); }
 .explain p { margin: 0; }
+.explain:not([hidden]) { animation: explain-in 180ms ease-out; }
+@keyframes explain-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 
 /* Checkboxes and radios */
 .check { display: grid; grid-template-columns: 24px 1fr auto; column-gap: 10px; align-items: start; margin: 0 0 14px; }
@@ -187,9 +195,16 @@ details.detail[open] { padding-bottom: 14px; }
 .pie-svg { display: block; width: 100%; height: auto; }
 .slice { stroke: var(--asi-white); stroke-width: 2; stroke-linejoin: round; cursor: pointer; transition: opacity 120ms; }
 .has-hot .slice:not(.is-hot) { opacity: 0.35; }
+.pie-centre { transition: opacity 160ms ease; }
+.pie-centre.is-fading { opacity: 0; }
 .pie-centre-value { font-family: var(--sans); font-weight: 600; fill: var(--asi-blue); }
 .pie-centre-label { font: 400 15px var(--sans); fill: var(--grey); }
-@media (prefers-reduced-motion: reduce) { .slice { transition: none; } }
+.legend-list .enter { animation: legend-in 280ms ease-out both; }
+@keyframes legend-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .slice, .pie-centre, .help { transition: none; }
+  .legend-list .enter, .explain:not([hidden]) { animation: none; }
+}
 
 .back-button { font: 600 16px/1.2 var(--sans); color: var(--asi-blue); background: none; border: 0; padding: 4px 0; cursor: pointer; }
 .back-button:hover { text-decoration: underline; text-underline-offset: 3px; }
