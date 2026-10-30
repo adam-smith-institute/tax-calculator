@@ -105,7 +105,7 @@ refunded. Those take total managed expenditure to £1,360.1 billion. HMRC uses t
 for the "how your tax was spent" section of Annual Tax Summaries.
 
 **Categories.** Spending is grouped by purpose, using the UN's Classification of the
-Functions of Government (COFOG), whichever department or council spends it. There are 15
+Functions of Government (COFOG), whichever department or council spends it. There are 14
 categories in plain English. Each is mutually exclusive, and together they add up to TES.
 [TAXONOMY.md](TAXONOMY.md) lists exactly which lines of the table make up each one. Points to
 note:
@@ -113,8 +113,10 @@ note:
 - **Debt interest** includes £19.4 billion of interest building up in funded public sector
   pension schemes, chiefly the Local Government Pension Scheme. This is an accounting cost,
   not cash paid to lenders, and it is shown as its own line.
-- **Pensions** is mostly the State Pension, with Pension Credit and other help for
-  pensioners.
+- **Welfare and pensions** covers all social security benefits. The largest part is the
+  State Pension, with Pension Credit and other help for pensioners; the rest is benefits for
+  people of working age, disabled people and families. The two are shown separately when
+  you open the category.
 - **Education:** the Department for Education records all academy spending as secondary, so
   secondary schools are overstated and primary understated.
 - **Aid to other countries** is the UN measure of economic aid. It is not the official
