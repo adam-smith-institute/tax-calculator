@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tax calculator | Adam Smith Institute</title>
-<meta name="description" content="Work out your income tax, National Insurance and other direct taxes for 2026-27 and 2027-28, and see how the Treasury spends the same share of every pound.">
+<meta name="description" content="Work out your income tax, National Insurance and other direct taxes for 2026-27 and 2027-28, and see what they pay for.">
 <link rel="preload" href="assets/fonts/JosefinSans.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/PTSerif-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="stylesheet" href="src/styles.css">
@@ -14,203 +14,214 @@
 <div class="page">
 
 <header class="masthead">
-  <div class="masthead-text">
+  <div>
     <h1>What you pay in tax, and where it goes</h1>
-    <p class="lede">Enter your income to see your income tax, National Insurance and other direct taxes for the year, and how the Treasury spends the same share of every pound.</p>
+    <p class="lede">Enter your income to see your tax for the year and what it pays for.</p>
   </div>
-  <img class="roundel" src="assets/logo/asi_logo_navy.svg" alt="Adam Smith Institute" width="72" height="72">
+  <img class="roundel" src="assets/logo/asi_logo_navy.svg" alt="Adam Smith Institute" width="64" height="64">
 </header>
-
-<div class="year-switch" role="group" aria-labelledby="year-label">
-  <span class="year-switch-label" id="year-label">Tax year</span>
-  <button type="button" data-year="2026-27" aria-pressed="true">2026-27 <span class="year-note">current</span></button>
-  <button type="button" data-year="2027-28" aria-pressed="false">2027-28 <span class="year-note">after Budget 2026</span></button>
-</div>
 
 <p class="load-error" id="load-error" hidden>The calculator could not load. Please refresh the page.</p>
 
 <main class="layout">
-<form class="inputs" id="inputs" novalidate>
-  <section class="main-inputs" aria-labelledby="h-income">
-    <h2 id="h-income">Your income</h2>
 
-    <div class="field field-short">
-      <div class="label-row">
-        <label for="age">Age</label>
-        <button type="button" class="explain-button" data-explain aria-expanded="false" aria-controls="explain-age">What does this mean?</button>
-      </div>
-      <input id="age" name="age" type="text" inputmode="numeric" autocomplete="off" value="40" aria-describedby="age-error">
-      <p class="error" id="age-error" hidden></p>
-      <div class="explain" id="explain-age" hidden>
-        <p>Age changes National Insurance. Above State Pension age you pay no employee or self-employed National Insurance. Under 21, your employer pays no National Insurance on your earnings up to £50,270 a year.</p>
-      </div>
+<!-- Inputs -->
+<form class="panel inputs" id="inputs" novalidate aria-labelledby="h-inputs">
+  <h2 id="h-inputs">Your details</h2>
+
+  <div class="field">
+    <span class="label" id="year-label">Tax year</span>
+    <div class="segmented" role="group" aria-labelledby="year-label">
+      <button type="button" data-year="2026-27" aria-pressed="true">2026-27<span class="seg-note">this year</span></button>
+      <button type="button" data-year="2027-28" aria-pressed="false">2027-28<span class="seg-note">after Budget 2026</span></button>
     </div>
+  </div>
 
-    <fieldset class="field" id="spa-question" hidden>
-      <legend>Have you reached State Pension age?</legend>
-      <p class="hint">State Pension age is rising from 66 to 67 for people born from 6 April 1960. <a href="https://www.gov.uk/state-pension-age" target="_blank" rel="noopener">Check yours on GOV.UK</a>.</p>
-      <div class="choices">
-        <label class="choice"><input type="radio" name="spa" value="no" checked> No</label>
-        <label class="choice"><input type="radio" name="spa" value="yes"> Yes</label>
-      </div>
-    </fieldset>
-
-    <div class="field">
-      <label for="empInc">Employment income</label>
-      <p class="hint" id="empInc-hint">Your salary before tax, a year</p>
-      <div class="money"><span aria-hidden="true">£</span><input id="empInc" type="text" inputmode="decimal" autocomplete="off" value="45,000" aria-describedby="empInc-hint empInc-error"></div>
-      <p class="error" id="empInc-error" hidden></p>
+  <div class="field">
+    <div class="label-row">
+      <label for="age">Age</label>
+      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-age" aria-label="How age affects your tax">?</button>
     </div>
+    <div class="explain" id="explain-age" hidden><p>Over State Pension age you pay no employee or self-employed National Insurance. Under 21, your employer pays none on your earnings up to £50,270.</p></div>
+    <input id="age" class="input-short" type="text" inputmode="numeric" autocomplete="off" value="40" aria-describedby="age-error">
+    <p class="error" id="age-error" hidden></p>
+  </div>
 
-    <div class="field">
+  <fieldset class="field" id="spa-question" hidden>
+    <legend>Have you reached State Pension age?</legend>
+    <p class="hint">It is rising from 66 to 67. <a href="https://www.gov.uk/state-pension-age" target="_blank" rel="noopener">Check yours</a>.</p>
+    <div class="choices">
+      <label class="choice"><input type="radio" name="spa" value="no" checked> No</label>
+      <label class="choice"><input type="radio" name="spa" value="yes"> Yes</label>
+    </div>
+  </fieldset>
+
+  <div class="field">
+    <label for="empInc">Salary</label>
+    <p class="hint" id="empInc-hint">Before tax, a year</p>
+    <div class="money"><span aria-hidden="true">£</span><input id="empInc" type="text" inputmode="decimal" autocomplete="off" value="45,000" aria-describedby="empInc-hint empInc-error"></div>
+    <p class="error" id="empInc-error" hidden></p>
+    <div class="check check-small">
+      <input type="checkbox" id="erNI">
+      <label for="erNI">Include the National Insurance my employer pays</label>
+      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-erni" aria-label="About employer National Insurance">?</button>
+    </div>
+    <div class="explain" id="explain-erni" hidden><p>Employers pay National Insurance of 15% on your pay above £5,000. Your employer hands it over, but most of the cost falls on you through lower pay. The Office for Budget Responsibility estimates that <span data-incidence>76%</span> passes to workers, so the calculator counts <span data-incidence>76%</span> of it as your tax.</p></div>
+  </div>
+
+  <div class="field">
+    <div class="label-row">
       <label for="seInc">Self-employment profit</label>
-      <p class="hint" id="seInc-hint">A year, after expenses. If you claim the trading allowance instead of expenses, enter your takings less the allowance (£1,000, or £3,000 from <span class="nw">2027-28</span>).</p>
-      <div class="money"><span aria-hidden="true">£</span><input id="seInc" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="seInc-hint seInc-error"></div>
-      <p class="error" id="seInc-error" hidden></p>
+      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-se" aria-label="About self-employment profit">?</button>
     </div>
-  </section>
+    <div class="explain" id="explain-se" hidden><p>Your profit for the year after expenses. If you claim the trading allowance instead of expenses (£1,000, or £3,000 from <span class="nw">2027-28</span>), enter your takings less the allowance.</p></div>
+    <div class="money"><span aria-hidden="true">£</span><input id="seInc" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="seInc-error"></div>
+    <p class="error" id="seInc-error" hidden></p>
+  </div>
 
-  <details class="more" id="more">
-    <summary><span>More income and allowances</span></summary>
-
-    <fieldset class="group">
-      <legend>Savings and investments</legend>
-      <div class="field">
-        <label for="savInc">Savings interest</label>
-        <p class="hint" id="savInc-hint">A year, outside ISAs</p>
-        <div class="money"><span aria-hidden="true">£</span><input id="savInc" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="savInc-hint savInc-error"></div>
-        <p class="error" id="savInc-error" hidden></p>
-      </div>
-      <div class="field">
-        <label for="divInc">Dividends</label>
-        <p class="hint" id="divInc-hint">A year, outside ISAs</p>
-        <div class="money"><span aria-hidden="true">£</span><input id="divInc" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="divInc-hint divInc-error"></div>
-        <p class="error" id="divInc-error" hidden></p>
-      </div>
-      <div class="field">
-        <label for="cgtGain">Capital gains on shares and other assets</label>
-        <p class="hint" id="cgtGain-hint">Gains made this year</p>
-        <div class="money"><span aria-hidden="true">£</span><input id="cgtGain" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="cgtGain-hint cgtGain-error"></div>
-        <p class="error" id="cgtGain-error" hidden></p>
-      </div>
-      <div class="field">
-        <label for="cgtProp">Capital gains on residential property</label>
-        <p class="hint" id="cgtProp-hint">For example, a second home or buy-to-let. Your main home is usually exempt.</p>
-        <div class="money"><span aria-hidden="true">£</span><input id="cgtProp" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="cgtProp-hint cgtProp-error"></div>
-        <p class="error" id="cgtProp-error" hidden></p>
-      </div>
-    </fieldset>
-
-    <fieldset class="group">
-      <legend>Renting out property</legend>
-      <div class="field">
-        <label for="rentProfit">Rental profit</label>
-        <p class="hint" id="rentProfit-hint">A year, after expenses but before mortgage interest. If you claim the £1,000 property allowance instead of expenses, enter your rent less the allowance.</p>
-        <div class="money"><span aria-hidden="true">£</span><input id="rentProfit" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="rentProfit-hint rentProfit-error"></div>
-        <p class="error" id="rentProfit-error" hidden></p>
-      </div>
-      <div class="field">
-        <label for="rentInterest">Mortgage interest on rental property</label>
-        <p class="hint" id="rentInterest-hint">A year. You get tax relief on it at the basic rate.</p>
-        <div class="money"><span aria-hidden="true">£</span><input id="rentInterest" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="rentInterest-hint rentInterest-error"></div>
-        <p class="error" id="rentInterest-error" hidden></p>
-      </div>
-    </fieldset>
-
-    <fieldset class="group">
-      <legend>Pension contributions from your salary</legend>
-      <div class="field field-short">
-        <label for="pensSac">Salary sacrifice</label>
-        <p class="hint" id="pensSac-hint">Percentage of your salary</p>
-        <div class="percent"><input id="pensSac" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="pensSac-hint pensSac-error"><span aria-hidden="true">%</span></div>
-        <p class="error" id="pensSac-error" hidden></p>
-      </div>
-      <div class="field field-short">
-        <label for="pensNet">Taken from pay before tax (net pay)</label>
-        <p class="hint" id="pensNet-hint">Percentage of your salary</p>
-        <div class="percent"><input id="pensNet" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="pensNet-hint pensNet-error"><span aria-hidden="true">%</span></div>
-        <p class="error" id="pensNet-error" hidden></p>
-      </div>
-    </fieldset>
-
-    <fieldset class="group">
-      <legend>Allowances</legend>
-      <div class="check">
-        <input type="checkbox" id="marriage" aria-describedby="marriage-hint">
-        <label for="marriage">I receive Marriage Allowance</label>
-        <p class="hint" id="marriage-hint">Your spouse or civil partner transfers £1,260 of their Personal Allowance to you, cutting your tax by up to £252.</p>
-      </div>
-      <div class="check">
-        <input type="checkbox" id="blind">
-        <label for="blind">Blind Person's Allowance</label>
-      </div>
-    </fieldset>
-
-    <fieldset class="group">
-      <legend>Child Benefit</legend>
-      <div class="field field-short">
-        <div class="label-row">
-          <label for="kids">Children you get Child Benefit for</label>
-          <button type="button" class="explain-button" data-explain aria-expanded="false" aria-controls="explain-hicbc">What does this mean?</button>
+  <div class="groups">
+    <details class="group" id="g-invest">
+      <summary><span class="pm" aria-hidden="true"></span><span class="group-name">Savings and investments</span><span class="group-status" data-status="invest"></span></summary>
+      <div class="group-body">
+        <div class="field">
+          <label for="savInc">Savings interest</label>
+          <p class="hint" id="savInc-hint">A year, outside ISAs</p>
+          <div class="money"><span aria-hidden="true">£</span><input id="savInc" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="savInc-hint savInc-error"></div>
+          <p class="error" id="savInc-error" hidden></p>
         </div>
-        <input id="kids" type="text" inputmode="numeric" autocomplete="off" value="0" aria-describedby="kids-error">
-        <p class="error" id="kids-error" hidden></p>
-        <div class="explain" id="explain-hicbc" hidden>
-          <p>If your adjusted net income is over £60,000, you repay some Child Benefit through the High Income Child Benefit Charge: 1% for every £200 over, so all of it at £80,000. Adjusted net income is your total taxable income less pension contributions. The calculator assumes you are the higher earner in your household, who pays the charge.</p>
+        <div class="field">
+          <label for="divInc">Dividends</label>
+          <p class="hint" id="divInc-hint">A year, outside ISAs</p>
+          <div class="money"><span aria-hidden="true">£</span><input id="divInc" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="divInc-hint divInc-error"></div>
+          <p class="error" id="divInc-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="cgtGain">Gains on shares and other assets</label>
+          <p class="hint" id="cgtGain-hint">Capital gains made this year</p>
+          <div class="money"><span aria-hidden="true">£</span><input id="cgtGain" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="cgtGain-hint cgtGain-error"></div>
+          <p class="error" id="cgtGain-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="cgtProp">Gains on residential property</label>
+          <p class="hint" id="cgtProp-hint">A second home or buy-to-let; your main home is usually exempt</p>
+          <div class="money"><span aria-hidden="true">£</span><input id="cgtProp" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="cgtProp-hint cgtProp-error"></div>
+          <p class="error" id="cgtProp-error" hidden></p>
         </div>
       </div>
-    </fieldset>
-  </details>
+    </details>
+
+    <details class="group" id="g-property">
+      <summary><span class="pm" aria-hidden="true"></span><span class="group-name">Renting out property</span><span class="group-status" data-status="property"></span></summary>
+      <div class="group-body">
+        <div class="field">
+          <div class="label-row">
+            <label for="rentProfit">Rental profit</label>
+            <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-rent" aria-label="About rental profit">?</button>
+          </div>
+          <div class="explain" id="explain-rent" hidden><p>Your rent for the year after expenses, but before mortgage interest, which is entered separately because it gets tax relief at the basic rate. If you claim the £1,000 property allowance instead of expenses, enter your rent less the allowance.</p></div>
+          <div class="money"><span aria-hidden="true">£</span><input id="rentProfit" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="rentProfit-error"></div>
+          <p class="error" id="rentProfit-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="rentInterest">Mortgage interest on the property</label>
+          <p class="hint" id="rentInterest-hint">A year</p>
+          <div class="money"><span aria-hidden="true">£</span><input id="rentInterest" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="rentInterest-hint rentInterest-error"></div>
+          <p class="error" id="rentInterest-error" hidden></p>
+        </div>
+      </div>
+    </details>
+
+    <details class="group" id="g-pension">
+      <summary><span class="pm" aria-hidden="true"></span><span class="group-name">Pension contributions</span><span class="group-status" data-status="pension"></span></summary>
+      <div class="group-body">
+        <div class="field">
+          <label for="pensSac">Paid by salary sacrifice</label>
+          <p class="hint" id="pensSac-hint">Percentage of your salary</p>
+          <div class="percent"><input id="pensSac" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="pensSac-hint pensSac-error"><span aria-hidden="true">%</span></div>
+          <p class="error" id="pensSac-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="pensNet">Taken from pay before tax (net pay)</label>
+          <p class="hint" id="pensNet-hint">Percentage of your salary</p>
+          <div class="percent"><input id="pensNet" type="text" inputmode="decimal" autocomplete="off" value="0" aria-describedby="pensNet-hint pensNet-error"><span aria-hidden="true">%</span></div>
+          <p class="error" id="pensNet-error" hidden></p>
+        </div>
+      </div>
+    </details>
+
+    <details class="group" id="g-family">
+      <summary><span class="pm" aria-hidden="true"></span><span class="group-name">Allowances and Child Benefit</span><span class="group-status" data-status="family"></span></summary>
+      <div class="group-body">
+        <div class="check">
+          <input type="checkbox" id="marriage" aria-describedby="marriage-hint">
+          <label for="marriage">I receive Marriage Allowance</label>
+          <p class="hint" id="marriage-hint">My spouse or civil partner transfers £1,260 of their Personal Allowance to me</p>
+        </div>
+        <div class="check">
+          <input type="checkbox" id="blind">
+          <label for="blind">I get Blind Person's Allowance</label>
+        </div>
+        <div class="field">
+          <div class="label-row">
+            <label for="kids">Children I get Child Benefit for</label>
+            <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-hicbc" aria-label="About the High Income Child Benefit Charge">?</button>
+          </div>
+          <div class="explain" id="explain-hicbc" hidden><p>Above £60,000 of adjusted net income (taxable income less pension contributions), you repay 1% of your Child Benefit for every £200, so all of it at £80,000. This is the High Income Child Benefit Charge. The calculator assumes you are the higher earner in your household, who pays it.</p></div>
+          <input id="kids" class="input-short" type="text" inputmode="numeric" autocomplete="off" value="0" aria-describedby="kids-error">
+          <p class="error" id="kids-error" hidden></p>
+        </div>
+      </div>
+    </details>
+  </div>
 </form>
 
-<section class="results" aria-labelledby="h-results">
-  <div class="results-head">
-    <h2 id="h-results">Your tax in <span data-year-label>2026-27</span></h2>
-    <div class="check check-inline">
-      <input type="checkbox" id="erNI" form="inputs">
-      <label for="erNI">Include employer National Insurance</label>
-      <button type="button" class="explain-button" data-explain aria-expanded="false" aria-controls="explain-erni">What does this mean?</button>
+<!-- Results -->
+<section class="results" aria-label="Results">
+  <div class="tabs" role="tablist" aria-label="Results">
+    <button type="button" role="tab" id="tab-tax" aria-controls="panel-tax" aria-selected="true">Your tax</button>
+    <button type="button" role="tab" id="tab-spend" aria-controls="panel-spend" aria-selected="false" tabindex="-1">Where it goes</button>
+  </div>
+
+  <div class="tab-panel" role="tabpanel" id="panel-tax" aria-labelledby="tab-tax" tabindex="0">
+    <p class="kicker">Your tax in <span data-year-label>2026-27</span></p>
+    <p class="total"><span class="total-figure" id="total">£0</span> <span class="total-unit">a year</span></p>
+    <div class="rate-row">
+      <p class="rate">Average tax rate <strong id="rate">0%</strong></p>
+      <button type="button" class="help" data-explain aria-expanded="false" aria-controls="explain-rate" aria-label="What the average tax rate means">?</button>
     </div>
-    <div class="explain" id="explain-erni" hidden>
-      <p>Employers pay National Insurance of 15% on your pay above £5,000. Your employer hands it over, but most of the cost falls on you, through lower pay than you would otherwise get. The calculator counts 75% of it as your tax, close to the Office for Budget Responsibility's estimate that 76% of the 2025 rise passes to workers.</p>
+    <div class="explain" id="explain-rate" hidden><p>All the tax shown here as a share of all the income and gains you entered (plus the employer National Insurance counted as yours, if included). It is not the rate on your next pound, which is usually higher. VAT, council tax and other taxes are not included.</p></div>
+    <p class="compare" id="compare"></p>
+    <p class="visually-hidden" aria-live="polite" id="announce"></p>
+
+    <table class="summary-table">
+      <caption class="visually-hidden">Your tax by type</caption>
+      <tbody id="summary-body"></tbody>
+    </table>
+
+    <details class="detail">
+      <summary><span class="pm" aria-hidden="true"></span><span>How it is worked out</span></summary>
+      <div class="table-scroll">
+        <table class="detail-table">
+          <caption class="visually-hidden">How your tax is worked out</caption>
+          <thead><tr><th scope="col">Item</th><th scope="col" class="num">Amount</th><th scope="col" class="num">Rate</th><th scope="col" class="num">Tax</th></tr></thead>
+          <tbody id="detail-body"></tbody>
+        </table>
+      </div>
+      <p class="small">Figures are rounded to the nearest pound in the summary, so its lines may not add exactly to the total.</p>
+    </details>
+
+    <div class="actions">
+      <button type="button" class="button" id="go-spend">See where it goes →</button>
+      <button type="button" class="button button-secondary" id="share">Download image to share</button>
     </div>
   </div>
 
-  <p class="total"><span class="total-figure" id="total">£0</span> <span class="total-unit">a year</span></p>
-  <div class="rate-row">
-    <p class="rate">Average tax rate <strong id="rate">0%</strong></p>
-    <button type="button" class="explain-button" data-explain aria-expanded="false" aria-controls="explain-rate">What does this mean?</button>
-  </div>
-  <div class="explain" id="explain-rate" hidden>
-    <p>Your average tax rate is all the tax shown here as a share of all the income and gains you entered (including the employer National Insurance counted as yours, if you include it). It is not the rate on your next pound of income, which is usually higher. The calculator covers direct taxes on income and gains, not VAT, council tax or other taxes.</p>
-  </div>
-  <p class="compare" id="compare"></p>
-  <p class="visually-hidden" aria-live="polite" id="announce"></p>
+  <div class="tab-panel" role="tabpanel" id="panel-spend" aria-labelledby="tab-spend" tabindex="0" hidden>
+    <p class="kicker">Your <span data-tax-total>£0</span> shared across government spending in <span data-spend-year>2025-26</span></p>
+    <div id="pie"></div>
 
-  <table class="summary-table">
-    <caption class="visually-hidden">Your tax by type</caption>
-    <tbody id="summary-body"></tbody>
-  </table>
-  <p class="small">Figures are rounded to the nearest pound, so lines may not add exactly to the total.</p>
-
-  <details class="detail">
-    <summary><span>Detailed breakdown</span></summary>
-    <div class="table-scroll">
-      <table class="detail-table">
-        <caption class="visually-hidden">How your tax is worked out</caption>
-        <thead><tr><th scope="col">Item</th><th scope="col" class="num">Amount</th><th scope="col" class="num">Rate</th><th scope="col" class="num">Tax</th></tr></thead>
-        <tbody id="detail-body"></tbody>
-      </table>
-    </div>
-  </details>
-
-  <section class="spending" aria-labelledby="h-spending">
-    <h2 id="h-spending">Where your tax goes</h2>
-    <p class="intro">Your <span data-tax-total>£0</span> shared across what government spent in <span data-spend-year>2025-26</span>, largest first. Select a line to see what it covers.</p>
-    <ol class="bars" id="bars"></ol>
-
-    <details class="table-alt">
-      <summary><span>Show as a table</span></summary>
+    <details class="detail">
+      <summary><span class="pm" aria-hidden="true"></span><span>Show as a table</span></summary>
       <div class="table-scroll">
         <table class="spend-table">
           <caption class="visually-hidden">Your tax shared across spending</caption>
@@ -220,30 +231,23 @@
       </div>
     </details>
 
+    <details class="detail">
+      <summary><span class="pm" aria-hidden="true"></span><span>About these figures</span></summary>
+      <div class="about">
+        <p>Taxes are not earmarked for particular services. The government pools what it raises and decides spending separately. In <span data-spend-year>2025-26</span> it also borrowed to cover part of what it spent, so taxes paid for less than all of it. This chart shares your tax in the same proportions as the Treasury's total spending.</p>
+        <p>The figures are the Treasury's <strong>total expenditure on services</strong> for <span data-spend-year>2025-26</span>: <span id="tes">£1,227.6 billion</span> spent on public services, benefits and debt interest. <strong>Outturn</strong> means what was actually spent, as opposed to plans. The total leaves out <span id="adjustments">£132.5 billion</span> of accounting adjustments, mostly depreciation and VAT that public bodies pay and get back, which take it to <span id="tme">£1,360.1 billion</span>. HMRC's Annual Tax Summaries use the same basis.</p>
+        <p>Spending is grouped by purpose, using the UN's Classification of the Functions of Government (COFOG), whichever department or council spends it. The <a href="https://github.com/adam-smith-institute/tax-calculator/blob/main/METHODOLOGY.md" target="_blank" rel="noopener">methodology</a> explains each category.</p>
+      </div>
+    </details>
+
     <p class="source">Spending: HM Treasury, <a id="source-link" href="https://www.gov.uk/government/statistics/public-expenditure-statistical-analyses-2026" target="_blank" rel="noopener">Public Expenditure Statistical Analyses 2026</a>, Table 5.2 (<span id="source-year">2025-26</span> outturn).</p>
     <p class="small" id="source-note" hidden>Showing the figures bundled with this page, because the latest data file could not be loaded.</p>
-
-    <div class="notice">
-      <p>Taxes are not earmarked for particular services. The government pools what it raises and decides spending separately. In <span data-spend-year>2025-26</span> it also borrowed to cover part of what it spent, so taxes paid for less than all of it. The chart shares your tax across spending in the same proportions as the Treasury's total.</p>
-      <button type="button" class="explain-button" data-explain aria-expanded="false" aria-controls="explain-spending">What does this mean?</button>
-      <div class="explain" id="explain-spending" hidden>
-        <p><strong>Outturn</strong> means what was actually spent in a year that has ended, as opposed to plans.</p>
-        <p>The figures are the Treasury's <strong>total expenditure on services</strong>: <span id="tes">£1,227.6 billion</span> in <span data-spend-year>2025-26</span>. That is spending on public services, benefits and debt interest. It leaves out <span id="adjustments">£132.5 billion</span> of accounting adjustments, mostly depreciation (the wearing out of roads, buildings and equipment) and VAT that public bodies pay and get back, which take the total to <span id="tme">£1,360.1 billion</span>. HMRC's Annual Tax Summaries use the same basis.</p>
-        <p>Spending is grouped by purpose using the UN's <strong>COFOG</strong> classification (Classification of the Functions of Government), whichever department or council does the spending. The <a href="https://github.com/adam-smith-institute/tax-calculator/blob/main/METHODOLOGY.md" target="_blank" rel="noopener">methodology</a> explains each category.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="share-section" aria-labelledby="h-share">
-    <h2 id="h-share">Share your result</h2>
-    <p>Download an image of your total tax and the three areas it does most to pay for.</p>
-    <button type="button" class="button" id="share">Download image</button>
-  </section>
+  </div>
 </section>
 </main>
 
 <footer class="footer">
-  <p>This calculator is an illustration to inform debate. It covers income tax, National Insurance, Capital Gains Tax and the High Income Child Benefit Charge for a taxpayer in England or Northern Ireland, using rates from Budget 2026. It simplifies some rules, so it is not tax advice, and it should not be relied on for financial or personal decisions. The Adam Smith Institute accepts no liability for decisions based on it. The <a href="https://github.com/adam-smith-institute/tax-calculator/blob/main/METHODOLOGY.md" target="_blank" rel="noopener">methodology</a> sets out the assumptions and limitations.</p>
+  <p>This calculator is an illustration to inform debate. It covers income tax, National Insurance, Capital Gains Tax and the High Income Child Benefit Charge for a taxpayer in England or Northern Ireland, using rates from Budget 2026. It simplifies some rules, so it is not tax advice and should not be relied on for financial or personal decisions. The Adam Smith Institute accepts no liability for decisions based on it. The <a href="https://github.com/adam-smith-institute/tax-calculator/blob/main/METHODOLOGY.md" target="_blank" rel="noopener">methodology</a> sets out the assumptions and limitations.</p>
   <p><a href="https://www.adamsmith.org" target="_blank" rel="noopener">adamsmith.org</a></p>
 </footer>
 

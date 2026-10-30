@@ -13,6 +13,7 @@ import { serve } from './server.mjs';
 import { computeTax } from '../../src/engine/computeTax.js';
 
 const params = Object.fromEntries(['2026-27', '2027-28'].map((y) => [y, JSON.parse(readFileSync(new URL(`../../params/${y}.json`, import.meta.url)))]));
+const spending = JSON.parse(readFileSync(new URL('../../data/spending.json', import.meta.url)));
 let server, url, browser;
 
 before(async () => {
@@ -36,6 +37,8 @@ async function open(width = 1280) {
   return { page, errors };
 }
 
+const openGroups = async (page) => { for (const s of await page.$$('details.group:not([open]) > summary')) await s.click(); };
+
 const BLANK = {
   employmentIncome: 0, selfEmployedProfit: 0, savingsInterest: 0, dividends: 0, gainsOther: 0, gainsResidential: 0,
   propertyProfit: 0, propertyFinanceCosts: 0, salarySacrifice: 0, pensionNetPay: 0, blind: false,
@@ -56,7 +59,7 @@ const CASES = [
 ];
 
 async function fill(page, entries) {
-  await page.click('#more summary');
+  await openGroups(page);
   for (const [id, v] of Object.entries(entries)) {
     if (v === true) await page.check(`#${id}`);
     else if (id === 'spa') await page.check(`input[name="spa"][value="${v}"]`);
@@ -83,65 +86,123 @@ for (const [name, form, inputs] of CASES) {
   });
 }
 
-test('spending split shares the headline total over TES', async () => {
+test('pie chart shares the headline total over TES, with every category in the legend', async () => {
   const { page } = await open();
+  await page.click('#tab-spend');
   const total = money(await page.textContent('#total'));
-  const figures = await page.$$eval('#bars > li > button .bar-figures', (els) => els.map((e) => e.textContent));
-  const data = JSON.parse(readFileSync(new URL('../../data/spending.json', import.meta.url)));
-  assert.equal(figures.length, data.categories.length);
-  const health = data.categories.find((c) => c.id === 'health');
-  assert.equal(figures[0], `£${Math.round(total * health.amount / data.meta.tes).toLocaleString('en-GB')} · 21p in every £1`);
-  const sum = figures.reduce((s, f) => s + money(f.split(' · ')[0]), 0);
-  assert.ok(Math.abs(sum - total) <= data.categories.length, `categories add to £${sum}, total £${total}`);
+  const amounts = await page.$$eval('#pie .legend-item .legend-amount', (els) => els.map((e) => e.textContent));
+  assert.equal(amounts.length, spending.categories.length);
+  assert.equal(await page.$$eval('#pie .slice', (els) => els.length), spending.categories.length);
+  const first = spending.categories[0];
+  assert.equal(amounts[0], `£${Math.round(total * first.amount / spending.meta.tes).toLocaleString('en-GB')}`);
+  assert.equal(await page.textContent('#pie .legend-item >> nth=0 >> .legend-name'), first.name);
+  const sum = amounts.reduce((s, f) => s + money(f), 0);
+  assert.ok(Math.abs(sum - total) <= spending.categories.length, `categories add to £${sum}, total £${total}`);
+  // Slice colours come from the taxonomy
+  assert.equal(await page.getAttribute('#pie .slice >> nth=0', 'fill'), first.colour);
+  await page.close();
+});
+
+test('selecting a category shows its parts; "All spending" goes back', async () => {
+  const { page } = await open();
+  await page.click('#tab-spend');
+  await page.click('#pie .legend-item >> nth=0');
+  assert.equal(await page.textContent('.pie-title'), spending.categories[0].name);
+  assert.equal(await page.$$eval('#pie .legend-item', (els) => els.length), spending.categories[0].children.filter((c) => c.amount !== 0).length);
+  await page.click('.back-button');
+  assert.equal(await page.$$eval('#pie button.legend-item', (els) => els.length), spending.categories.length);
+  // Clicking a slice also drills down
+  await page.click('#pie .slice >> nth=1', { force: true });
+  assert.equal(await page.textContent('.pie-title'), spending.categories[1].name);
   await page.close();
 });
 
 for (const width of [320, 375, 768, 1280]) {
   test(`no horizontal scroll at ${width}px, with everything open`, async () => {
     const { page } = await open(width);
-    await page.click('#more summary');
-    await page.click('details.detail summary');
-    await page.click('details.table-alt summary');
-    for (const b of await page.$$('#bars .bar-toggle')) await b.click();
+    await openGroups(page);
+    await page.fill('#age', '66');
+    for (const s of await page.$$('#panel-tax details.detail > summary')) await s.click();
     for (const b of await page.$$('button[data-explain]')) if (await b.isVisible()) await b.click();
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-    assert.equal(overflow, 0);
+    let overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    assert.equal(overflow, 0, 'Your tax');
+    await page.click('#tab-spend');
+    for (const s of await page.$$('#panel-spend details.detail > summary')) await s.click();
+    await page.click('#pie .legend-item >> nth=0');
+    overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    assert.equal(overflow, 0, 'Where it goes');
     await page.close();
   });
 }
 
-test('axe: no serious or critical accessibility issues (WCAG 2.2 AA)', async () => {
+test('axe: no serious or critical accessibility issues (WCAG 2.2 AA), on both tabs', async () => {
   const { page } = await open();
-  await page.click('#more summary');
-  await page.click('details.detail summary');
-  await page.click('details.table-alt summary');
-  await page.click('#bars .bar-toggle >> nth=0');
-  for (const b of await page.$$('button[data-explain]')) if (await b.isVisible()) await b.click();
+  await openGroups(page);
   await page.fill('#age', '66');
-  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
-  const bad = results.violations.filter((v) => ['serious', 'critical'].includes(v.impact));
-  assert.deepEqual(bad.map((v) => `${v.id}: ${v.nodes.length} (${v.help})`), []);
+  await page.click('#panel-tax details.detail > summary');
+  for (const b of await page.$$('button[data-explain]')) if (await b.isVisible()) await b.click();
+  const tags = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
+  const check = async (label) => {
+    const results = await new AxeBuilder({ page }).withTags(tags).analyze();
+    const bad = results.violations.filter((v) => ['serious', 'critical'].includes(v.impact));
+    assert.deepEqual(bad.map((v) => `${label} ${v.id}: ${v.nodes.length} (${v.help})`), []);
+  };
+  await check('Your tax:');
+  await page.click('#tab-spend');
+  for (const s of await page.$$('#panel-spend details.detail > summary')) await s.click();
+  await check('Where it goes:');
+  await page.click('#pie .legend-item >> nth=0');
+  await check('Category:');
   await page.close();
 });
 
-test('keyboard: Tab reaches the chart and Enter opens a category', async () => {
+test('keyboard: tabs move with arrow keys; a category opens with Enter and closes with "All spending"', async () => {
   const { page } = await open();
-  await page.focus('#bars .bar-toggle >> nth=1');
+  await page.focus('#tab-tax');
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await page.getAttribute('#tab-spend', 'aria-selected'), 'true');
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'tab-spend');
+  assert.equal(await page.isVisible('#panel-spend'), true);
+  assert.equal(await page.isVisible('#panel-tax'), false);
+  await page.focus('#pie .legend-item >> nth=1');
   await page.keyboard.press('Enter');
-  assert.equal(await page.getAttribute('#bars .bar-toggle >> nth=1', 'aria-expanded'), 'true');
-  assert.equal(await page.isVisible('#spend-welfare'), true);
-  await page.keyboard.press('Space');
-  assert.equal(await page.isVisible('#spend-welfare'), false);
-  // Every interactive element is reachable by Tab in order, with a visible focus ring
-  const focusable = await page.$$eval('button, input, summary, a[href]', (els) => els.filter((e) => e.offsetParent !== null).length);
-  let reached = 0;
+  assert.equal(await page.evaluate(() => document.activeElement.className), 'pie-title');
+  await page.focus('.back-button');
+  await page.keyboard.press('Enter');
+  assert.equal(await page.evaluate(() => document.activeElement.dataset.id), spending.categories[1].id);
+  // Every visible interactive element gets a visible focus ring
+  const focusable = await page.$$eval('button, input, summary, a[href], [tabindex="0"]', (els) => els.filter((e) => e.offsetParent !== null && e.tabIndex >= 0).length);
+  let ringed = 0;
   await page.focus('body');
-  for (let i = 0; i < focusable + 5; i++) {
+  for (let i = 0; i < focusable; i++) {
     await page.keyboard.press('Tab');
     const outline = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
-    if (outline !== "none") reached++;
+    if (outline !== 'none') ringed++;
   }
-  assert.ok(reached >= focusable * 0.9, `focus ring on ${reached} of ${focusable} stops`);
+  assert.ok(ringed >= focusable * 0.9, `focus ring on ${ringed} of ${focusable} stops`);
+  await page.close();
+});
+
+test('"See where it goes" switches to the second tab', async () => {
+  const { page } = await open();
+  await page.click('#go-spend');
+  assert.equal(await page.getAttribute('#tab-spend', 'aria-selected'), 'true');
+  await page.close();
+});
+
+test('closed input groups summarise what has been entered', async () => {
+  const { page } = await open();
+  await fill(page, { savInc: '3,000', divInc: '4,000', kids: '2', marriage: true, pensSac: '5' });
+  assert.equal(await page.textContent('[data-status="invest"]'), '£7,000 entered');
+  assert.equal(await page.textContent('[data-status="family"]'), 'Marriage Allowance, 2 children');
+  assert.equal(await page.textContent('[data-status="pension"]'), '5% of salary');
+  await page.close();
+});
+
+test('employer NI explanation states the incidence used', async () => {
+  const { page } = await open();
+  await page.click('[aria-controls="explain-erni"]');
+  assert.match(await page.textContent('#explain-erni'), new RegExp(`${Math.round(params['2026-27'].assumptions.employerNicIncidence * 100)}%`));
   await page.close();
 });
 
@@ -181,8 +242,8 @@ test('embedded: reports its height to the parent page', async () => {
   const page = await browser.newPage({ viewport: { width: 400, height: 800 } });
   await page.goto(`${url}tests/e2e/embed.html`);
   const height = await page.waitForFunction(() => window.__heights?.length && window.__heights.at(-1), null, { timeout: 10000 });
-  assert.ok((await height.jsonValue()) > 1500);
+  assert.ok((await height.jsonValue()) > 1000);
   const frameHeight = await page.$eval('iframe', (f) => f.getBoundingClientRect().height);
-  assert.ok(frameHeight > 1500, `iframe resized to ${frameHeight}px`);
+  assert.ok(frameHeight > 1000, `iframe resized to ${frameHeight}px`);
   await page.close();
 });

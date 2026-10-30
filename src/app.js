@@ -3,7 +3,7 @@
 
 import { computeTax } from './engine/computeTax.js';
 import { loadSpending, allocate } from './ui/spending-data.js';
-import { buildSpendingChart } from './ui/spending.js';
+import { buildPie } from './ui/pie.js';
 import { renderSummary, renderDetail } from './ui/breakdown.js';
 import { shareContent, downloadShareCard } from './ui/share.js';
 import { startAutoResize } from './ui/embed.js';
@@ -99,8 +99,8 @@ function compareLine(year, results) {
   const diff = b - a; // 2027-28 minus 2026-27
   const same = Math.abs(diff) < 0.5;
   if (year === '2026-27') {
-    if (same) return 'On 2027-28 rates, set at Budget 2026, the same income would be taxed the same.';
-    return `On 2027-28 rates, set at Budget 2026, the same income would be taxed ${gbp(Math.abs(diff))} ${diff > 0 ? 'more' : 'less'} a year.`;
+    if (same) return 'Your tax would be the same in 2027-28, after Budget 2026.';
+    return `In 2027-28, after Budget 2026, the same income would be taxed ${gbp(Math.abs(diff))} ${diff > 0 ? 'more' : 'less'} a year.`;
   }
   if (same) return 'That is the same as in 2026-27.';
   return `That is ${gbp(Math.abs(diff))} ${diff > 0 ? 'more' : 'less'} than in 2026-27, after Budget 2026.`;
@@ -128,6 +128,8 @@ function render() {
   renderDetail($('detail-body'), r);
   state.chart?.update(r.totals.totalTax);
   for (const n of document.querySelectorAll('[data-tax-total]')) n.textContent = gbp(r.totals.totalTax);
+  for (const n of document.querySelectorAll('[data-incidence]')) n.textContent = `${Math.round(p.assumptions.employerNicIncidence * 100)}%`;
+  groupStatus(ui);
 
   clearTimeout(announceTimer);
   announceTimer = setTimeout(() => {
@@ -144,6 +146,46 @@ function wireExplainers() {
       panel.hidden = !open;
     });
   }
+}
+
+// One line on each closed group saying what has been entered in it
+function groupStatus(ui) {
+  const money = (...ids) => ids.reduce((t, id) => t + ui[id], 0);
+  const status = {
+    invest: money('savInc', 'divInc', 'cgtGain', 'cgtProp') > 0 ? `${gbp(money('savInc', 'divInc', 'cgtGain', 'cgtProp'))} entered` : '',
+    property: ui.rentProfit > 0 ? `${gbp(ui.rentProfit)} profit` : '',
+    pension: ui.pensSac + ui.pensNet > 0 ? `${+(ui.pensSac + ui.pensNet).toFixed(2)}% of salary` : '',
+    family: [ui.marriage && 'Marriage Allowance', ui.blind && "Blind Person's Allowance", ui.kids > 0 && `${ui.kids} ${ui.kids === 1 ? 'child' : 'children'}`].filter(Boolean).join(', '),
+  };
+  for (const [k, v] of Object.entries(status)) document.querySelector(`[data-status="${k}"]`).textContent = v;
+}
+
+// Tabs (WAI-ARIA tabs pattern: arrow keys, Home and End move between tabs)
+function selectTab(tab, focus = false) {
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  for (const t of tabs) {
+    const on = t === tab;
+    t.setAttribute('aria-selected', String(on));
+    t.tabIndex = on ? 0 : -1;
+    $(t.getAttribute('aria-controls')).hidden = !on;
+  }
+  if (focus) tab.focus();
+}
+
+function wireTabs() {
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  for (const t of tabs) {
+    t.addEventListener('click', () => selectTab(t));
+    t.addEventListener('keydown', (e) => {
+      const i = tabs.indexOf(t);
+      const next = { ArrowRight: tabs[(i + 1) % tabs.length], ArrowLeft: tabs[(i - 1 + tabs.length) % tabs.length], Home: tabs[0], End: tabs.at(-1) }[e.key];
+      if (next) { e.preventDefault(); selectTab(next, true); }
+    });
+  }
+  $('go-spend').addEventListener('click', () => {
+    selectTab($('tab-spend'), true);
+    $('tab-spend').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
 }
 
 function wireYearSwitch() {
@@ -179,14 +221,14 @@ async function main() {
   ]);
   YEARS.forEach((y, i) => { state.params[y] = params[i]; });
   state.spending = spending.data;
-  state.chart = buildSpendingChart({ list: $('bars'), tableBody: $('spend-table-body'), data: spending.data });
+  state.chart = buildPie({ root: $('pie'), tableBody: $('spend-table-body'), data: spending.data });
   showSpendingSource(spending.data, spending.live);
 
   wireExplainers();
   wireYearSwitch();
+  wireTabs();
   $('inputs').addEventListener('input', render);
   $('inputs').addEventListener('change', render);
-  $('erNI').addEventListener('change', render); // outside the form element, linked by form="inputs"
   $('inputs').addEventListener('submit', (e) => e.preventDefault());
   $('share').addEventListener('click', async () => {
     const { r, year } = state.last;
