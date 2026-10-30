@@ -1,0 +1,63 @@
+name: Update spending data
+
+# Weekly and on demand: finds the latest HM Treasury PESA Table 5.2, rebuilds
+# data/spending.json and, if anything changed, opens a pull request for review.
+# It never merges. Any failure opens an issue.
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: spending-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22.23.4
+
+      - name: Discover, download, parse and validate
+        run: node pipeline/build-spending.mjs --summary "$RUNNER_TEMP/pr-body.md"
+
+      - name: Open or update a pull request if the data changed
+        run: |
+          if git diff --quiet -- data src/spending; then
+            echo "No change to the spending data."
+            exit 0
+          fi
+          year=$(node -p "require('./data/spending.json').meta.fiscalYear")
+          title=$(node -p "const m=require('./data/spending.json').meta; m.title + ' (' + m.fiscalYear + ' outturn)'")
+          branch="spending/update-$year"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git add data src/spending/fallback.js
+          git commit -m "Spending data: $title"
+          git push --force origin "$branch"
+          if [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[0].number')" ]; then
+            gh pr edit "$branch" --title "Spending data: $title" --body-file "$RUNNER_TEMP/pr-body.md"
+          else
+            gh pr create --base main --head "$branch" --title "Spending data: $title" --body-file "$RUNNER_TEMP/pr-body.md"
+          fi
+
+      - name: Open an issue on failure
+        if: failure()
+        run: |
+          title="Spending data pipeline failed"
+          body="The weekly spending data update failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          Nothing was written. See the log, then RUNBOOK.md, \"When the spending pipeline fails\"."
+          existing=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then gh issue comment "$existing" --body "$body"; else gh issue create --title "$title" --body "$body"; fi
