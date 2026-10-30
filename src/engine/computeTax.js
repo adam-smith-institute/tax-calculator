@@ -35,6 +35,30 @@ function hicbcCharge(ani, nChildren, params) {
   return Math.floor(cb * percent / 100);
 }
 
+// Working figures for the breakdown table (presentation only)
+function nicDetail(nicBase, sePro, overSPA, erNIC, inputs, params) {
+  const { class1Employee: ee, class4: c4, class1Employer: er } = params.nic;
+  const slices = (base, lower, upper, main, add) => [
+    { band: 'main', amount: Math.max(0, Math.min(base, upper) - lower), rate: main },
+    { band: 'upper', amount: Math.max(0, base - upper), rate: add },
+  ].filter((r) => r.amount > 0);
+  return {
+    overStatePensionAge: overSPA,
+    employee: overSPA ? [] : slices(nicBase, ee.primaryThreshold, ee.upperEarningsLimit, ee.mainRate, ee.additionalRate),
+    class4: overSPA ? [] : slices(sePro, c4.lowerProfitsLimit, c4.upperProfitsLimit, c4.mainRate, c4.additionalRate),
+    employer: inputs.includeEmployerNIC ? { amount: erNIC, rate: er.rate, incidence: params.assumptions.employerNicIncidence } : null,
+  };
+}
+
+function hicbcDetail(ani, nChildren, params) {
+  const benefit = Math.floor(childBenefitAnnual(nChildren, params.childBenefit));
+  if (benefit <= 0) return null;
+  const { thresholdStart: start, thresholdEnd: end, stepPounds, percentPerStep } = params.hicbc;
+  const percent = ani <= start ? 0 : ani >= end ? 100
+    : Math.min(100, Math.floor((ani - start) / stepPounds) * Math.round(percentPerStep * 100));
+  return { childBenefit: benefit, weeks: params.childBenefit.weeksPerYear, percent };
+}
+
 const NIL = { basic: 0, higher: 0, additional: 0 };
 
 // Tax `amount` through the basic, higher and additional bands at `rates`, given that
@@ -402,6 +426,21 @@ export function computeTax(inputs, params) {
     totals: { totalTax, totalIncome, effectiveRatePct: effectiveRate },
     internals: { ANI, PA, taxableAfterPA },
     // Band-by-band income tax, for the breakdown table (not part of the golden master)
-    detail: { incomeTaxBands: itx.rows, savingsStatus: itx.status, rateBase, employerNicBorne },
+    detail: {
+      incomeTaxBands: itx.rows,
+      savingsStatus: itx.status,
+      allowances: { personalAllowance: PA, blindPersonsAllowance: bpa },
+      nic: nicDetail(nicBase, selfEmployedProfit, overSPA, erNIC, inputs, params),
+      cgt: [
+        { component: 'residential', band: 'basic', amount: propInBasic, rate: cgt.rates.basic },
+        { component: 'residential', band: 'higher', amount: propTaxable - propInBasic, rate: cgt.rates.higher },
+        { component: 'other', band: 'basic', amount: otherInBasic, rate: cgt.rates.basic },
+        { component: 'other', band: 'higher', amount: otherTaxable - otherInBasic, rate: cgt.rates.higher },
+      ].filter((r) => r.amount > 0),
+      cgtExempt: { residential: propAEA, other: otherAEA },
+      hicbc: hicbcDetail(ANI, inputs.children || 0, params),
+      rateBase,
+      employerNicBorne,
+    },
   };
 }
