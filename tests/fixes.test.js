@@ -99,3 +99,48 @@ test('A10b: HICBC is 1% per complete £200, rounded down to whole pounds', () =>
   // 3 children: 52 x (26.05 + 2 x 17.25) = £3,148.60 -> £3,148. ANI £70,100: 50 steps = 50%.
   assert.equal(run({ employmentIncome: 70100, children: 3 }).breakdown.hicbc, 1574);
 });
+
+test('N2: allowances go where they save most tax (ITA 2007 s25(2))', () => {
+  // £6,000 interest + £20,000 dividends, nothing else. Savings first: PA covers the interest,
+  // £13,430 of dividends taxable, £500 at 0%, £12,930 at 10.75% = £1,389.98.
+  // Best: PA against dividends. Interest £6,000 = £5,000 starting rate + £1,000 PSA, all at 0%.
+  // Dividends £7,430: £500 at 0%, £6,930 at 10.75% = £744.98.
+  const r = run({ savingsInterest: 6000, dividends: 20000 });
+  assert.equal(r.breakdown.incomeTax, 744.98);
+  assert.equal(r.breakdown.componentTaxes.savings, 0);
+  // £10,000 interest + £15,000 dividends. Savings first: £1,282.47. All PA on dividends:
+  // £1,087.48. Best is in between: £4,000 of PA on interest leaves exactly £6,000, covered by
+  // the £5,000 starting rate and £1,000 PSA; £8,570 on dividends leaves £6,430, of which
+  // £500 at 0% and £5,930 at 10.75% = £637.48.
+  const r2 = run({ savingsInterest: 10000, dividends: 15000 });
+  assert.equal(r2.breakdown.incomeTax, 637.48);
+  assert.equal(r2.breakdown.componentTaxes.savings, 0);
+});
+
+test('N2: the breakpoint search matches a £1 brute-force search', async () => {
+  const { incomeTaxOn } = await import('../src/engine/computeTax.js');
+  let seed = 7;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  for (let i = 0; i < 300; i++) {
+    const ns = rand() < 0.5 ? 0 : Math.round(rand() * 20000);
+    const sv = Math.round(rand() * 30000);
+    const dv = Math.round(rand() * 60000);
+    if (ns + sv + dv > 100000) continue; // keep the full Personal Allowance
+    const R = Math.max(0, 12570 - ns);
+    const lo = Math.max(0, R - sv), hi = Math.min(R, dv);
+    if (lo > hi) continue; // allowances cover everything
+    let best = Infinity;
+    for (let t = lo; t <= hi; t++) {
+      const x = incomeTaxOn(Math.max(0, ns - 12570), sv - (R - t), dv - t, params);
+      best = Math.min(best, x.nonSavingsTax + x.savingsTax + x.dividendTax);
+    }
+    const got = run({ employmentIncome: ns, savingsInterest: sv, dividends: dv }).breakdown.incomeTax;
+    assert.ok(Math.abs(got - Math.round(best * 100) / 100) < 0.011, `ns ${ns} sv ${sv} dv ${dv}: engine ${got}, brute force ${best}`);
+  }
+});
+
+test('N2: a year with the statutory order sets allowances against savings before dividends', () => {
+  const p = structuredClone(params);
+  p.incomeTax.allowanceAllocation = 'statutoryOrder';
+  assert.equal(run({ savingsInterest: 6000, dividends: 20000 }, p).breakdown.incomeTax, 1389.98);
+});

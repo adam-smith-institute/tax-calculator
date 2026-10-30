@@ -76,7 +76,7 @@ function taxThroughBands(amount, already, rates, basicTop, higherTop) {
 // nil rates (starting rate for savings, Personal Savings Allowance, dividend allowance) are
 // rates, not deductions: income charged at them still occupies its place in the bands
 // (ITA 2007 ss12A, 13A; s12B(8)).
-function incomeTaxOn(nsTaxable, svTaxable, dvTaxable, params) {
+export function incomeTaxOn(nsTaxable, svTaxable, dvTaxable, params) {
   const it = params.incomeTax;
   const sav = params.savings;
   const div = params.dividends;
@@ -123,6 +123,55 @@ function incomeTaxOn(nsTaxable, svTaxable, dvTaxable, params) {
   };
 }
 
+// Set the allowances (Personal Allowance plus Blind Person's Allowance) against the
+// components of income. Non-savings income always comes first: it is taxed at the highest
+// rates in each band and also reduces the starting rate for savings, so nothing is gained
+// by sheltering anything else first.
+//
+// What is left goes against savings, then dividends, unless the year's parameters say
+// "greatestReduction" (ITA 2007 s25(2), up to 2026-27): then it goes wherever it saves the
+// most tax. That only differs when savings would otherwise be covered by the starting rate
+// and PSA, so the allowance is better used on dividends. Tax is piecewise linear in the split
+// (t = allowance set against dividends), so checking every breakpoint finds the minimum.
+function allocateAllowances(allowances, ns, sv, dv, params, maRecipient) {
+  const nsTaxable = Math.max(0, ns - allowances);
+  const R = Math.max(0, allowances - ns);
+  const lo = Math.max(0, R - sv);
+  const hi = Math.min(R, dv);
+  const split = (t) => ({ nsTaxable, svTaxable: Math.max(0, sv - (R - t)), dvTaxable: Math.max(0, dv - t) });
+  // lo > hi: the allowances cover all savings and dividends
+  if (params.incomeTax.allowanceAllocation !== 'greatestReduction' || hi <= lo) return split(Math.min(lo, hi));
+
+  const it = params.incomeTax;
+  const total = nsTaxable + sv + dv - R; // the same whatever the split
+  const status = total > Math.max(it.basicRateLimit, it.additionalRateThreshold) ? 'additional'
+    : total > it.basicRateLimit ? 'higher' : 'basic';
+  const nilSavings = Math.max(0, params.savings.startingRateBand - nsTaxable)
+    + (params.savings.personalSavingsAllowance[status] || 0);
+  const da = params.dividends.allowance;
+  // Breakpoints as values of svTaxable, converted to t
+  const svPoints = [nilSavings];
+  for (const limit of [it.basicRateLimit, it.additionalRateThreshold]) {
+    svPoints.push(limit - nsTaxable, limit - nsTaxable - da); // savings top, or dividend allowance top, at a band limit
+  }
+  const candidates = [lo, hi, dv - da, ...svPoints.map((x) => x - sv + R)]
+    .filter((t) => t > lo && t <= hi);
+
+  const cost = (t) => {
+    const s = split(t);
+    const r = incomeTaxOn(s.nsTaxable, s.svTaxable, s.dvTaxable, params);
+    const tax = r.nonSavingsTax + r.savingsTax + r.dividendTax;
+    return maRecipient && r.maEligible ? Math.max(0, tax - it.marriageAllowance.credit) : tax;
+  };
+  let best = lo;
+  let bestCost = cost(lo);
+  for (const t of candidates) {
+    const c = cost(t);
+    if (c < bestCost - 1e-9) { best = t; bestCost = c; }
+  }
+  return split(best);
+}
+
 /**
  * @param {object} inputs
  *   employmentIncome, selfEmployedProfit, savingsInterest, dividends, gainsOther,
@@ -155,18 +204,13 @@ export function computeTax(inputs, params) {
   const totalIncomeBeforePA = nonSavingsIncome + savingsInterest + dividendIncome;
   const ANI = Math.max(0, totalIncomeBeforePA);
 
-  // Personal Allowance (tapered) plus Blind Person's Allowance, set against
-  // non-savings income first, then savings, then dividends
+  // Personal Allowance (tapered) plus Blind Person's Allowance
   const PA = paAfterTaper(ANI, it);
-  let remainingAllowance = PA + bpa;
-  const applyAllowance = (amount) => {
-    const used = Math.min(remainingAllowance, amount);
-    remainingAllowance -= used;
-    return amount - used;
-  };
-  const nsTaxable = applyAllowance(nonSavingsIncome);
-  const svTaxablePreZeroRates = applyAllowance(savingsInterest);
-  const dvTaxablePreZeroRates = applyAllowance(dividendIncome);
+  const alloc = allocateAllowances(PA + bpa, nonSavingsIncome, savingsInterest, dividendIncome, params,
+    !!inputs.marriageAllowanceRecipient);
+  const nsTaxable = alloc.nsTaxable;
+  const svTaxablePreZeroRates = alloc.svTaxable;
+  const dvTaxablePreZeroRates = alloc.dvTaxable;
 
   const itx = incomeTaxOn(nsTaxable, svTaxablePreZeroRates, dvTaxablePreZeroRates, params);
   const { nonSavingsTax, savingsTax, dividendTax, srsApplied, psaApplied, divAllowApplied } = itx;
