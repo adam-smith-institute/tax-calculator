@@ -76,6 +76,21 @@ their parts, the categories sum to TES within £1 million, and the file matches 
 6. **Merge** by hand. The live page reads `data/spending.json`, and the bundled fallback
    updates in the same commit.
 
+## Named programmes and exclusions
+
+Both are defined in `src/spending/taxonomy.json` and documented in TAXONOMY.md.
+
+- **Exclusions** read their amounts from PESA Tables 1.1 (BBC domestic services), 5.2 (pension
+  scheme and public corporation debt interest) and 8.4 (public corporations' capital spending
+  on housing and transport). If PESA renames one of those lines, the pipeline stops and opens an
+  issue: update the label in the exclusion's `rows`.
+- **Named programmes** come from OSCAR II's June release for the same financial year. Each has
+  a `match` (organisation and/or programme name, and department) and the COFOG code its
+  spending carries. If a programme is renamed in OSCAR, the pull request flags it as not found
+  and leaves it out; update its `match`. To add one, find it in the OSCAR annual release (each
+  November), check its COFOG code puts it in the line you intend, add it under that line, and
+  run `npm test`, which checks the named programmes never exceed their line.
+
 ## When the spending pipeline fails
 
 The workflow opens an issue, "Spending data pipeline failed", linking to the run log.

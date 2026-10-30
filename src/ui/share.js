@@ -9,7 +9,7 @@
 // chart in the pie chart's colours with each one's share of all spending. The categories,
 // colours and shares come from the data; none is hardcoded.
 
-import { gbp } from './format.js?v=b74c5c7d9a';
+import { gbp } from './format.js?v=34a5278b97';
 
 const W = 1080;
 const H = 1350;

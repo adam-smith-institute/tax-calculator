@@ -88,13 +88,48 @@ export function parseTable52(workbook) {
 }
 
 /**
- * Map parsed lines onto the taxonomy and validate. Returns { categories, totals, warnings }.
- * Throws PipelineError if any rule fails, so nothing is written.
+ * Read the lines of another PESA table, found by its title, for one fiscal year's outturn
+ * column. Returns a Map of normalised label -> £ million, with lines of the same label summed
+ * (Table 1.1 lists "BBC domestic services" under both resource and capital budgets). Section
+ * headings with no figures ("Public corporations' capital expenditure on services") prefix
+ * the labels below them: "capital/6. housing and community amenities".
  */
-export function mapToTaxonomy(table, taxonomy) {
+export function parseLinesByTitle(workbook, titleRe, fiscalYear) {
+  const sheet = workbook.find((s) => s.rows.slice(0, 6).some((r) => r.some((c) => typeof c === 'string' && titleRe.test(c.replace(/\s+/g, ' ')))));
+  if (!sheet) fail(`PESA table matching ${titleRe} not found`);
+  const title = sheet.rows.slice(0, 6).flat().find((c) => typeof c === 'string' && titleRe.test(c.replace(/\s+/g, ' '))).replace(/\s+/g, ' ').trim();
+  const headerRow = sheet.rows.findIndex((row) => row.some((c) => typeof c === 'string' && c.trim() === fiscalYear));
+  if (headerRow < 0) fail(`${title}: no ${fiscalYear} column`);
+  const col = sheet.rows[headerRow].findIndex((c) => typeof c === 'string' && c.trim() === fiscalYear);
+  if (!/outturn/i.test(String(sheet.rows[headerRow + 1]?.[col] || ''))) fail(`${title}: ${fiscalYear} is not outturn`);
+  const lines = new Map();
+  let section = '';
+  for (const row of sheet.rows.slice(headerRow + 2)) {
+    const label = row.slice(0, col).find((c) => typeof c === 'string' && c.trim());
+    if (!label) continue;
+    const n = normalise(label);
+    const value = toNumber(row[col]);
+    if (value === null) {
+      const m = n.match(/^public corporations['\u2019]? (current|capital) expenditure on services$/);
+      if (m) section = `${m[1]}/`;
+      continue;
+    }
+    const key = section + n;
+    lines.set(key, (lines.get(key) || 0) + value);
+  }
+  lines.title = title;
+  return lines;
+}
+
+/**
+ * Map parsed lines onto the taxonomy and validate. Throws PipelineError if any rule fails, so
+ * nothing is written. Options: `tables` (other PESA tables the exclusions read, from
+ * parseLinesByTitle) and `programme` (a function giving a named programme's £m from OSCAR).
+ */
+export function mapToTaxonomy(table, taxonomy, { tables = {}, programme = null } = {}) {
   const value = new Map(table.lines.map((l) => [l.id, l.value]));
   const errors = [];
-  const warnings = [];
+  const flags = [];
   const get = (id) => {
     if (!value.has(id)) { errors.push(`Taxonomy refers to "${id}", which is not in Table 5.2`); return 0; }
     return value.get(id);
@@ -113,12 +148,14 @@ export function mapToTaxonomy(table, taxonomy) {
     return seen;
   };
 
-  // Every line is assigned exactly once: itself or one ancestor, never both
+  // Every line is assigned exactly once: to a category, or excluded as a whole line
   const assigned = new Map();
-  for (const c of taxonomy.categories) for (const ch of c.children) for (const r of ch.rows) {
-    if (assigned.has(r)) errors.push(`"${r}" is assigned twice (${assigned.get(r)} and ${c.id}/${ch.id})`);
-    assigned.set(r, `${c.id}/${ch.id}`);
-  }
+  const assign = (r, where) => {
+    if (assigned.has(r)) errors.push(`"${r}" is assigned twice (${assigned.get(r)} and ${where})`);
+    assigned.set(r, where);
+  };
+  for (const c of taxonomy.categories) for (const ch of c.children) for (const r of ch.rows) assign(r, `${c.id}/${ch.id}`);
+  for (const ex of taxonomy.exclusions || []) if (!ex.amount.table) for (const r of ex.amount.rows) assign(r, `excluded: ${ex.id}`);
   const special = new Set(['tes', 'adjustments', 'tme']);
   const isAggregate = (id) => id in taxonomy.aggregates;
   for (const { id, label } of table.lines) {
@@ -130,32 +167,69 @@ export function mapToTaxonomy(table, taxonomy) {
   for (const id of assigned.keys()) if (!value.has(id)) errors.push(`Taxonomy assigns "${id}", which is not in Table 5.2`);
   if (errors.length) throw new PipelineError(`Taxonomy validation failed:\n- ${errors.join('\n- ')}`);
 
+  // Spending in TES not paid for by the taxes the calculator models
+  const exclusions = (taxonomy.exclusions || []).map((ex) => {
+    let amount = 0;
+    if (!ex.amount.table) amount = ex.amount.rows.reduce((s, r) => s + get(r), 0);
+    else {
+      const t = tables[ex.amount.table];
+      if (!t) errors.push(`Exclusion "${ex.name}" needs PESA table "${ex.amount.table}", which was not loaded`);
+      else for (const r of ex.amount.rows) {
+        if (!t.has(r)) errors.push(`Exclusion "${ex.name}": line "${r}" not found in ${t.title}`);
+        else amount += t.get(r);
+      }
+    }
+    return { id: ex.id, name: ex.name, reason: ex.reason, amount, ...(ex.from ? { from: ex.from } : {}) };
+  });
+  const takenFrom = new Map();
+  for (const ex of exclusions) if (ex.from) takenFrom.set(ex.from, (takenFrom.get(ex.from) || 0) + ex.amount);
+
   const tes = get('tes');
   const categories = taxonomy.categories.map((c) => {
-    const children = c.children.map((ch) => ({
-      id: ch.id, name: ch.name, ...(ch.description ? { description: ch.description } : {}),
-      amount: ch.rows.reduce((s, r) => s + get(r), 0),
-    }));
+    let taken = 0;
+    const children = c.children.map((ch) => {
+      const gross = ch.rows.reduce((s, r) => s + get(r), 0);
+      const less = takenFrom.get(`${c.id}/${ch.id}`) || 0;
+      if (less > 0 && less > gross) errors.push(`${c.name} / ${ch.name}: excluding £${less}m from a line of £${gross}m`);
+      taken += less;
+      const out = { id: ch.id, name: ch.name, ...(ch.description ? { description: ch.description } : {}), amount: gross - less };
+      if (programme && ch.notable) {
+        const items = [];
+        for (const n of ch.notable) {
+          const { amount, lines } = programme(n.match);
+          if (!lines) { flags.push(`Named programme "${n.name}" not found in OSCAR; left out`); continue; }
+          if (amount > out.amount * 1.05) flags.push(`"${n.name}" (£${amount}m in OSCAR) is larger than its line, ${ch.name} (£${out.amount}m)`);
+          if (amount > 0) items.push({ id: n.id, name: n.name, amount, ...(n.note ? { note: n.note } : {}) });
+        }
+        const named = items.reduce((t, n) => t + n.amount, 0);
+        if (named > out.amount * 1.02) flags.push(`Named programmes under ${ch.name} add up to £${named}m, more than the line (£${out.amount}m)`);
+        if (items.length) out.notable = items.sort((a, b) => b.amount - a.amount);
+      }
+      return out;
+    });
     const childSum = children.reduce((s, ch) => s + ch.amount, 0);
     const amount = c.amount
-      ? (c.amount.add || []).reduce((s, r) => s + get(r), 0) - (c.amount.subtract || []).reduce((s, r) => s + get(r), 0)
+      ? (c.amount.add || []).reduce((s, r) => s + get(r), 0) - (c.amount.subtract || []).reduce((s, r) => s + get(r), 0) - taken
       : childSum;
     if (Math.abs(amount - childSum) > 2) errors.push(`${c.name}: published total ${amount} but its lines sum to ${childSum}`);
     return { id: c.id, name: c.name, ...(c.colour ? { colour: c.colour } : {}), description: c.description, amount, children };
   });
+  const excluded = exclusions.reduce((s, e) => s + e.amount, 0);
+  const base = tes - excluded;
   const sum = categories.reduce((s, c) => s + c.amount, 0);
-  if (Math.abs(sum - tes) > 1) errors.push(`Categories sum to £${sum}m but TES is £${tes}m`);
+  if (Math.abs(sum - base) > 1) errors.push(`Categories sum to £${sum}m but TES less exclusions is £${base}m`);
   if (errors.length) throw new PipelineError(`Validation failed:\n- ${errors.join('\n- ')}`);
 
   categories.sort((a, b) => b.amount - a.amount);
   for (const c of categories) {
-    c.share = c.amount / tes;
+    c.share = c.amount / base;
     c.children.sort((a, b) => b.amount - a.amount);
   }
   return {
     categories,
-    totals: { tes, accountingAdjustments: get('adjustments'), tme: get('tme'), categoriesSum: sum },
-    warnings,
+    exclusions,
+    totals: { tes, accountingAdjustments: get('adjustments'), tme: get('tme'), excluded, base, categoriesSum: sum },
+    flags,
   };
 }
 
@@ -176,8 +250,10 @@ export function validateSpending(doc) {
   need(m && typeof m === 'object', 'meta missing');
   if (m) {
     for (const k of ['title', 'url', 'publisher', 'published', 'table', 'fiscalYear', 'basis', 'generated', 'taxonomyVersion']) need(typeof m[k] === 'string' && m[k], `meta.${k} must be a non-empty string`);
-    for (const k of ['tes', 'accountingAdjustments', 'tme']) need(Number.isFinite(m[k]), `meta.${k} must be a number`);
-    need(m.basis === 'TES', 'meta.basis must be "TES"');
+    for (const k of ['tes', 'accountingAdjustments', 'tme', 'excluded', 'base']) need(Number.isFinite(m[k]), `meta.${k} must be a number`);
+    need(Array.isArray(m.exclusions), 'meta.exclusions must be an array');
+    for (const e of m.exclusions || []) need(typeof e.name === 'string' && Number.isFinite(e.amount) && typeof e.reason === 'string', 'each exclusion needs name, amount and reason');
+    need(/^TES\b/.test(m.basis || ''), 'meta.basis must start "TES"');
     need(/^\d{4}-\d{2}$/.test(m.fiscalYear || ''), 'meta.fiscalYear must look like 2025-26');
     need(/^\d{4}-\d{2}-\d{2}$/.test(m.published || ''), 'meta.published must be a date');
   }
@@ -190,6 +266,7 @@ export function validateSpending(doc) {
     for (const ch of c.children || []) {
       need(typeof ch.id === 'string' && typeof ch.name === 'string', `${c.id}: child id and name must be strings`);
       need(Number.isFinite(ch.amount), `${c.id}/${ch.id}: amount must be a number`);
+      for (const n of ch.notable || []) need(typeof n.name === 'string' && Number.isFinite(n.amount), `${c.id}/${ch.id}: each named programme needs name and amount`);
     }
   }
   return errors;

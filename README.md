@@ -17,7 +17,7 @@ Pages serves the repository root.
 |---|---|---|
 | Tax engine | `src/engine/computeTax.js` | `computeTax(inputs, params)`, a pure function with no DOM access |
 | Tax parameters | `params/2026-27.json`, `params/2027-28.json` | Every rate and threshold for a year, each with its source |
-| Spending data | `data/spending.json` | Built from HM Treasury PESA Table 5.2 by `pipeline/` |
+| Spending data | `data/spending.json` | Built by `pipeline/` from HM Treasury PESA (Tables 5.2, 1.1 and 8.4) and, for named programmes, OSCAR II |
 | Spending categories | `src/spending/taxonomy.json`, [TAXONOMY.md](TAXONOMY.md) | Maps every Table 5.2 line to a plain-English category. ASI owns this. |
 | Front end | `index.html`, `src/app.js`, `src/ui/`, `src/styles.css` | Form, results, chart, share image, embed resizing |
 | Design | [DESIGN-EXTENSION.md](DESIGN-EXTENSION.md) | The interactive patterns added to the ASI Design System |

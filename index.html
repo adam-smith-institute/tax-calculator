@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="asi-version" content="b74c5c7d9a">
+<meta name="asi-version" content="34a5278b97">
 <title>The 2026 Tax Calculator | Adam Smith Institute</title>
 <meta name="description" content="Work out your income tax, National Insurance and other direct taxes for 2026-27 and 2027-28, and see what they pay for.">
 <link rel="preload" href="assets/fonts/JosefinSans.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="assets/fonts/PTSerif-Regular.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="src/styles.css?v=b74c5c7d9a">
-<script type="module" src="src/app.js?v=b74c5c7d9a" onerror="document.getElementById('load-error').hidden = false"></script>
+<link rel="stylesheet" href="src/styles.css?v=34a5278b97">
+<script type="module" src="src/app.js?v=34a5278b97" onerror="document.getElementById('load-error').hidden = false"></script>
 </head>
 <body>
 <div class="page">
@@ -236,13 +236,16 @@
     <details class="detail">
       <summary><span class="pm" aria-hidden="true"></span><span>About these figures</span></summary>
       <div class="about">
-        <p>Taxes are not earmarked for particular services. The government pools what it raises and decides spending separately. In <span data-spend-year>2025-26</span> it also borrowed to cover part of what it spent, so taxes paid for less than all of it. This chart shares your tax in the same proportions as the Treasury's total spending.</p>
-        <p>The figures are the Treasury's <strong>total expenditure on services</strong> for <span data-spend-year>2025-26</span>: <span id="tes">£1,227.6 billion</span> spent on public services, benefits and debt interest. <strong>Outturn</strong> means what was actually spent, as opposed to plans. The total leaves out <span id="adjustments">£132.5 billion</span> of accounting adjustments, mostly depreciation and VAT that public bodies pay and get back, which take it to <span id="tme">£1,360.1 billion</span>. HMRC's Annual Tax Summaries use the same basis.</p>
+        <p>Taxes are not earmarked for particular services. The government pools what it raises and decides spending separately. In <span data-spend-year>2025-26</span> it also borrowed to cover part of what it spent, so taxes paid for less than all of it. This chart shares your tax in the same proportions as the spending your taxes help pay for.</p>
+        <p>The starting point is the Treasury's <strong>total expenditure on services</strong> for <span data-spend-year>2025-26</span>: <span id="tes">£1,227.6 billion</span> spent on public services, benefits and debt interest. <strong>Outturn</strong> means what was actually spent, as opposed to plans. That total already leaves out <span id="adjustments">£132.5 billion</span> of accounting adjustments, mostly depreciation and VAT that public bodies pay and get back, which take it to <span id="tme">£1,360.1 billion</span>. Student loans are not counted as spending in it.</p>
+        <p>The calculator then leaves out <span id="excluded">£35.4 billion</span> that the taxes it covers do not pay for, and shares your tax across the remaining <span id="base">£1,192.2 billion</span>:</p>
+        <ul class="exclusions" id="exclusions"></ul>
+        <p id="programmes-about">Named programmes such as HS2 come from HM Treasury's <a id="programmes-link" href="https://www.gov.uk/government/publications/oscar-ii-publishing-data-from-the-database-june-2026" target="_blank" rel="noopener">OSCAR II</a> database (provisional figures for <span data-spend-year>2025-26</span>). They show what each spent on staff, goods and services, investment, grants and benefits, leaving out depreciation, provisions and loans. They are part of the line they sit under, not extra to it. Hinkley Point C does not appear: it is privately financed and paid for through electricity bills.</p>
         <p>Spending is grouped by purpose, using the UN's Classification of the Functions of Government (COFOG), whichever department or council spends it. The <a href="https://github.com/adam-smith-institute/tax-calculator/blob/main/METHODOLOGY.md" target="_blank" rel="noopener">methodology</a> explains each category.</p>
       </div>
     </details>
 
-    <p class="source">Spending: HM Treasury, <a id="source-link" href="https://www.gov.uk/government/statistics/public-expenditure-statistical-analyses-2026" target="_blank" rel="noopener">Public Expenditure Statistical Analyses 2026</a>, Table 5.2 (<span id="source-year">2025-26</span> outturn).</p>
+    <p class="source">Spending: HM Treasury, <a id="source-link" href="https://www.gov.uk/government/statistics/public-expenditure-statistical-analyses-2026" target="_blank" rel="noopener">Public Expenditure Statistical Analyses 2026</a>, Table 5.2 (<span id="source-year">2025-26</span> outturn), less spending not paid for by the taxes covered<span id="programmes-source">; named programmes from HM Treasury's OSCAR II</span>.</p>
     <p class="small" id="source-note" hidden>Showing the figures bundled with this page, because the latest data file could not be loaded.</p>
   </div>
 </section>
