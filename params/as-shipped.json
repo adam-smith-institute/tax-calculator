@@ -39,7 +39,7 @@
     "class1Employer": { "secondaryThreshold": 5000, "upperSecondaryThreshold": 50270, "rate": 0.15, "under21Age": 21 },
     "class4": { "lowerProfitsLimit": 12570, "upperProfitsLimit": 50270, "mainRate": 0.06, "additionalRate": 0.02 },
     "statePensionAge": 66,
-    "salarySacrificeCap": 2000
+    "salarySacrificeCap": null
   },
   "childBenefit": {
     "weeklyEldest": 26.05,
@@ -97,7 +97,7 @@
     "nic.class4.mainRate": "legacy/original.html:684 (global NI_SE_MAIN)",
     "nic.class4.additionalRate": "legacy/original.html:684 (global NI_SE_ADDL)",
     "nic.statePensionAge": "legacy/original.html:2124 (hardcoded SPA_AGE)",
-    "nic.salarySacrificeCap": "legacy/original.html:2112 and 2149 (hardcoded NI_sac_cap and ER_NI_sac_cap)",
+    "nic.salarySacrificeCap": "null: no cap before 6 April 2029 (fix A3). The original hardcoded £2,000 at lines 2112 and 2149. https://www.gov.uk/government/publications/salary-sacrifice-reform-for-pension-contributions-effective-from-6-april-2029/salary-sacrifice-reform-for-pension-contributions",
     "childBenefit.weeklyEldest": "legacy/original.html:1805 (cited there: https://www.gov.uk/government/publications/rates-and-allowances-tax-credits-child-benefit-and-guardians-allowance/tax-credits-child-benefit-and-guardians-allowance)",
     "childBenefit.weeklyAdditional": "legacy/original.html:1806 (cited there: as above)",
     "childBenefit.weeksPerYear": "legacy/original.html:1829 (hardcoded)",

@@ -166,9 +166,11 @@ export function computeTax(inputs, params) {
   const maApplied = !!inputs.marriageAllowanceRecipient && taxpayerBand(taxableAfterPA, it) === 'basic';
   if (maApplied) incomeTax = Math.max(0, round2(incomeTax - it.marriageAllowance.credit));
 
-  // Employee Class 1 NICs; salary sacrifice reduces the NIC base up to the cap
+  // Employee Class 1 NICs. Salary sacrifice comes off the NIC base in full, or only up to
+  // the cap in years that set one (from 2029-30: params nic.salarySacrificeCap).
   const ee = nic.class1Employee;
-  const nicBase = Math.max(0, (inputs.employmentIncome || 0) - Math.min(salarySacrifice, nic.salarySacrificeCap));
+  const sacrificeOffNic = Math.min(salarySacrifice, nic.salarySacrificeCap ?? Infinity);
+  const nicBase = Math.max(0, (inputs.employmentIncome || 0) - sacrificeOffNic);
   let eeNIC = 0;
   if (nicBase > ee.primaryThreshold) {
     const mainSlice = Math.min(nicBase, ee.upperEarningsLimit) - ee.primaryThreshold;
@@ -201,7 +203,7 @@ export function computeTax(inputs, params) {
   let erNIC = 0;
   if (inputs.includeEmployerNIC) {
     const er = nic.class1Employer;
-    const erBase = Math.max(0, (inputs.employmentIncome || 0) - Math.min(salarySacrifice, nic.salarySacrificeCap));
+    const erBase = Math.max(0, (inputs.employmentIncome || 0) - sacrificeOffNic);
     if (age && age < er.under21Age) {
       const UST = er.upperSecondaryThreshold || er.secondaryThreshold;
       if (erBase > UST) erNIC = round2((erBase - UST) * er.rate);
