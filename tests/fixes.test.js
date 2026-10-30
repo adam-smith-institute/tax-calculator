@@ -131,7 +131,7 @@ test('N2: the breakpoint search matches a £1 brute-force search', async () => {
     if (lo > hi) continue; // allowances cover everything
     let best = Infinity;
     for (let t = lo; t <= hi; t++) {
-      const x = incomeTaxOn(Math.max(0, ns - 12570), sv - (R - t), dv - t, params);
+      const x = incomeTaxOn(Math.max(0, ns - 12570), 0, sv - (R - t), dv - t, params);
       best = Math.min(best, x.nonSavingsTax + x.savingsTax + x.dividendTax);
     }
     const got = run({ employmentIncome: ns, savingsInterest: sv, dividends: dv }).breakdown.incomeTax;

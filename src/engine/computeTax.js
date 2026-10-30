@@ -3,10 +3,10 @@
 // computeTax(inputs, params) is pure: no DOM, no globals, no I/O. Every rate and threshold
 // comes from `params` (one JSON file per tax year in /params). All amounts are annual £.
 //
-// This is a port of compute() in legacy/original.html. Phase 1 requires it to reproduce
-// the original to the penny on every field (tests/golden/as-shipped.json), so the
-// arithmetic follows the original's expressions and their order; do not "tidy" an
-// expression without re-running the golden master.
+// It began as a port of compute() in legacy/original.html and still reproduces it to the
+// penny (tests/golden/as-shipped.json), apart from the approved fixes in AUDIT.md. The
+// arithmetic keeps the original's expressions and their order where it can; re-run the
+// golden master after touching any expression.
 
 export const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
 
@@ -71,30 +71,33 @@ function taxThroughBands(amount, already, rates, basicTop, higherTop) {
   return { tax, already, pieces };
 }
 
-// Income tax on taxable income (after allowances) split into non-savings, savings and
-// dividend components. Income is stacked non-savings, then savings, then dividends. The
+// Income tax on taxable income (after allowances) split into non-savings, property, savings
+// and dividend components, stacked in that order. Property is a separate component only in
+// years with property rates (from 2027-28); before that it is part of non-savings. The
 // nil rates (starting rate for savings, Personal Savings Allowance, dividend allowance) are
 // rates, not deductions: income charged at them still occupies its place in the bands
 // (ITA 2007 ss12A, 13A; s12B(8)).
-export function incomeTaxOn(nsTaxable, svTaxable, dvTaxable, params) {
+export function incomeTaxOn(nsTaxable, prTaxable, svTaxable, dvTaxable, params) {
   const it = params.incomeTax;
   const sav = params.savings;
   const div = params.dividends;
   const basicTop = it.basicRateLimit;
   const higherTop = Math.max(basicTop, it.additionalRateThreshold);
-  const totalTaxable = nsTaxable + svTaxable + dvTaxable;
+  const totalTaxable = nsTaxable + prTaxable + svTaxable + dvTaxable;
 
   // Personal Savings Allowance by status: does any income, nil-rated or not, fall in the
   // higher or additional rate band? (ITA 2007 s12B)
   const status = totalTaxable > higherTop ? 'additional' : totalTaxable > basicTop ? 'higher' : 'basic';
 
-  // Starting rate for savings: reduced £ for £ by taxable non-savings income
-  const srsApplied = Math.min(Math.max(0, sav.startingRateBand - nsTaxable), svTaxable);
+  // Starting rate for savings: reduced £ for £ by taxable income other than savings and
+  // dividends (property income included)
+  const srsApplied = Math.min(Math.max(0, sav.startingRateBand - (nsTaxable + prTaxable)), svTaxable);
   const psaApplied = Math.min(sav.personalSavingsAllowance[status] || 0, svTaxable - srsApplied);
   const divAllowApplied = Math.min(div.allowance, dvTaxable);
 
   const slices = [
     { key: 'nonSavings', amount: nsTaxable, rates: it.rates },
+    { key: 'property', amount: prTaxable, rates: params.property.rates || it.rates },
     { key: 'savingsStartingRate', amount: srsApplied, rates: NIL },
     { key: 'savingsAllowance', amount: psaApplied, rates: NIL },
     { key: 'savings', amount: svTaxable - srsApplied - psaApplied, rates: sav.rates },
@@ -118,64 +121,94 @@ export function incomeTaxOn(nsTaxable, svTaxable, dvTaxable, params) {
   const maEligible = !rows.some((r) => r.band !== 'basic' && (r.rate > 0 || r.component === 'dividendAllowance'));
 
   return {
-    nonSavingsTax: tax.nonSavings, savingsTax: tax.savings, dividendTax: tax.dividends,
+    nonSavingsTax: tax.nonSavings, propertyTax: tax.property, savingsTax: tax.savings, dividendTax: tax.dividends,
     srsApplied, psaApplied, divAllowApplied, totalTaxable, status, maEligible, rows,
   };
 }
 
 // Set the allowances (Personal Allowance plus Blind Person's Allowance) against the
-// components of income. Non-savings income always comes first: it is taxed at the highest
-// rates in each band and also reduces the starting rate for savings, so nothing is gained
-// by sheltering anything else first.
+// components of income. Other (non-savings) income always comes first. From 2027-28 the law
+// requires it (ITA 2007 s25(3A)); before that it is what the greatest-reduction rule picks
+// anyway, because that income is taxed at the highest rates in each band and also reduces
+// the starting rate for savings.
 //
-// What is left goes against savings, then dividends, unless the year's parameters say
-// "greatestReduction" (ITA 2007 s25(2), up to 2026-27): then it goes wherever it saves the
-// most tax. That only differs when savings would otherwise be covered by the starting rate
-// and PSA, so the allowance is better used on dividends. Tax is piecewise linear in the split
-// (t = allowance set against dividends), so checking every breakpoint finds the minimum.
-function allocateAllowances(allowances, ns, sv, dv, params, maRecipient) {
+// What is left is set against property, savings and dividends. With "statutoryOrder" it
+// goes in that order. With "greatestReduction" (ITA 2007 s25(2), which still governs the
+// excess after s25(3A)) it goes wherever it saves the most tax. Tax is piecewise linear in
+// the split, so it is enough to try every breakpoint: the allowance put on property (tp),
+// and for each tp the allowance put on dividends (td), the rest going on savings.
+//
+// `cost(split)` returns the income tax for a split, after tax reductions.
+function allocateAllowances(allowances, ns, pr, sv, dv, params, cost) {
   const nsTaxable = Math.max(0, ns - allowances);
   const R = Math.max(0, allowances - ns);
-  const lo = Math.max(0, R - sv);
-  const hi = Math.min(R, dv);
-  const split = (t) => ({ nsTaxable, svTaxable: Math.max(0, sv - (R - t)), dvTaxable: Math.max(0, dv - t) });
-  // lo > hi: the allowances cover all savings and dividends
-  if (params.incomeTax.allowanceAllocation !== 'greatestReduction' || hi <= lo) return split(Math.min(lo, hi));
+  const split = (tp, td) => ({
+    nsTaxable,
+    prTaxable: Math.max(0, pr - tp),
+    svTaxable: Math.max(0, sv - (R - tp - td)),
+    dvTaxable: Math.max(0, dv - td),
+  });
+  // Statutory order: property, then savings, then dividends
+  const tpStat = Math.min(R, pr);
+  const tdStat = Math.max(0, Math.min(dv, R - tpStat - sv));
+  if (params.incomeTax.allowanceAllocation !== 'greatestReduction' || R <= 0) return split(tpStat, tdStat);
 
   const it = params.incomeTax;
-  const total = nsTaxable + sv + dv - R; // the same whatever the split
+  const total = Math.max(0, nsTaxable + pr + sv + dv - R); // the same whatever the split
   const status = total > Math.max(it.basicRateLimit, it.additionalRateThreshold) ? 'additional'
     : total > it.basicRateLimit ? 'higher' : 'basic';
-  const nilSavings = Math.max(0, params.savings.startingRateBand - nsTaxable)
-    + (params.savings.personalSavingsAllowance[status] || 0);
+  const psa = params.savings.personalSavingsAllowance[status] || 0;
   const da = params.dividends.allowance;
-  // Breakpoints as values of svTaxable, converted to t
-  const svPoints = [nilSavings];
-  for (const limit of [it.basicRateLimit, it.additionalRateThreshold]) {
-    svPoints.push(limit - nsTaxable, limit - nsTaxable - da); // savings top, or dividend allowance top, at a band limit
-  }
-  const candidates = [lo, hi, dv - da, ...svPoints.map((x) => x - sv + R)]
-    .filter((t) => t > lo && t <= hi);
+  const limits = [it.basicRateLimit, it.additionalRateThreshold];
 
-  const cost = (t) => {
-    const s = split(t);
-    const r = incomeTaxOn(s.nsTaxable, s.svTaxable, s.dvTaxable, params);
-    const tax = r.nonSavingsTax + r.savingsTax + r.dividendTax;
-    return maRecipient && r.maEligible ? Math.max(0, tax - it.marriageAllowance.credit) : tax;
+  // For a given tp, the best td: breakpoints where savings leave their nil-rate slices, where
+  // the savings top or the top of the dividend allowance crosses a band limit, and where
+  // dividends fall to the allowance.
+  const bestTd = (tp) => {
+    const Rr = R - tp;
+    const lo = Math.max(0, Rr - sv);
+    const hi = Math.min(Rr, dv);
+    if (hi <= lo) return [Math.max(0, Math.min(lo, hi)), cost(split(tp, Math.max(0, Math.min(lo, hi))))];
+    const below = nsTaxable + Math.max(0, pr - tp);
+    const nilSavings = Math.max(0, params.savings.startingRateBand - below) + psa;
+    const svPoints = [nilSavings];
+    for (const limit of limits) svPoints.push(limit - below, limit - below - da);
+    const candidates = [hi, dv - da, ...svPoints.map((x) => x - sv + Rr)].filter((t) => t > lo && t <= hi);
+    let best = lo;
+    let bestCost = cost(split(tp, lo));
+    for (const t of candidates) {
+      const c = cost(split(tp, t));
+      if (c < bestCost - 1e-9) { best = t; bestCost = c; }
+    }
+    return [best, bestCost];
   };
-  let best = lo;
-  let bestCost = cost(lo);
-  for (const t of candidates) {
-    const c = cost(t);
-    if (c < bestCost - 1e-9) { best = t; bestCost = c; }
+
+  // Candidate tp: none or all; property top at a band limit; the property slice ending where
+  // the starting rate for savings starts to bite; and leaving exactly the savings nil slices
+  // and the dividend allowance uncovered.
+  const tpMax = Math.min(R, pr);
+  const tpPoints = [0, tpMax];
+  if (tpMax > 0) {
+    for (const limit of limits) tpPoints.push(pr - (limit - nsTaxable));
+    tpPoints.push(pr - (params.savings.startingRateBand - nsTaxable));
+    for (const keepSv of [0, psa, params.savings.startingRateBand + psa]) {
+      for (const keepDv of [0, da]) tpPoints.push(R - Math.max(0, sv - keepSv) - Math.max(0, dv - keepDv));
+    }
   }
-  return split(best);
+  let best = null;
+  for (const tp of tpPoints.filter((t) => t >= 0 && t <= tpMax)) {
+    const [td, c] = bestTd(tp);
+    if (!best || c < best.cost - 1e-9) best = { tp, td, cost: c };
+  }
+  return split(best.tp, best.td);
 }
 
 /**
  * @param {object} inputs
  *   employmentIncome, selfEmployedProfit, savingsInterest, dividends, gainsOther,
  *   gainsResidential: £ a year
+ *   propertyProfit: rental profit after expenses, before mortgage interest; £ a year
+ *   propertyFinanceCosts: residential mortgage interest and other finance costs; £ a year
  *   salarySacrifice, pensionNetPay: £ a year
  *   blind, marriageAllowanceRecipient, includeEmployerNIC: boolean
  *   children: number of children for Child Benefit; age: years (0 = not given)
@@ -197,32 +230,61 @@ export function computeTax(inputs, params) {
   // claim it instead. The allowance replaces expenses, so nothing more comes off here.
   const selfEmployedProfit = Math.max(0, inputs.selfEmployedProfit || 0);
 
-  const nonSavingsIncome = employmentIncome + selfEmployedProfit;
+  // Property profit after expenses (or after the property allowance, if claimed instead).
+  // Finance costs are not deductible: they get a basic-rate tax reduction below. Before
+  // 2027-28 property is ordinary non-savings income.
+  const propertyProfit = Math.max(0, inputs.propertyProfit || 0);
+  const separateProperty = !!params.property.rates;
+  const otherIncome = employmentIncome + selfEmployedProfit;
+  const nonSavingsIncome = separateProperty ? otherIncome : otherIncome + propertyProfit;
+  const propertyIncome = separateProperty ? propertyProfit : 0;
   const savingsInterest = Math.max(0, inputs.savingsInterest || 0);
   const dividendIncome = Math.max(0, inputs.dividends || 0);
 
   // Adjusted net income
-  const totalIncomeBeforePA = nonSavingsIncome + savingsInterest + dividendIncome;
+  const totalIncomeBeforePA = nonSavingsIncome + propertyIncome + savingsInterest + dividendIncome;
   const ANI = Math.max(0, totalIncomeBeforePA);
+
+  // Tax reductions (ITA 2007 s23 Step 6): Marriage Allowance for a recipient who is not
+  // liable above the basic rate, then finance cost relief for landlords (ITTOIA 2005 s274A):
+  // the relief rate times the lowest of finance costs, property profit and adjusted total
+  // income (income other than savings and dividends, after allowances).
+  const financeCosts = Math.max(0, inputs.propertyFinanceCosts || 0);
+  const reductions = (x, nsT, prT) => {
+    const ma = inputs.marriageAllowanceRecipient && x.maEligible ? it.marriageAllowance.credit : 0;
+    const fcrBase = Math.min(financeCosts, propertyProfit, nsT + prT);
+    const fcr = financeCosts > 0 ? fcrBase * params.property.financeCostReliefRate : 0;
+    return { ma, fcr };
+  };
 
   // Personal Allowance (tapered) plus Blind Person's Allowance
   const PA = paAfterTaper(ANI, it);
-  const alloc = allocateAllowances(PA + bpa, nonSavingsIncome, savingsInterest, dividendIncome, params,
-    !!inputs.marriageAllowanceRecipient);
+  const alloc = allocateAllowances(PA + bpa, nonSavingsIncome, propertyIncome, savingsInterest, dividendIncome, params,
+    (sp) => {
+      const x = incomeTaxOn(sp.nsTaxable, sp.prTaxable, sp.svTaxable, sp.dvTaxable, params);
+      const r = reductions(x, sp.nsTaxable, sp.prTaxable);
+      return Math.max(0, x.nonSavingsTax + x.propertyTax + x.savingsTax + x.dividendTax - r.ma - r.fcr);
+    });
   const nsTaxable = alloc.nsTaxable;
   const svTaxablePreZeroRates = alloc.svTaxable;
   const dvTaxablePreZeroRates = alloc.dvTaxable;
 
-  const itx = incomeTaxOn(nsTaxable, svTaxablePreZeroRates, dvTaxablePreZeroRates, params);
-  const { nonSavingsTax, savingsTax, dividendTax, srsApplied, psaApplied, divAllowApplied } = itx;
+  const itx = incomeTaxOn(nsTaxable, alloc.prTaxable, svTaxablePreZeroRates, dvTaxablePreZeroRates, params);
+  const { nonSavingsTax, propertyTax, savingsTax, dividendTax, srsApplied, psaApplied, divAllowApplied } = itx;
   const taxableAfterPA = itx.totalTaxable;
 
-  let incomeTax = round2(nonSavingsTax + savingsTax + dividendTax);
-  const componentTaxes = { nonSavings: round2(nonSavingsTax), savings: round2(savingsTax), dividends: round2(dividendTax) };
+  let incomeTax = round2(nonSavingsTax + propertyTax + savingsTax + dividendTax);
+  const componentTaxes = {
+    nonSavings: round2(nonSavingsTax), property: round2(propertyTax),
+    savings: round2(savingsTax), dividends: round2(dividendTax),
+  };
 
-  // Marriage Allowance (recipient): a tax reduction of 20% of the transferred allowance
-  const maApplied = !!inputs.marriageAllowanceRecipient && itx.maEligible;
-  if (maApplied) incomeTax = Math.max(0, round2(incomeTax - it.marriageAllowance.credit));
+  // Each reduction is limited to the tax left to reduce
+  const red = reductions(itx, nsTaxable, alloc.prTaxable);
+  const maApplied = red.ma > 0;
+  if (maApplied) incomeTax = Math.max(0, round2(incomeTax - red.ma));
+  const financeCostRelief = round2(Math.min(incomeTax, red.fcr));
+  incomeTax = round2(incomeTax - financeCostRelief);
 
   // Employee Class 1 NICs. Salary sacrifice comes off the NIC base in full, or only up to
   // the cap in years that set one (from 2029-30: params nic.salarySacrificeCap).
@@ -311,7 +373,7 @@ export function computeTax(inputs, params) {
     + hicbc
   );
   const totalIncome = (inputs.employmentIncome || 0) + (inputs.selfEmployedProfit || 0)
-    + (inputs.savingsInterest || 0) + (inputs.dividends || 0);
+    + (inputs.savingsInterest || 0) + (inputs.dividends || 0) + propertyProfit;
   // Average rate: total tax over everything it is charged on, so both share one base. That is
   // all income and gains entered, plus the employer NI counted as the user's when it is on.
   const employerNicBorne = inputs.includeEmployerNIC ? erNIC * params.assumptions.employerNicIncidence : 0;
@@ -333,6 +395,7 @@ export function computeTax(inputs, params) {
       reducers: {
         marriageAllowanceApplied: maApplied,
         marriageAllowanceValue: maApplied ? it.marriageAllowance.credit : 0,
+        financeCostRelief,
       },
       zeroRateSavings: { srsApplied, psaApplied, divAllowanceApplied: divAllowApplied },
     },

@@ -28,6 +28,10 @@
     "allowance": 500,
     "rates": { "basic": 0.1075, "higher": 0.3575, "additional": 0.3935 }
   },
+  "property": {
+    "rates": null,
+    "financeCostReliefRate": 0.2
+  },
   "selfEmployment": {
     "tradingAllowance": 1000
   },
@@ -82,6 +86,8 @@
     "dividends.rates.basic": "legacy/original.html:1759 (cited there: https://www.gov.uk/tax-on-dividends)",
     "dividends.rates.higher": "legacy/original.html:1760 (cited there: https://www.gov.uk/tax-on-dividends)",
     "dividends.rates.additional": "legacy/original.html:1761 (cited there: https://www.gov.uk/tax-on-dividends)",
+    "property.rates": "null: property income is taxed as non-savings income at the main rates. The original had no property income input. https://www.gov.uk/government/publications/income-tax-changes-to-tax-rates-for-property-savings-and-dividend-income/income-tax-changes-to-tax-rates-for-property-savings-and-dividend-income",
+    "property.financeCostReliefRate": "ITTOIA 2005 s274A: relief at the basic rate (20%). Unused here: the original had no property input. https://www.legislation.gov.uk/ukpga/2005/5/section/274A",
     "selfEmployment.tradingAllowance": "legacy/original.html:1891. Since fix A6 the engine no longer deducts it from a profit figure; it appears in the input label only. https://www.gov.uk/guidance/tax-free-allowances-on-property-and-trading-income",
     "cgt.annualExemptAmount": "legacy/original.html:1765 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
     "cgt.rates.basic": "legacy/original.html:1767 (cited there: https://www.gov.uk/capital-gains-tax/rates)",
