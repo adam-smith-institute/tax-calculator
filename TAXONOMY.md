@@ -132,7 +132,9 @@ pensions and working-age lines separate.
 **Colours.** Each category has a colour in `taxonomy.json` (`colour`), so it keeps the same
 colour when the data is refreshed. The colours are vivid and varied, alternating warm and
 cool down the ranking so neighbouring slices contrast. They depart from the ASI Design
-System's palette by ASI's choice, and are used only in the spending chart.
+System's palette by ASI's choice, and are used only in the spending chart. Inside a category,
+its parts are shades of the category's colour, from the colour itself for the largest part to
+lighter shades for the smaller ones.
 
 **EU transactions (−£166 million).** Folded into **Running the government** as a drill-down
 line. A negative category of its own would show as a bar going the wrong way and add a 16th

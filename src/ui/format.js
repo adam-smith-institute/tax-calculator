@@ -21,9 +21,10 @@ export const percent = (x, dp = 1) => `${(x * 100).toFixed(dp)}%`;
 // Rate as written in tax tables: 0.2 -> "20%", 0.1075 -> "10.75%"
 export const rate = (r) => `${+(r * 100).toFixed(2)}%`;
 
-// Share of £1 in pence: "21p" from 10p up, "4.6p" below
+// Share of £1 in pence: "21p" from 10p up, "4.6p" below, "<0.1p" for the smallest
 export function penceInPound(share) {
   const p = share * 100;
+  if (p > 0 && p < 0.05) return '<0.1p';
   return p >= 9.95 ? `${Math.round(p)}p` : `${p.toFixed(1)}p`;
 }
 

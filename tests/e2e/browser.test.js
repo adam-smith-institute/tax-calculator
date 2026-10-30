@@ -338,3 +338,21 @@ test('share image: white card, top three shares as bars in the pie chart colours
   assert.ok(r.contentBottom < r.footerTop - 40, `content ends at ${r.contentBottom}, footer at ${r.footerTop}`);
   await page.close();
 });
+
+test('parts are shades of their category colour, largest in the full colour, lighter as they shrink', async () => {
+  const { page } = await open();
+  await page.click('#tab-spend');
+  await page.click('#pie .legend-item >> nth=0');
+  const fills = await page.$$eval('#pie .slice', (els) => els.map((e) => e.getAttribute('fill')));
+  const swatches = await page.$$eval('#pie .legend-item .swatch', (els) => els.map((e) => getComputedStyle(e).backgroundColor));
+  const cat = spending.categories[0];
+  assert.equal(fills[0].toUpperCase(), cat.colour.toUpperCase());
+  assert.equal(new Set(fills).size, fills.length, 'every part has its own shade');
+  // Relative luminance rises from each part to the next
+  const lum = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+    .map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4))
+    .reduce((s, c, k) => s + c * [0.2126, 0.7152, 0.0722][k], 0);
+  for (let j = 1; j < fills.length; j++) assert.ok(lum(fills[j]) > lum(fills[j - 1]), `part ${j} lighter than part ${j - 1}`);
+  assert.equal(swatches.length, fills.length);
+  await page.close();
+});

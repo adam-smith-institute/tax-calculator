@@ -2,13 +2,15 @@
 // doubles as the accessible interface. Selecting a category (legend button or slice) shows its
 // parts in the same chart; "All spending" goes back. Colours come from the taxonomy.
 //
+// Parts are shown in shades of their category's colour, largest darkest.
+//
 // Motion: the chart sweeps in when shown. Opening a category grows its slice to fill the ring,
-// then splits it into its parts (the first part shares the category's colour, so the split is
+// then splits it into its parts (the largest part keeps the category's colour, so the split is
 // seamless); going back runs the same in reverse. Users who ask for reduced motion get the end
 // state at once.
 
-import { allocate } from './spending-data.js?v=0556e22a68';
-import { gbp, penceInPound, billions } from './format.js?v=0556e22a68';
+import { allocate } from './spending-data.js?v=b0d6b5eba7';
+import { gbp, penceInPound, billions } from './format.js?v=b0d6b5eba7';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const SIZE = 320;
@@ -59,6 +61,35 @@ function layout(items) {
     a = a1;
     return [x.key, span];
   }));
+}
+
+// Shades of a category colour for its parts: the largest part keeps the colour itself (so the
+// split animation is seamless), and each smaller part is a step lighter, up to 70% of the way
+// to white. Mixed in OKLab, so the steps look even and stay clean rather than greying.
+const toLinear = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+const toSrgb = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
+function hexToOklab(hex) {
+  const [r, g, b] = [1, 3, 5].map((i) => toLinear(parseInt(hex.slice(i, i + 2), 16) / 255));
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s];
+}
+function oklabToHex([L, A, B]) {
+  const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3;
+  const m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3;
+  const s = (L - 0.0894841775 * A - 1.291485548 * B) ** 3;
+  const rgb = [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s];
+  return '#' + rgb.map((c) => Math.round(Math.min(1, Math.max(0, toSrgb(c))) * 255).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+export function shades(hex, n, maxLighten = 0.7) {
+  const base = hexToOklab(hex);
+  const white = [1, 0, 0];
+  return Array.from({ length: n }, (_, j) => {
+    if (j === 0) return hex.toUpperCase();
+    const t = n > 1 ? (j / (n - 1)) * maxLighten : 0;
+    return oklabToHex(base.map((v, k) => v + (white[k] - v) * t));
+  });
 }
 
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2); // ease-in-out cubic
@@ -144,7 +175,8 @@ export function buildPie({ root, tableBody, data }) {
   function partItems(id) {
     const cats = allocate(total, data);
     const ci = cats.findIndex((c) => c.id === id);
-    return { cat: cats[ci], items: cats[ci].children.map((k, j) => ({ ...k, key: `${id}/${k.id}`, i: j, colour: palette[(ci + j) % palette.length] })) };
+    const ramp = shades(palette[ci], cats[ci].children.length);
+    return { cat: cats[ci], items: cats[ci].children.map((k, j) => ({ ...k, key: `${id}/${k.id}`, i: j, colour: ramp[j] })) };
   }
 
   // One slice filling the ring and the others squeezed to points either side of it
