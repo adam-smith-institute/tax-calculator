@@ -312,7 +312,11 @@ export function computeTax(inputs, params) {
   );
   const totalIncome = (inputs.employmentIncome || 0) + (inputs.selfEmployedProfit || 0)
     + (inputs.savingsInterest || 0) + (inputs.dividends || 0);
-  const effectiveRate = totalIncome > 0 ? round2(totalTax / totalIncome * 100) : 0;
+  // Average rate: total tax over everything it is charged on, so both share one base. That is
+  // all income and gains entered, plus the employer NI counted as the user's when it is on.
+  const employerNicBorne = inputs.includeEmployerNIC ? erNIC * params.assumptions.employerNicIncidence : 0;
+  const rateBase = totalIncome + gainsOther + gainsRes + employerNicBorne;
+  const effectiveRate = rateBase > 0 ? round2(totalTax / rateBase * 100) : 0;
 
   return {
     breakdown: {
@@ -335,6 +339,6 @@ export function computeTax(inputs, params) {
     totals: { totalTax, totalIncome, effectiveRatePct: effectiveRate },
     internals: { ANI, PA, taxableAfterPA },
     // Band-by-band income tax, for the breakdown table (not part of the golden master)
-    detail: { incomeTaxBands: itx.rows, savingsStatus: itx.status },
+    detail: { incomeTaxBands: itx.rows, savingsStatus: itx.status, rateBase, employerNicBorne },
   };
 }

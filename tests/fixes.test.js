@@ -156,3 +156,15 @@ test('A7: State Pension age while it rises from 66 to 67', () => {
   assert.equal(nic(67), 0);
   assert.equal(nic(67, false), 0); // 67 and over: always past SPA
 });
+
+test('A8: average rate divides by all income and gains, plus employer NI borne', () => {
+  // £30,000 salary + £100,000 gain: total tax £26,944.20 over £130,000 = 20.73%
+  const r = run({ employmentIncome: 30000, gainsOther: 100000 });
+  assert.equal(r.totals.totalTax, 26944.20);
+  assert.equal(r.totals.effectiveRatePct, 20.73);
+  // £50,000 salary, employer NI on: employer NI £6,750, 75% = £5,062.50 counted as tax and
+  // as pay. Tax £10,480.40 + £5,062.50 = £15,542.90 over £55,062.50 = 28.23%
+  const e = run({ employmentIncome: 50000, includeEmployerNIC: true });
+  assert.equal(e.totals.totalTax, 15542.90);
+  assert.equal(e.totals.effectiveRatePct, 28.23);
+});
