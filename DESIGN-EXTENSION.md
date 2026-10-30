@@ -32,6 +32,7 @@ The code is in `src/styles.css` and `src/ui/pie.js`.
 | `--control-border` (new) | `#52585e` | Borders of inputs | 7.2:1 (WCAG asks 3:1) |
 | `--focus` (new) | `#134079` | Focus ring | 10.3:1 |
 | Category colours (new) | in `taxonomy.json` | Pie slices and legend swatches only | (the legend carries every figure as text) |
+| Part shades (new) | worked out from the category colour | Slices and swatches inside a category: the largest part in the category's colour, each smaller one a step lighter, up to 70% of the way to white, mixed in OKLab so the steps look even | (as above) |
 
 Lavender `#8B8DBE` appears only as the payload on the share image. Navy `#1B2A4A` appears
 only in the logo and as the link hover colour.
@@ -133,7 +134,7 @@ reduced motion (`prefers-reduced-motion`).
 - **The chart sweeps in** (750ms, ease-in-out) each time "Where it goes" is opened: every
   slice grows from 12 o'clock to its place.
 - **Opening a category:** its slice grows to fill the ring while the others shrink away
-  (380ms), then the ring splits into the category's parts (520ms). The largest part takes
+  (380ms), then the ring splits into the category's parts (520ms). The largest part keeps
   the category's own colour, so the split reads as one shape dividing.
 - **"All spending"** runs the same in reverse.
 - The centre figure cross-fades (160ms), and legend rows fade up 5px one after another (22ms

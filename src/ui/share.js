@@ -8,7 +8,7 @@
 // three largest shares are a bar chart in the same colours as the pie chart. The categories
 // and colours come from the data; none is hardcoded.
 
-import { gbp } from './format.js?v=0556e22a68';
+import { gbp } from './format.js?v=b0d6b5eba7';
 
 const W = 1080;
 const H = 1350;
