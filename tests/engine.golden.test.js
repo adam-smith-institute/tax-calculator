@@ -1,5 +1,6 @@
-// Golden master: the ported engine with as-shipped parameters must reproduce the
-// original calculator's compute() to the penny on every field of every case.
+// Golden master: the engine with as-shipped parameters must reproduce the original
+// calculator's compute() to the penny on every field of every case, except where an
+// approved fix in AUDIT.md changed the result (listed in meta.fixesApplied).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,7 +11,7 @@ import { differences } from './golden/compare.mjs';
 const golden = JSON.parse(readFileSync(new URL('./golden/as-shipped.json', import.meta.url)));
 const params = JSON.parse(readFileSync(new URL('../params/as-shipped.json', import.meta.url)));
 
-test(`golden master: ${golden.cases.length} cases match the original to the penny`, () => {
+test(`golden master: ${golden.cases.length} cases match to the penny (original plus ${golden.meta.fixesApplied.length} approved fixes)`, () => {
   const failures = [];
   let exact = 0;
   for (const c of golden.cases) {

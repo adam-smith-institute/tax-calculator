@@ -4,9 +4,11 @@ Phase 2 of the rebuild. Each item below was reproduced by running the original p
 (`legacy/original.html`) or its ported engine (`src/engine/computeTax.js`, which matches the
 original bit for bit on 7,611 cases), then checked against legislation and HMRC guidance.
 
-**Nothing here has been changed yet.** Each fix waits for a decision. Approved fixes will land
-as one commit each, with tests, and the golden master will be updated only for the cases each
-fix affects.
+**Decision (29 October 2026): all fixes approved, with the recommended option wherever there
+was a choice.** Engine fixes landed as one commit each, with hand-worked tests in
+`tests/fixes.test.js`; the golden master was updated only for the cases each fix changed
+(`meta.fixesApplied` in `tests/golden/as-shipped.json`). Outcomes are under
+[What changed](#what-changed) at the end.
 
 How to read the £ figures: they use the calculator as shipped (its mixed 2025-26 and later
 parameters, see A2), so they show the size of each error rather than final 2026-27 bills. A
@@ -18,22 +20,22 @@ the test set, not in the population.
 
 | # | Issue | Evidence | Who it affects | £ impact (worked examples) | Proposed fix | Risk | Decision |
 |---|---|---|---|---|---|---|---|
-| A1 | Two engines disagree: the spending split uses the old engine | Reproduced in the original page (table below) | Almost everyone: every £ figure in "Where your money goes", the chart and the share image | £45k salary + £5k savings + £5k dividends: headline £11,487, split £10,554 | Delete the legacy engine; drive everything from `computeTax()` | Low | |
-| A2 | Parameters from three tax years in one file | [Dividends](https://www.gov.uk/tax-on-dividends), [rate changes policy paper](https://www.gov.uk/government/publications/income-tax-changes-to-tax-rates-for-property-savings-and-dividend-income/income-tax-changes-to-tax-rates-for-property-savings-and-dividend-income) | Anyone with taxable savings, children or Blind Person's Allowance | £45k salary + £5k savings: £80 too much savings tax for 2026-27 | One parameter file per tax year (Phase 3) | Low | |
-| A3 | £2,000 salary sacrifice NI cap applied now; it starts 6 April 2029 | [HMRC policy paper](https://www.gov.uk/government/publications/salary-sacrifice-reform-for-pension-contributions-effective-from-6-april-2029/salary-sacrifice-reform-for-pension-contributions) | Anyone sacrificing more than £2,000 a year | £40k, 10% sacrifice: −£160. £60k, 5%, employer NI on: −£132.50 | Cap becomes a parameter, `null` before 2029-30 | Low | |
-| A4 | Personal Savings Allowance withdrawn £12,570 too early | [ITA 2007 s12B](https://www.legislation.gov.uk/ukpga/2007/3/section/12B) | Savers with taxable income £112,570 to £125,140 | £115k salary + £2k interest: −£210 | Decide PSA by position in the bands (folded into A5) | Low | |
-| A5 | Nil-rate amounts (dividend allowance, PSA, starting rate for savings) don't use up band space | [ITA 2007 s12B(8)](https://www.legislation.gov.uk/ukpga/2007/3/section/12B), [s13A](https://www.legislation.gov.uk/ukpga/2007/3/section/13A), [GOV.UK: "add your total dividend income to your other income"](https://www.gov.uk/tax-on-dividends/how-dividends-are-taxed) | Anyone with savings or dividends whose income reaches a band boundary | £48,570 + £3k dividends: +£125. £60k interest only: +£1,100 | Count nil-rate income in the bands, the PSA test, the Marriage Allowance test and CGT band space | Medium | |
-| A6 | £1,000 trading allowance deducted from profit, on top of expenses | [GOV.UK trading allowance](https://www.gov.uk/guidance/tax-free-allowances-on-property-and-trading-income) | All self-employed users with profit above £1,000 | £30k profit: +£260 (+£780 once the allowance is £3,000) | Option (a): no allowance on a profit input | Low | |
-| A7 | State Pension age fixed at 66 | [SPA timetable](https://www.gov.uk/government/publications/state-pension-age-timetable/state-pension-age-timetable) | People aged 66 who haven't reached SPA | Age 66, £30k salary, not yet at SPA: +£1,394.40 | Ask at 66; treat 67+ as over SPA | Low | |
-| A8 | Average tax rate leaves gains (and employer NI) out of the denominator | Design choice | Anyone with gains or the employer NI toggle on | £30k salary + £100k gain shows 89.8%; with gains counted, 20.7% | Divide by all income entered, including gains and the employer NI counted as tax | Low | |
-| A9 | Share image hardcodes "Welfare", "Health", "Debt interest" and colours by name | `legacy/original.html:1337`, `:1147` | Everyone sharing the image | Wrong categories as soon as the data changes | Rank from the data (Phase 5) | Low | |
-| A10a | Dead code | Read of the original | Nobody (no inputs reach it) | None | Remove (list below) | Low | |
-| A10b | HICBC charged continuously; the law rounds down to whole percentages and pounds | [ITEPA 2003 s681C(3)](https://www.legislation.gov.uk/ukpga/2003/1/section/681C) | Parents with adjusted net income £60,000 to £80,000 | ANI £61,399, 3 children: −£32.24 | Whole percentages, rounded down; charge rounded down to £1 | Low | |
+| A1 | Two engines disagree: the spending split uses the old engine | Reproduced in the original page (table below) | Almost everyone: every £ figure in "Where your money goes", the chart and the share image | £45k salary + £5k savings + £5k dividends: headline £11,487, split £10,554 | Delete the legacy engine; drive everything from `computeTax()` | Low | Approved (Phase 5) |
+| A2 | Parameters from three tax years in one file | [Dividends](https://www.gov.uk/tax-on-dividends), [rate changes policy paper](https://www.gov.uk/government/publications/income-tax-changes-to-tax-rates-for-property-savings-and-dividend-income/income-tax-changes-to-tax-rates-for-property-savings-and-dividend-income) | Anyone with taxable savings, children or Blind Person's Allowance | £45k salary + £5k savings: £80 too much savings tax for 2026-27 | One parameter file per tax year (Phase 3) | Low | Approved (Phase 3) |
+| A3 | £2,000 salary sacrifice NI cap applied now; it starts 6 April 2029 | [HMRC policy paper](https://www.gov.uk/government/publications/salary-sacrifice-reform-for-pension-contributions-effective-from-6-april-2029/salary-sacrifice-reform-for-pension-contributions) | Anyone sacrificing more than £2,000 a year | £40k, 10% sacrifice: −£160. £60k, 5%, employer NI on: −£132.50 | Cap becomes a parameter, `null` before 2029-30 | Low | Done |
+| A4 | Personal Savings Allowance withdrawn £12,570 too early | [ITA 2007 s12B](https://www.legislation.gov.uk/ukpga/2007/3/section/12B) | Savers with taxable income £112,570 to £125,140 | £115k salary + £2k interest: −£210 | Decide PSA by position in the bands (folded into A5) | Low | Done |
+| A5 | Nil-rate amounts (dividend allowance, PSA, starting rate for savings) don't use up band space | [ITA 2007 s12B(8)](https://www.legislation.gov.uk/ukpga/2007/3/section/12B), [s13A](https://www.legislation.gov.uk/ukpga/2007/3/section/13A), [GOV.UK: "add your total dividend income to your other income"](https://www.gov.uk/tax-on-dividends/how-dividends-are-taxed) | Anyone with savings or dividends whose income reaches a band boundary | £48,570 + £3k dividends: +£125. £60k interest only: +£1,100 | Count nil-rate income in the bands, the PSA test, the Marriage Allowance test and CGT band space | Medium | Done |
+| A6 | £1,000 trading allowance deducted from profit, on top of expenses | [GOV.UK trading allowance](https://www.gov.uk/guidance/tax-free-allowances-on-property-and-trading-income) | All self-employed users with profit above £1,000 | £30k profit: +£260 (+£780 once the allowance is £3,000) | Option (a): no allowance on a profit input | Low | Done: option (a) |
+| A7 | State Pension age fixed at 66 | [SPA timetable](https://www.gov.uk/government/publications/state-pension-age-timetable/state-pension-age-timetable) | People aged 66 who haven't reached SPA | Age 66, £30k salary, not yet at SPA: +£1,394.40 | Ask at 66; treat 67+ as over SPA | Low | Done (input in Phase 5) |
+| A8 | Average tax rate leaves gains (and employer NI) out of the denominator | Design choice | Anyone with gains or the employer NI toggle on | £30k salary + £100k gain shows 89.8%; with gains counted, 20.7% | Divide by all income entered, including gains and the employer NI counted as tax | Low | Done |
+| A9 | Share image hardcodes "Welfare", "Health", "Debt interest" and colours by name | `legacy/original.html:1337`, `:1147` | Everyone sharing the image | Wrong categories as soon as the data changes | Rank from the data (Phase 5) | Low | Approved (Phase 5) |
+| A10a | Dead code | Read of the original | Nobody (no inputs reach it) | None | Remove (list below) | Low | Done |
+| A10b | HICBC charged continuously; the law rounds down to whole percentages and pounds | [ITEPA 2003 s681C(3)](https://www.legislation.gov.uk/ukpga/2003/1/section/681C) | Parents with adjusted net income £60,000 to £80,000 | ANI £61,399, 3 children: −£32.24 | Whole percentages, rounded down; charge rounded down to £1 | Low | Done |
 | A11 | `compute()` reads globals from another script | Read of the original | Nobody directly | None | Done in Phase 1: every value comes from `params/` | None | Done |
-| N1 | Tiles count savings, dividend and property CGT twice | Read and run of the original | Anyone with savings, dividends or property gains | £45k + £5k savings + £5k dividends + £10k gains + £10k property gains: tiles add to £19,653, headline £15,567 | Tiles show components that sum to the headline | Low | |
-| N2 | Personal Allowance always set against savings before dividends; until 2027-28 the law gives the order that minimises tax | [ITA 2007 s25(2)](https://www.legislation.gov.uk/ukpga/2007/3/section/25) | Mainly people living on savings and dividends | £6k interest + £20k dividends: −£645 | 2026-27: choose the allocation with the lowest tax. 2027-28: statutory order (s25(3A)) | Medium | |
-| N3 | Child Benefit for 52 weeks; 2026-27 has 53 benefit weeks | [SSCBA 1992 s147](https://www.legislation.gov.uk/ukpga/1992/4/section/147), [ITEPA s681B](https://www.legislation.gov.uk/ukpga/2003/1/section/681B) | Parents paying the full HICBC in 2026-27 | £85k salary, 2 children: +£43.30 | Weeks per year as a parameter: 53 in 2026-27, 52 in 2027-28 | Low | |
-| N4 | Tile amounts formatted in the browser's locale, without £ | `legacy/original.html:2277` | Users with non-UK browser settings | "1.234,00" on a German browser | Format en-GB with £ (redesign) | Low | |
+| N1 | Tiles count savings, dividend and property CGT twice | Read and run of the original | Anyone with savings, dividends or property gains | £45k + £5k savings + £5k dividends + £10k gains + £10k property gains: tiles add to £19,653, headline £15,567 | Tiles show components that sum to the headline | Low | Approved (Phase 5) |
+| N2 | Personal Allowance always set against savings before dividends; until 2027-28 the law gives the order that minimises tax | [ITA 2007 s25(2)](https://www.legislation.gov.uk/ukpga/2007/3/section/25) | Mainly people living on savings and dividends | £6k interest + £20k dividends: −£645 | 2026-27: choose the allocation with the lowest tax. 2027-28: statutory order (s25(3A)) | Medium | Done |
+| N3 | Child Benefit for 52 weeks; 2026-27 has 53 benefit weeks | [SSCBA 1992 s147](https://www.legislation.gov.uk/ukpga/1992/4/section/147), [ITEPA s681B](https://www.legislation.gov.uk/ukpga/2003/1/section/681B) | Parents paying the full HICBC in 2026-27 | £85k salary, 2 children: +£43.30 | Weeks per year as a parameter: 53 in 2026-27, 52 in 2027-28 | Low | Approved (Phase 3) |
+| N4 | Tile amounts formatted in the browser's locale, without £ | `legacy/original.html:2277` | Users with non-UK browser settings | "1.234,00" on a German browser | Format en-GB with £ (redesign) | Low | Approved (Phase 5) |
 
 ## Detail
 
@@ -255,7 +257,8 @@ the allowance against dividends saves tax:
 
 - £6,000 interest + £20,000 dividends, no other income: engine £1,389.98; best allocation
   £744.98 (**−£645**).
-- £10,000 interest + £15,000 dividends: −£195.
+- £10,000 interest + £15,000 dividends: −£645 (£1,282.47 to £637.48, using a split of the
+  allowance between the two rather than either extreme).
 
 From 2027-28 the Finance Act 2026 inserts s25(3A): reliefs go against other income first,
 then property, savings and dividends. Phase 3 will check the exact statutory order.
@@ -297,3 +300,24 @@ calculator assumes the user is the HICBC-liable partner, that they are not an ap
 under 25 (employer NI relief), and that they are an English or Northern Irish taxpayer. Welsh
 rates currently match English ones, but Wales may set its own property rates from 2027-28.
 Should the title say "England, Wales and Northern Ireland"? That is a question for you.
+
+## What changed
+
+| Fix | Commit message | Golden cases changed | Largest change in total tax |
+|---|---|---|---|
+| A10a | Remove dead carried interest and relief-at-source paths | 300 engine-only cases dropped; `carriedInterest` and `banding` fields removed from all | none |
+| A3 | No salary sacrifice NI cap before 2029-30 | 492 | £7,847.98 (large sacrifice, employer NI on) |
+| A4 + A5 | Nil-rate amounts use band space; PSA status by band position | 1,199 (923 in total tax; 276 only in `taxableAfterPA`) | £1,573.00 |
+| A6 | No trading allowance deducted from a profit input | 1,760 | £735.00 |
+| A10b | HICBC by complete £200 steps, rounded down | 790 (including every full-charge case: the benefit total now rounds down to £1) | £48.61 |
+| N2 | Allowances go where they reduce tax most | 65, all reductions | £645.00 |
+| A7 | State Pension age as a range while it rises to 67 | none (as-shipped keeps 66; the 2026-27 and 2027-28 files set 66 to ask and 67 certain) | none |
+| A8 | Average rate over all income and gains, plus employer NI borne | 3,011 (`effectiveRatePct` only) | none |
+
+The A6 count is higher than the 1,497 in the summary table because it was measured after A5.
+Writing the N2 test showed that my first hand-worked figure for the second example was wrong:
+the best allocation splits the allowance, which the engine found and a £1 brute-force search
+confirms.
+
+Still to land, in the phases that own them: A1, A9, N1 and N4 with the new front end
+(Phase 5); A2 and N3 with the per-year parameter files (Phase 3).
