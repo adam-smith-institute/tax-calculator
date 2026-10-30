@@ -24,3 +24,13 @@ for (const file of files) {
     assert.deepEqual(orphans, [], `sources without a value: ${orphans.join(', ')}`);
   });
 }
+
+// Tax-year files (not the as-shipped record) must cite official sources for every value
+const OFFICIAL = /https:\/\/(www\.gov\.uk|www\.legislation\.gov\.uk|obr\.uk)\//;
+for (const file of files.filter((f) => /^\d{4}-\d{2}\.json$/.test(f))) {
+  test(`params/${file}: every source links to GOV.UK, legislation.gov.uk or the OBR`, () => {
+    const { sources } = JSON.parse(readFileSync(new URL(file, dir)));
+    const bad = Object.entries(sources).filter(([, s]) => !OFFICIAL.test(s)).map(([k]) => k);
+    assert.deepEqual(bad, []);
+  });
+}

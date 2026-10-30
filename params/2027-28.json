@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "id": "2027-28",
+    "label": "2027-28",
+    "taxYear": "2027-28",
+    "start": "2027-04-06",
+    "end": "2028-04-05",
+    "version": "1.0.0",
+    "jurisdiction": "England and Northern Ireland (rUK). Welsh rates of income tax currently match.",
+    "fiscalEvent": {
+      "name": "Budget 2026",
+      "date": "2026-10-28",
+      "url": "https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances"
+    },
+    "checked": "2026-10-29",
+    "note": "Rates announced at Budget 2026 for 2027-28. Some need Finance Bill 2026-27 to become law."
+  },
+  "incomeTax": {
+    "personalAllowance": 12570,
+    "paTaperStart": 100000,
+    "paTaperZero": 125140,
+    "paTaperDivisor": 2,
+    "allowanceAllocation": "greatestReduction",
+    "blindPersonsAllowance": 3370,
+    "marriageAllowance": { "transfer": 1260, "credit": 252 },
+    "basicRateLimit": 37700,
+    "higherRateThreshold": 50270,
+    "additionalRateThreshold": 125140,
+    "rates": { "basic": 0.2, "higher": 0.4, "additional": 0.45 }
+  },
+  "savings": {
+    "startingRateBand": 5000,
+    "personalSavingsAllowance": { "basic": 1000, "higher": 500, "additional": 0 },
+    "rates": { "basic": 0.24, "higher": 0.44, "additional": 0.49 }
+  },
+  "dividends": {
+    "allowance": 500,
+    "rates": { "basic": 0.1075, "higher": 0.3575, "additional": 0.3935 }
+  },
+  "property": {
+    "rates": { "basic": 0.24, "higher": 0.44, "additional": 0.49 },
+    "financeCostReliefRate": 0.24,
+    "propertyAllowance": 1000
+  },
+  "selfEmployment": {
+    "tradingAllowance": 3000
+  },
+  "cgt": {
+    "annualExemptAmount": 3000,
+    "rates": { "basic": 0.18, "higher": 0.24 }
+  },
+  "nic": {
+    "class1Employee": { "primaryThreshold": 12570, "upperEarningsLimit": 50270, "mainRate": 0.08, "additionalRate": 0.02 },
+    "class1Employer": { "secondaryThreshold": 5000, "upperSecondaryThreshold": 50270, "rate": 0.15, "under21Age": 21 },
+    "class4": { "lowerProfitsLimit": 12570, "upperProfitsLimit": 50270, "mainRate": 0.06, "additionalRate": 0.02 },
+    "statePensionAge": { "askFrom": 66, "certainFrom": 67 },
+    "salarySacrificeCap": null
+  },
+  "childBenefit": { "weeklyEldest": 28, "weeklyAdditional": 18.55, "weeksPerYear": 52 },
+  "hicbc": {
+    "thresholdStart": 60000,
+    "thresholdEnd": 80000,
+    "stepPounds": 200,
+    "percentPerStep": 0.01
+  },
+  "assumptions": {
+    "employerNicIncidence": 0.75
+  },
+  "sources": {
+    "incomeTax.personalAllowance": "Budget 2026 OOTLAR Annex A, Income Tax: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.paTaperStart": "Annex A: Personal Allowance income limit £100,000: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.paTaperZero": "Annex A: £1 of allowance lost per £2 over £100,000, so nil at £100,000 + 2 x £12,570 = £125,140: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.paTaperDivisor": "Annex A: £1 lost for every £2 above the limit (ITA 2007 s35): https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.allowanceAllocation": "ITA 2007 s25(3A) (Finance Act 2026, from 2027-28): allowances go against income other than property, savings and dividends first; the excess is still deducted in the way most beneficial to the individual (s25(2); HMRC technical note): https://www.gov.uk/government/publications/changes-to-tax-rates-for-property-savings-and-dividend-income/change-to-tax-rates-for-property-savings-and-dividend-income-technical-note",
+    "incomeTax.blindPersonsAllowance": "Annex A: Blind Person's Allowance £3,370 in 2027-28: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.marriageAllowance.transfer": "Annex A: Marriage Allowance £1,260: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.marriageAllowance.credit": "20% of £1,260 = £252 tax reduction for the recipient (ITA 2007 s55C; the main basic rate stays 20% in 2027-28 per Annex A): https://www.gov.uk/marriage-allowance",
+    "incomeTax.basicRateLimit": "Annex A: basic rate band £1 to £37,700: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.higherRateThreshold": "Annex A: £12,570 Personal Allowance + £37,700 basic rate band = £50,270 of gross income (used only in labels): https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.additionalRateThreshold": "Annex A: additional rate on taxable income over £125,140: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.rates.basic": "Annex A: basic rate 20%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.rates.higher": "Annex A: higher rate 40%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "incomeTax.rates.additional": "Annex A: additional rate 45%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "savings.startingRateBand": "Annex A: starting rate limit for savings £5,000 at 0%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "savings.personalSavingsAllowance.basic": "Annex A: Personal Savings Allowance, basic rate taxpayers £1,000: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "savings.personalSavingsAllowance.higher": "Annex A: Personal Savings Allowance, higher rate taxpayers £500: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "savings.personalSavingsAllowance.additional": "ITA 2007 s12B(2): nil if any income is additional-rate income: https://www.legislation.gov.uk/ukpga/2007/3/section/12B",
+    "savings.rates.basic": "Annex A: savings basic rate 24% from 6 April 2027 (Budget 2026; OOTLAR para 1.1): https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "savings.rates.higher": "Annex A: savings higher rate 44% from 6 April 2027 (Budget 2026; OOTLAR para 1.1): https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "savings.rates.additional": "Annex A: savings additional rate 49% from 6 April 2027 (Budget 2026; OOTLAR para 1.1): https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "dividends.allowance": "Annex A: dividend allowance £500: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "dividends.rates.basic": "Annex A: dividend ordinary rate 10.75%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "dividends.rates.higher": "Annex A: dividend upper rate 35.75%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "dividends.rates.additional": "Annex A: dividend additional rate 39.35%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "property.rates.basic": "Property basic rate 24%. Annex A: property basic, higher and additional rates 24%, 44% and 49% from 6 April 2027, England, Wales and Northern Ireland (OOTLAR para 1.2). Property income is taxed after other income and before savings (HMRC technical note): https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "property.rates.higher": "Property higher rate 44%. Annex A: property basic, higher and additional rates 24%, 44% and 49% from 6 April 2027, England, Wales and Northern Ireland (OOTLAR para 1.2). Property income is taxed after other income and before savings (HMRC technical note): https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "property.rates.additional": "Property additional rate 49%. Annex A: property basic, higher and additional rates 24%, 44% and 49% from 6 April 2027, England, Wales and Northern Ireland (OOTLAR para 1.2). Property income is taxed after other income and before savings (HMRC technical note): https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "property.financeCostReliefRate": "Relief for residential finance costs is calculated at the property basic rate (HMRC technical note), which Budget 2026 sets at 24% (Annex A): https://www.gov.uk/government/publications/changes-to-tax-rates-for-property-savings-and-dividend-income/change-to-tax-rates-for-property-savings-and-dividend-income-technical-note",
+    "property.propertyAllowance": "£1,000 property allowance, an alternative to deducting expenses (shown in the input label only): https://www.gov.uk/guidance/tax-free-allowances-on-property-and-trading-income",
+    "selfEmployment.tradingAllowance": "Trading allowance rises to £3,000 from 6 April 2027 (OOTLAR para 1.5; shown in the input label only): https://www.gov.uk/government/publications/income-tax-increasing-the-trading-allowance/increasing-the-trading-allowance",
+    "cgt.annualExemptAmount": "Annex A: Capital Gains Tax annual exempt amount £3,000: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "cgt.rates.basic": "Annex A: CGT 18% for basic rate taxpayers: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "cgt.rates.higher": "Annex A: CGT 24% for higher and additional rate taxpayers: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "nic.class1Employee.primaryThreshold": "Held at the 2026-27 annual figure: NI limits and thresholds are maintained at 2026-27 levels until 2030-31 (Budget 2026 OOTLAR para 2.1); Annex A gives the same weekly figures for 2027-28: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/budget-2026-overview-of-tax-legislation-and-rates-ootlar",
+    "nic.class1Employee.upperEarningsLimit": "Held at the 2026-27 annual figure: NI limits and thresholds are maintained at 2026-27 levels until 2030-31 (Budget 2026 OOTLAR para 2.1); Annex A gives the same weekly figures for 2027-28: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/budget-2026-overview-of-tax-legislation-and-rates-ootlar",
+    "nic.class1Employee.mainRate": "Annex A: employee primary rate 8%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "nic.class1Employee.additionalRate": "Annex A: employee rate above the UEL 2%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "nic.class1Employer.secondaryThreshold": "Held at the 2026-27 annual figure: NI limits and thresholds are maintained at 2026-27 levels until 2030-31 (Budget 2026 OOTLAR para 2.1); Annex A gives the same weekly figures for 2027-28: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/budget-2026-overview-of-tax-legislation-and-rates-ootlar",
+    "nic.class1Employer.upperSecondaryThreshold": "Held at the 2026-27 annual figure: NI limits and thresholds are maintained at 2026-27 levels until 2030-31 (Budget 2026 OOTLAR para 2.1); Annex A gives the same weekly figures for 2027-28: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/budget-2026-overview-of-tax-legislation-and-rates-ootlar",
+    "nic.class1Employer.rate": "Annex A: employer secondary rate 15%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "nic.class1Employer.under21Age": "HMRC rates and thresholds 2026 to 2027: Upper Secondary Threshold applies to employees under 21: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2026-to-2027",
+    "nic.class4.lowerProfitsLimit": "Annex A: Class 4 Lower Profits Limit £12,570: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "nic.class4.upperProfitsLimit": "Annex A: Class 4 Upper Profits Limit £50,270: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "nic.class4.mainRate": "Annex A: Class 4 main rate 6%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "nic.class4.additionalRate": "Annex A: Class 4 rate above the UPL 2%: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "nic.statePensionAge.askFrom": "State Pension age timetable: people born 6 April 1960 to 5 March 1961 reach SPA at 66 plus 1 to 11 months: https://www.gov.uk/government/publications/state-pension-age-timetable/state-pension-age-timetable",
+    "nic.statePensionAge.certainFrom": "State Pension age timetable: SPA is 67 for people born on or after 6 March 1961, so everyone aged 67 is over it: https://www.gov.uk/government/publications/state-pension-age-timetable/state-pension-age-timetable",
+    "nic.salarySacrificeCap": "null: the £2,000 cap starts on 6 April 2029: https://www.gov.uk/government/publications/salary-sacrifice-reform-for-pension-contributions-effective-from-6-april-2029/salary-sacrifice-reform-for-pension-contributions",
+    "childBenefit.weeklyEldest": "Annex A: Child Benefit, eldest or only child £28.00 a week in 2027-28: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "childBenefit.weeklyAdditional": "Annex A: Child Benefit, other children £18.55 a week in 2027-28: https://www.gov.uk/government/publications/budget-2026-overview-of-tax-legislation-and-rates-ootlar/annex-a-rates-and-allowances",
+    "childBenefit.weeksPerYear": "52: Child Benefit weeks begin on a Monday (SSCBA 1992 s147); 6 April 2027 is a Tuesday and the tax year holds 52 Mondays: https://www.legislation.gov.uk/ukpga/1992/4/section/147",
+    "hicbc.thresholdStart": "HICBC starts at adjusted net income over £60,000: https://www.gov.uk/child-benefit-tax-charge",
+    "hicbc.thresholdEnd": "HICBC equals the whole benefit at £80,000: https://www.gov.uk/child-benefit-tax-charge",
+    "hicbc.stepPounds": "ITEPA 2003 s681C(2): 1% for every £200, whole percentages rounded down (s681C(3)): https://www.legislation.gov.uk/ukpga/2003/1/section/681C",
+    "hicbc.percentPerStep": "ITEPA 2003 s681C(2): 1% per £200: https://www.legislation.gov.uk/ukpga/2003/1/section/681C",
+    "assumptions.employerNicIncidence": "ASI assumption: 75% of employer NI is borne by employees through lower pay, rounded from the OBR's long-run assumption that 76% of the 2025 rise passes to workers (Economic and fiscal outlook, October 2024): https://obr.uk/efo/economic-and-fiscal-outlook-october-2024/"
+  }
+}
