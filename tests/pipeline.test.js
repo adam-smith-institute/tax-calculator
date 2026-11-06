@@ -23,7 +23,7 @@ const oscar = readOscar(files.oscar);
 const programme = (match) => programmeAmount(oscar, match, '2025-26');
 
 // Appendix C of the brief (2025-26 outturn, £ million), with the approved changes: EU
-// transactions (-166) in General public services; Welfare (194,894) and Pensions (156,241)
+// transactions (-166) in Running government; Welfare (194,894) and Pensions (156,241)
 // merged; and spending not funded by the taxes modelled taken out (TAXONOMY.md):
 // pension scheme interest (19,381) and public corporation debt interest (502) from debt
 // interest, BBC domestic services (4,598 + 339) from culture, and public corporations'
@@ -196,7 +196,7 @@ test('pull request table shows old, new, change and share of the pound', () => {
   const doc = build(files, spec.meta, taxonomy, { oscarMeta: spec.oscar });
   const prev = structuredClone(doc);
   prev.categories[0].amount -= 2500;
-  assert.match(changeTable(prev, doc), /\| Social protection: welfare and pensions \| £348\.6bn \| £351\.1bn \| \+£2\.5bn \| 29\.5p \|/);
+  assert.match(changeTable(prev, doc), /\| Welfare and pensions \| £348\.6bn \| £351\.1bn \| \+£2\.5bn \| 29\.5p \|/);
 });
 
 test('label normalisation', () => {

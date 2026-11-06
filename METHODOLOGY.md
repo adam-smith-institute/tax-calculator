@@ -125,17 +125,18 @@ Treasury's total.
 
 **Categories.** Spending is grouped by purpose, using the UN's Classification of the
 Functions of Government (COFOG), whichever department or council spends it. The 14 categories
-and their parts use the official COFOG names, each with a plain description. They are
-mutually exclusive, and together they add up to the total above.
+and their parts have plain names that can be matched to the departments that fund them, and
+each description names the main departments. They are mutually exclusive, and together they
+add up to the total above.
 [TAXONOMY.md](TAXONOMY.md) lists exactly which lines of the table make up each one. Points to
 note:
 
-- **Social protection: welfare and pensions** covers all social security benefits. The largest
+- **Welfare and pensions** covers all social security benefits. The largest
   part is the State Pension, with Pension Credit and other help for pensioners; the rest is
   benefits for people of working age, disabled people and families.
 - **Education:** the Department for Education records all academy spending as secondary, so
   secondary schools are overstated and primary understated.
-- **International development** is the UN measure of economic aid. It is not the official
+- **Overseas aid** is the UN measure of economic aid. It is not the official
   development assistance total, which is measured differently. Military aid counts under
   Defence.
 

@@ -10,7 +10,7 @@ const browser = await chromium.launch();
 const errors = [];
 
 for (const width of [375, 1280]) {
-  const context = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: width < 500 ? 2 : 1 });
+  const context = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: width < 500 ? 2 : 1, reducedMotion: 'reduce' });
   const page = await context.newPage();
   page.on('console', (m) => { if (m.type() === 'error') errors.push(`${width}: ${m.text()}`); });
   page.on('pageerror', (e) => errors.push(`${width}: ${e.message}`));
@@ -36,6 +36,13 @@ for (const width of [375, 1280]) {
   await page.screenshot({ path: `${out}/${width}-3-where-it-goes.png`, fullPage: true });
   await page.click('.legend-item >> nth=0');
   await page.screenshot({ path: `${out}/${width}-4-category.png`, fullPage: true });
+
+  // A category with named programmes
+  if (width === 1280) {
+    await page.getByRole('button', { name: /All spending/ }).click();
+    await page.locator('.legend-item', { hasText: 'Transport' }).click();
+    await page.locator('#panel-spend').screenshot({ path: `${out}/1280-transport-named-programmes.png` });
+  }
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   if (overflow > 0) errors.push(`${width}: horizontal overflow of ${overflow}px`);

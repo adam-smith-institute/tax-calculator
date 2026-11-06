@@ -60,20 +60,20 @@ export default {
       "fiscalYear": "2025-26",
       "note": "Outlays recorded in HM Treasury's OSCAR II database (provisional), excluding depreciation, provisions, loans and income."
     },
-    "generated": "2026-10-30T03:32:03.925Z",
-    "taxonomyVersion": "1.2.0"
+    "generated": "2026-11-06T15:39:05.747Z",
+    "taxonomyVersion": "1.3.0"
   },
   "categories": [
     {
       "id": "welfare-pensions",
-      "name": "Social protection: welfare and pensions",
+      "name": "Welfare and pensions",
       "colour": "#E4572E",
-      "description": "Cash benefits: the State Pension and other help for pensioners, Universal Credit, disability and family benefits, and housing support (COFOG 10, less personal social services).",
+      "description": "Mainly the Department for Work and Pensions: the State Pension, Universal Credit, and disability, family and housing benefits.",
       "amount": 351135,
       "children": [
         {
           "id": "state-pension",
-          "name": "Old age: State Pension and pensioner benefits",
+          "name": "State Pension and pensioner benefits",
           "description": "Mostly the State Pension, plus Pension Credit and the Winter Fuel Payment. Public service pensions are counted net of the contributions paid in.",
           "amount": 154858,
           "notable": [
@@ -96,7 +96,7 @@ export default {
         },
         {
           "id": "universal-credit",
-          "name": "Social exclusion: Universal Credit, tax credits and income support",
+          "name": "Universal Credit and tax credits",
           "amount": 84272,
           "notable": [
             {
@@ -108,7 +108,7 @@ export default {
         },
         {
           "id": "disability-benefits",
-          "name": "Sickness and disability: incapacity and disability benefits",
+          "name": "Disability and incapacity benefits",
           "description": "Including Personal Independence Payment and Attendance Allowance.",
           "amount": 66272,
           "notable": [
@@ -126,7 +126,7 @@ export default {
         },
         {
           "id": "family-benefits",
-          "name": "Family and children: Child Benefit and family support",
+          "name": "Child Benefit and family support",
           "amount": 17291,
           "notable": [
             {
@@ -138,7 +138,7 @@ export default {
         },
         {
           "id": "housing-support",
-          "name": "Housing: Housing Benefit",
+          "name": "Housing Benefit",
           "amount": 14462,
           "notable": [
             {
@@ -150,23 +150,23 @@ export default {
         },
         {
           "id": "other-support",
-          "name": "Social protection n.e.c., including compensation schemes",
+          "name": "Compensation schemes and other support",
           "description": "Includes compensation paid directly to people, such as for infected blood and the Post Office Horizon scandal.",
           "amount": 11201
         },
         {
           "id": "unemployment-benefits",
-          "name": "Unemployment: Jobseeker's Allowance and related benefits",
+          "name": "Jobseeker's Allowance",
           "amount": 1396
         },
         {
           "id": "survivors",
-          "name": "Survivors: bereavement and widows' benefits",
+          "name": "Bereavement benefits",
           "amount": 1383
         },
         {
           "id": "welfare-research",
-          "name": "R&D social protection",
+          "name": "Welfare research",
           "amount": 0
         }
       ],
@@ -176,17 +176,17 @@ export default {
       "id": "health",
       "name": "Health",
       "colour": "#1B9AAA",
-      "description": "The NHS and other health services: hospital and community care, GPs, public health, administration and medical research (COFOG 7).",
+      "description": "Mainly the NHS, through the Department of Health and Social Care: hospitals, GPs, community care, public health and medical research.",
       "amount": 257542,
       "children": [
         {
           "id": "medical-services",
-          "name": "Medical services: hospital, GP and community care",
+          "name": "Hospitals, GPs and community care",
           "amount": 247359
         },
         {
           "id": "health-admin",
-          "name": "Central and other health services: public health and administration",
+          "name": "Public health and administration",
           "amount": 7311
         },
         {
@@ -201,50 +201,50 @@ export default {
       "id": "education",
       "name": "Education",
       "colour": "#3F51B5",
-      "description": "Early years, schools, further and higher education, and services that support them (COFOG 9).",
+      "description": "The Department for Education and councils: early years, schools, colleges and universities.",
       "amount": 125721,
       "children": [
         {
           "id": "secondary",
-          "name": "Secondary education (including all academies)",
+          "name": "Secondary schools and academies",
           "description": "Includes all academies, primary ones too, because the Department for Education records all academy spending as secondary.",
           "amount": 60842
         },
         {
           "id": "primary",
-          "name": "Primary education",
+          "name": "Primary schools",
           "description": "Understated: the Department for Education records all academy spending as secondary.",
           "amount": 33808
         },
         {
           "id": "under-fives",
-          "name": "Pre-primary education (under fives)",
+          "name": "Early years",
           "amount": 9621
         },
         {
           "id": "support-services",
-          "name": "Subsidiary services: school meals, transport and other support",
+          "name": "School meals, transport and other support",
           "amount": 6960
         },
         {
           "id": "education-other",
-          "name": "Education n.e.c. and not definable by level",
+          "name": "Other education",
           "amount": 6145
         },
         {
           "id": "higher-education",
-          "name": "Tertiary education (higher education)",
+          "name": "Universities",
           "description": "Direct spending such as teaching grants. Student loans are not public spending in this measure.",
           "amount": 4641
         },
         {
           "id": "education-research",
-          "name": "R&D education",
+          "name": "Education research",
           "amount": 2626
         },
         {
           "id": "further-education",
-          "name": "Post-secondary non-tertiary education (further education)",
+          "name": "Further education",
           "amount": 1078
         }
       ],
@@ -252,25 +252,25 @@ export default {
     },
     {
       "id": "debt-interest",
-      "name": "Public sector debt interest",
+      "name": "Debt interest",
       "colour": "#F4B400",
-      "description": "Interest on government borrowing and the cost of the Bank of England's bond-buying (COFOG 1.7). Excludes accounting interest on pension schemes and public corporations' own debt.",
+      "description": "Interest on government borrowing, paid by the Treasury, and the cost of the Bank of England's quantitative easing. Excludes accounting interest on pension schemes and public corporations' own debt.",
       "amount": 110422,
       "children": [
         {
           "id": "central-debt",
-          "name": "Central government debt interest: gilts and Treasury bills",
+          "name": "Government bonds (gilts)",
           "amount": 96946
         },
         {
           "id": "bank-of-england",
-          "name": "Bank of England Asset Purchase Facility (quantitative easing)",
+          "name": "Bank of England quantitative easing",
           "description": "Losses on the Bank of England's bond-buying, which the Treasury covers in cash under its indemnity.",
           "amount": 12344
         },
         {
           "id": "council-debt",
-          "name": "Local government debt interest",
+          "name": "Council borrowing",
           "amount": 1132
         }
       ],
@@ -280,27 +280,27 @@ export default {
       "id": "defence",
       "name": "Defence",
       "colour": "#43A047",
-      "description": "The armed forces, military aid to other countries and defence research (COFOG 2).",
+      "description": "The Ministry of Defence: the armed forces, military aid and defence research.",
       "amount": 65418,
       "children": [
         {
           "id": "armed-forces",
-          "name": "Military defence",
+          "name": "Armed forces",
           "amount": 58171
         },
         {
           "id": "military-aid",
-          "name": "Foreign military aid (including to Ukraine)",
+          "name": "Military aid (including Ukraine)",
           "amount": 3999
         },
         {
           "id": "defence-research",
-          "name": "R&D defence",
+          "name": "Defence research",
           "amount": 2939
         },
         {
           "id": "defence-other",
-          "name": "Defence n.e.c.",
+          "name": "Other defence",
           "amount": 245
         },
         {
@@ -313,29 +313,29 @@ export default {
     },
     {
       "id": "social-care",
-      "name": "Personal social services (social care)",
+      "name": "Social care",
       "colour": "#D81B60",
-      "description": "Social care run by councils for older people, disabled adults and children (the personal social services lines of COFOG 10).",
+      "description": "Run by councils: care for older people, disabled adults and children.",
       "amount": 56135,
       "children": [
         {
           "id": "children",
-          "name": "Family and children: children's social care",
+          "name": "Children's social care",
           "amount": 18253
         },
         {
           "id": "disabled-adults",
-          "name": "Sickness and disability: social care for disabled adults",
+          "name": "Care for disabled adults",
           "amount": 18059
         },
         {
           "id": "older-people",
-          "name": "Old age: social care for older people",
+          "name": "Care for older people",
           "amount": 17322
         },
         {
           "id": "care-other",
-          "name": "Other personal social services",
+          "name": "Other social care",
           "amount": 2501
         }
       ],
@@ -343,19 +343,19 @@ export default {
     },
     {
       "id": "public-order",
-      "name": "Public order and safety",
+      "name": "Policing, justice and borders",
       "colour": "#00ACC1",
-      "description": "Police, immigration and border control, fire and rescue, courts and prisons (COFOG 3).",
+      "description": "Mainly the Home Office, the Ministry of Justice and councils: police, immigration and borders, courts, prisons, and fire and rescue.",
       "amount": 55720,
       "children": [
         {
           "id": "police",
-          "name": "Police services",
+          "name": "Police",
           "amount": 26776
         },
         {
           "id": "courts",
-          "name": "Law courts",
+          "name": "Courts",
           "amount": 10029
         },
         {
@@ -365,7 +365,7 @@ export default {
         },
         {
           "id": "immigration",
-          "name": "Immigration and citizenship",
+          "name": "Immigration, asylum and borders",
           "description": "Including asylum support and accommodation, and Border Force.",
           "amount": 4781,
           "notable": [
@@ -378,12 +378,12 @@ export default {
         },
         {
           "id": "fire",
-          "name": "Fire-protection services",
+          "name": "Fire and rescue",
           "amount": 4166
         },
         {
           "id": "public-order-other",
-          "name": "Public order and safety n.e.c. and R&D",
+          "name": "Other justice and safety",
           "amount": 1557
         }
       ],
@@ -393,13 +393,13 @@ export default {
       "id": "transport",
       "name": "Transport",
       "colour": "#FB8C00",
-      "description": "Railways, national and local roads, local public transport and other transport (COFOG 4.5). Excludes investment by public corporations such as Transport for London, funded by fares and borrowing.",
+      "description": "The Department for Transport and councils: railways, roads, buses and other transport. Excludes investment by public corporations such as Transport for London, funded by fares and borrowing.",
       "amount": 46864,
       "children": [
         {
           "id": "railways",
-          "name": "Railway (including London Underground and HS2)",
-          "description": "Excludes investment by public corporations, mainly Transport for London, funded by fares and borrowing.",
+          "name": "Railways (including HS2)",
+          "description": "Includes London Underground, but not investment by public corporations such as Transport for London, which fares and borrowing pay for.",
           "amount": 24420,
           "notable": [
             {
@@ -426,7 +426,7 @@ export default {
         },
         {
           "id": "national-roads",
-          "name": "National roads (strategic road network)",
+          "name": "Motorways and major roads",
           "amount": 6128,
           "notable": [
             {
@@ -438,12 +438,12 @@ export default {
         },
         {
           "id": "local-transport",
-          "name": "Local public transport (mainly buses)",
+          "name": "Buses and local transport",
           "amount": 5552
         },
         {
           "id": "transport-other",
-          "name": "Other transport (aviation, shipping and other)",
+          "name": "Aviation, shipping and other",
           "amount": 2653
         }
       ],
@@ -451,20 +451,21 @@ export default {
     },
     {
       "id": "economy",
-      "name": "Economic affairs: industry, energy, agriculture and R&D",
+      "name": "Business, energy and science",
       "colour": "#8E24AA",
-      "description": "Support for business and employment, energy, agriculture, broadband and research and development (COFOG 4, less transport).",
+      "description": "Mainly the departments for business, energy, science and farming: business support, energy, research, broadband and farm payments.",
       "amount": 45036,
       "children": [
         {
           "id": "business-jobs",
-          "name": "General economic, commercial and labour affairs",
+          "name": "Business support and employment",
           "description": "Business support, trade promotion and employment programmes.",
           "amount": 17878
         },
         {
           "id": "economic-research",
-          "name": "R&D economic affairs",
+          "name": "Research and development",
+          "description": "Mostly UK Research and Innovation and other science funding.",
           "amount": 11268,
           "notable": [
             {
@@ -477,7 +478,7 @@ export default {
         },
         {
           "id": "energy",
-          "name": "Fuel and energy",
+          "name": "Energy",
           "amount": 6564,
           "notable": [
             {
@@ -489,17 +490,17 @@ export default {
         },
         {
           "id": "farming-policy",
-          "name": "Agriculture, food and fisheries policy",
+          "name": "Farming, food and fisheries",
           "amount": 3724
         },
         {
           "id": "farm-payments",
-          "name": "Agriculture: market support (farm payments)",
+          "name": "Farm payments",
           "amount": 2593
         },
         {
           "id": "communications",
-          "name": "Communication (including broadband rollout)",
+          "name": "Broadband and communications",
           "amount": 1195,
           "notable": [
             {
@@ -511,12 +512,12 @@ export default {
         },
         {
           "id": "economy-other",
-          "name": "Economic affairs n.e.c.",
+          "name": "Other economic support",
           "amount": 918
         },
         {
           "id": "industry",
-          "name": "Mining, manufacturing and construction",
+          "name": "Manufacturing, mining and construction",
           "amount": 312
         },
         {
@@ -534,36 +535,36 @@ export default {
     },
     {
       "id": "government",
-      "name": "General public services",
+      "name": "Running government",
       "colour": "#7CB342",
-      "description": "Parliament, central government, tax collection, diplomacy and net payments to EU institutions (COFOG 1, less debt interest and foreign economic aid).",
+      "description": "The Cabinet Office, the Treasury, HMRC, the Foreign Office and Parliament: central government, tax collection and diplomacy, plus net payments to the EU.",
       "amount": 27845,
       "children": [
         {
           "id": "central-government",
-          "name": "Executive and legislative organs, financial and fiscal affairs, external affairs",
-          "description": "Parliament, central government departments, tax collection (HMRC) and diplomacy.",
+          "name": "Government departments, tax collection and diplomacy",
+          "description": "Parliament, the Cabinet Office, the Treasury, HMRC and the Foreign Office.",
           "amount": 19872
         },
         {
           "id": "government-other",
-          "name": "General public services n.e.c.",
+          "name": "Other government services",
           "amount": 5279
         },
         {
           "id": "general-services",
-          "name": "General services",
-          "description": "Central services such as government property and statistics.",
+          "name": "Shared government services",
+          "description": "Central services such as government property and the Office for National Statistics.",
           "amount": 2350
         },
         {
           "id": "government-research",
-          "name": "Basic research and R&D general public services",
+          "name": "Government research",
           "amount": 510
         },
         {
           "id": "eu",
-          "name": "EU transactions (net)",
+          "name": "EU payments (net)",
           "description": "Payments to EU institutions less receipts from them. Negative when receipts are larger.",
           "amount": -166
         }
@@ -572,14 +573,14 @@ export default {
     },
     {
       "id": "environment",
-      "name": "Environmental protection",
+      "name": "Environment",
       "colour": "#26A69A",
-      "description": "Waste management (including nuclear decommissioning), pollution control and nature (COFOG 5).",
+      "description": "Mainly the Department for Environment, Food and Rural Affairs, councils and the Nuclear Decommissioning Authority: waste, pollution control and nature.",
       "amount": 19157,
       "children": [
         {
           "id": "waste",
-          "name": "Waste management (including nuclear decommissioning)",
+          "name": "Waste and nuclear decommissioning",
           "amount": 11869,
           "notable": [
             {
@@ -591,22 +592,22 @@ export default {
         },
         {
           "id": "environment-other",
-          "name": "Environmental protection n.e.c. and waste water",
+          "name": "Other environment (including waste water)",
           "amount": 4002
         },
         {
           "id": "pollution",
-          "name": "Pollution abatement",
+          "name": "Pollution control",
           "amount": 2196
         },
         {
           "id": "nature",
-          "name": "Protection of biodiversity and landscape",
+          "name": "Nature and landscape",
           "amount": 606
         },
         {
           "id": "environment-research",
-          "name": "R&D environmental protection",
+          "name": "Environmental research",
           "amount": 484
         }
       ],
@@ -614,9 +615,9 @@ export default {
     },
     {
       "id": "housing",
-      "name": "Housing and community amenities",
+      "name": "Housing and communities",
       "colour": "#6D4C41",
-      "description": "Social housing, community development, street lighting and water supply (COFOG 6). Excludes council housing investment funded by rents through Housing Revenue Accounts.",
+      "description": "The Ministry of Housing, Communities and Local Government and councils: social housing, community development, street lighting and water. Excludes council housing investment funded by rents and borrowing.",
       "amount": 13944,
       "children": [
         {
@@ -626,18 +627,18 @@ export default {
         },
         {
           "id": "council-housing",
-          "name": "Housing development: local authority housing",
+          "name": "Council housing",
           "description": "Excludes council housing investment funded by rents and borrowing through Housing Revenue Accounts.",
           "amount": 3465
         },
         {
           "id": "social-housing",
-          "name": "Housing development: other social housing",
+          "name": "Housing associations and other social housing",
           "amount": 2876
         },
         {
           "id": "housing-other",
-          "name": "Housing and community amenities n.e.c. and R&D",
+          "name": "Other housing and communities",
           "amount": 1340
         },
         {
@@ -655,35 +656,35 @@ export default {
     },
     {
       "id": "culture",
-      "name": "Recreation, culture and religion",
+      "name": "Culture, media and sport",
       "colour": "#EC407A",
-      "description": "Museums, libraries, the arts, sport and broadcasting (COFOG 8). Excludes the BBC's licence-fee-funded services.",
+      "description": "The Department for Culture, Media and Sport and councils: museums, libraries, the arts, sport and broadcasting. Excludes the BBC's licence-fee-funded services.",
       "amount": 10116,
       "children": [
         {
           "id": "arts",
-          "name": "Cultural services: museums, libraries and the arts",
+          "name": "Museums, libraries and the arts",
           "amount": 5364
         },
         {
           "id": "sport",
-          "name": "Recreational and sporting services",
+          "name": "Sport and recreation",
           "amount": 3869
         },
         {
           "id": "broadcasting",
-          "name": "Broadcasting and publishing",
+          "name": "Broadcasting",
           "description": "Excludes the BBC's licence-fee-funded services.",
           "amount": 375
         },
         {
           "id": "culture-other",
-          "name": "Recreation, culture and religion n.e.c. and R&D",
+          "name": "Other culture",
           "amount": 364
         },
         {
           "id": "community",
-          "name": "Religious and other community services",
+          "name": "Religious and community services",
           "amount": 144
         }
       ],
@@ -691,14 +692,14 @@ export default {
     },
     {
       "id": "aid",
-      "name": "International development (foreign economic aid)",
+      "name": "Overseas aid",
       "colour": "#5C6BC0",
-      "description": "Economic aid to other countries (COFOG 1.2). Not the official development assistance (ODA) total, which is measured differently; military aid is under Defence.",
+      "description": "Mainly the Foreign, Commonwealth and Development Office: economic aid to other countries. Not the official development assistance total, which is measured differently; military aid is under Defence.",
       "amount": 7189,
       "children": [
         {
           "id": "economic-aid",
-          "name": "Foreign economic aid",
+          "name": "Economic aid",
           "amount": 7189
         }
       ],
