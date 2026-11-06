@@ -37,8 +37,8 @@ The calculator follows HMRC's rules:
   reduced.
 - **Order of income:** income is taxed in layers: earnings and other income first, then rent
   (from 2027-28), then savings, then dividends. Allowances are set against the layers in the
-  way that gives the lowest tax. From 2027-28 they must go against earnings and other income
-  first.
+  way that gives the lowest tax, which is sometimes not earnings first. From 2027-28 they must
+  go against earnings and other income first.
 - **Tax-free amounts still count towards your band.** The £5,000 starting rate for savings,
   the Personal Savings Allowance and the £500 dividend allowance are taxed at 0%, but the
   income still uses up the basic rate band. This can push other income into the higher rate,
@@ -50,7 +50,7 @@ The calculator follows HMRC's rules:
 - **Landlords:** rental profit is entered after expenses but before mortgage interest.
   Mortgage interest gets relief as a tax reduction at the basic rate (20% in 2026-27, and the
   24% property basic rate in 2027-28). The relief is limited to your property profit and to
-  your income other than savings and dividends after allowances.
+  your income other than savings and dividends, less all your allowances.
 - **Self-employment and property allowances:** the £1,000 trading allowance (£3,000 from
   2027-28) and the £1,000 property allowance replace expenses; they are not deducted on top.
   Enter profit after whichever you use.

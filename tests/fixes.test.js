@@ -36,7 +36,10 @@ test('A4: a higher-rate taxpayer below £125,140 of taxable income keeps the £5
   const r = run({ employmentIncome: 115000, savingsInterest: 2000 });
   assert.equal(r.internals.PA, 4070);
   assert.equal(r.breakdown.zeroRateSavings.psaApplied, 500);
-  assert.equal(r.breakdown.componentTaxes.savings, 630); // £1,500 x 42% (as-shipped savings rate)
+  // As shipped, savings are taxed at 42% and salary at 40%, so the allowance goes against the
+  // £1,500 of interest the PSA leaves (N5): salary taxable £112,430, tax £7,540 + £74,730 x 40%
+  assert.equal(r.breakdown.componentTaxes.savings, 0);
+  assert.equal(r.breakdown.incomeTax, 37432);
 });
 
 test('A5: the dividend allowance uses up basic rate band', () => {
@@ -117,26 +120,62 @@ test('N2: allowances go where they save most tax (ITA 2007 s25(2))', () => {
   assert.equal(r2.breakdown.componentTaxes.savings, 0);
 });
 
-test('N2: the breakpoint search matches a £1 brute-force search', async () => {
+test('N2, N5: the allowance split beats or matches a brute-force search over every split', async () => {
+  // Allowance on salary (a), on dividends (t), the rest on savings: a £50 grid, then £1
+  // steps around the best point. The engine must do at least as well.
   const { incomeTaxOn } = await import('../src/engine/computeTax.js');
   let seed = 7;
   const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  for (let i = 0; i < 300; i++) {
-    const ns = rand() < 0.5 ? 0 : Math.round(rand() * 20000);
-    const sv = Math.round(rand() * 30000);
-    const dv = Math.round(rand() * 60000);
-    if (ns + sv + dv > 100000) continue; // keep the full Personal Allowance
-    const R = Math.max(0, 12570 - ns);
-    const lo = Math.max(0, R - sv), hi = Math.min(R, dv);
-    if (lo > hi) continue; // allowances cover everything
-    let best = Infinity;
-    for (let t = lo; t <= hi; t++) {
-      const x = incomeTaxOn(Math.max(0, ns - 12570), 0, sv - (R - t), dv - t, params);
-      best = Math.min(best, x.nonSavingsTax + x.savingsTax + x.dividendTax);
-    }
+  const A = 12570;
+  for (let i = 0; i < 100; i++) {
+    const ns = rand() < 0.3 ? 0 : Math.round(rand() * 60000);
+    const sv = Math.round(rand() * 20000);
+    const dv = Math.round(rand() * 40000);
+    if (ns + sv + dv > 100000 || ns + sv + dv < A) continue; // full allowance, all used
+    const tax = (a, t) => {
+      const s = A - a - t;
+      if (a < 0 || t < 0 || s < 0 || a > ns || t > dv || s > sv) return Infinity;
+      const x = incomeTaxOn(ns - a, 0, sv - s, dv - t, params);
+      return x.nonSavingsTax + x.savingsTax + x.dividendTax;
+    };
+    let best = { c: Infinity };
+    const scan = (a0, a1, t0, t1, step) => {
+      for (let a = a0; a <= a1; a += step) for (let t = t0; t <= t1; t += step) {
+        const fill = [t, A - a - sv, dv].filter((v) => v >= t0 && v <= t1); // also try savings exactly full
+        for (const tt of new Set(fill)) { const c = tax(a, tt); if (c < best.c) best = { a, t: tt, c }; }
+      }
+    };
+    scan(0, Math.min(A, ns), 0, Math.min(A, dv), 50);
+    scan(Math.max(0, best.a - 60), Math.min(A, ns, best.a + 60), Math.max(0, best.t - 60), Math.min(A, dv, best.t + 60), 1);
+    if (best.c === Infinity) continue;
     const got = run({ employmentIncome: ns, savingsInterest: sv, dividends: dv }).breakdown.incomeTax;
-    assert.ok(Math.abs(got - Math.round(best * 100) / 100) < 0.011, `ns ${ns} sv ${sv} dv ${dv}: engine ${got}, brute force ${best}`);
+    assert.ok(got <= Math.round(best.c * 100) / 100 + 0.01, `ns ${ns} sv ${sv} dv ${dv}: engine ${got}, brute force ${best.c}`);
   }
+});
+
+test('N5: before 2027-28 allowances need not go against salary first', () => {
+  const y26 = JSON.parse(readFileSync(new URL('../params/2026-27.json', import.meta.url)));
+  // £50,000 salary + £3,000 dividends. Salary first: taxable £37,430 at 20% = £7,486; the
+  // £500 dividend allowance sits £270 in the basic band; £2,500 at 35.75% = £893.75; £8,379.75.
+  // Better: £270 of allowance against dividends. Salary taxable £37,700 = £7,540; the
+  // allowance then sits wholly in the higher band; £2,230 at 35.75% = £797.225; £8,337.23.
+  const r = run({ employmentIncome: 50000, dividends: 3000 }, y26);
+  assert.equal(r.breakdown.incomeTax, 8337.23);
+  // Same with the Personal Savings Allowance: £44,110 profit, £9,380 interest, £28,110
+  // dividends. Salary first gives £18,598.57; putting the PSA in the higher band, £18,498.57.
+  assert.equal(run({ selfEmployedProfit: 44110, savingsInterest: 9380, dividends: 28110 }, y26).breakdown.incomeTax, 18498.57);
+});
+
+test('N6: finance cost relief is capped by income after all allowances, wherever they are set', () => {
+  const y27 = JSON.parse(readFileSync(new URL('../params/2027-28.json', import.meta.url)));
+  // 2027-28: £16,060 rent, £9,570 mortgage interest, £7,150 interest. Adjusted total income
+  // (ITTOIA 2005 s274AA(6)) = £16,060 - £12,570 = £3,490, so relief = £3,490 x 24% = £837.60.
+  // Allowance all against rent: property £3,490 x 24% = £837.60; savings £1,510 starting rate
+  // and £1,000 PSA at 0%, £4,640 x 24% = £1,113.60. Tax £1,951.20 - £837.60 = £1,113.60.
+  // (The engine used to count only the allowance set against rent, giving £2,296.80 relief.)
+  const r = run({ propertyProfit: 16060, propertyFinanceCosts: 9570, savingsInterest: 7150 }, y27);
+  assert.equal(r.breakdown.reducers.financeCostRelief, 837.6);
+  assert.equal(r.breakdown.incomeTax, 1113.6);
 });
 
 test('N2: a year with the statutory order sets allowances against savings before dividends', () => {
