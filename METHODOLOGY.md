@@ -145,8 +145,7 @@ HS2, Network Rail, Sizewell C, UK Research and Innovation, Universal Credit and 
 Pension. PESA does not name projects, so these figures come from HM Treasury's OSCAR II
 database for the same year (provisional). They count what each programme spent on staff,
 goods and services, investment, grants and benefits, and leave out depreciation, provisions
-and loans. They are part of the line they sit under, not extra to it. Hinkley Point C does not
-appear because it is privately financed and paid for through electricity bills.
+and loans. They are part of the line they sit under, not extra to it.
 
 **How your tax is shared.** Taxes are not earmarked for particular services: the government
 pools what it raises and decides spending separately. In most years it also borrows to cover

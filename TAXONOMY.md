@@ -145,9 +145,8 @@ named programmes add up to more than the line.
 | Nuclear Decommissioning Authority (Sellafield and other sites) | £4.3 billion | Environment / Waste and nuclear decommissioning | 5.1.0 |
 
 Left out on purpose: **NHS England**, because most of what it pays goes to NHS trusts inside
-the health group, so its outlays are far below its budget and would mislead; **Border Force**,
-because with asylum support it would exceed PESA's immigration line; and **Hinkley Point C**,
-which is privately financed by EDF and paid for through electricity bills, not taxes.
+the health group, so its outlays are far below its budget and would mislead; and **Border
+Force**, because with asylum support it would exceed PESA's immigration line.
 
 ## Decisions on the open questions
 

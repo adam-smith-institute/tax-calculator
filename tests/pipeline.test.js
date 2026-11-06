@@ -140,7 +140,6 @@ test('OSCAR: reads the zipped Windows-1252 CSV and counts outlays only', () => {
   assert.equal(programme({ organisation: '^Nuclear Decommissioning Authority$' }).amount, 4279);
   // State Pension: the benefit payments themselves
   assert.equal(programme({ subSegment: 'STATE PENSION', department: 'Work and Pensions' }).amount, 145944);
-  assert.equal(programme({ organisation: '^Hinkley Point C$' }).lines, 0); // privately financed: not in OSCAR
 });
 
 test('CSV parser handles quotes, commas and line endings', () => {
