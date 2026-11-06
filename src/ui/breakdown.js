@@ -1,6 +1,6 @@
 // The per-tax summary (lines that add up to the headline) and the detailed working table.
 
-import { gbp, gbpPence, rate } from './format.js?v=569d6163c9';
+import { gbp, gbpPence, rate } from './format.js?v=d06d239889';
 
 const COMPONENT = {
   nonSavings: 'Earnings and other income',
